@@ -1,0 +1,462 @@
+# Clean Log Parser Configuration
+# Architettura pulita con inversione delle dipendenze
+
+# Configurazione generale
+app:
+  name: "Clean Log Parser"
+  version: "1.0.0"
+  debug: false
+  strict_mode: false
+
+# Configurazione regex patterns
+regex:
+  # File di configurazione regex
+  patterns_file: "config/regex_patterns.yaml"
+  
+  # Categorie di pattern
+  categories:
+    - "parsing"
+    - "anonymization"
+    - "detection"
+  
+  # Configurazione CSV recognition patterns
+  csv_recognition:
+    # Pattern per riconoscere CSV strutturati
+    structured_indicators:
+      # Loghub indicators
+      loghub:
+        indicators:
+          - "LineId"
+          - "EventId" 
+          - "EventTemplate"
+          - "Content"
+          - "Component"
+          - "Pid"
+          - "Time"
+          - "Timestamp"
+        min_matches: 3
+      
+      # Cybersecurity indicators
+      cybersecurity:
+        indicators:
+          - "Event ID"
+          - "Timestamp"
+          - "Source IP"
+          - "Destination IP"
+          - "User Agent"
+          - "Attack Type"
+          - "Attack Severity"
+          - "Data Exfiltrated"
+          - "Threat Intelligence"
+          - "Response Action"
+        min_matches: 5
+      
+      # Intrusion data indicators
+      intrusion_data:
+        indicators:
+          - "session_id"
+          - "network_packet_size"
+          - "protocol_type"
+          - "login_attempts"
+          - "session_duration"
+          - "encryption_used"
+          - "ip_reputation_score"
+          - "failed_logins"
+          - "browser_type"
+          - "unusual_time_access"
+          - "attack_detected"
+        min_matches: 5
+
+# Configurazione Drain3
+drain3:
+  # File di configurazione Drain3
+  config_file: "config/drain3.ini"
+  
+  # Parametri per il miner originale (messaggi non anonimizzati)
+  original:
+    depth: 4
+    max_children: 100
+    max_clusters: 1000
+    similarity_threshold: 0.4
+  
+  # Parametri per il miner anonimizzato (messaggi anonimizzati)
+  anonymized:
+    depth: 4
+    max_children: 100
+    max_clusters: 1000
+    similarity_threshold: 0.4
+  
+  # Parametri comuni (fallback se non specificati sopra)
+  depth: 4
+  max_children: 100
+  max_clusters: 1000
+  similarity_threshold: 0.4
+  
+  # Configurazione per anonimizzazione
+  anonymization:
+    enabled: true
+    preserve_structure: true
+    
+    # Campi da anonimizzare sempre
+    always_anonymize:
+      - "ip_address"
+      - "user_id"
+      - "session_id"
+      - "device_id"
+      - "mac_address"
+      - "email"
+      - "phone"
+      - "credit_card"
+      - "ssn"
+      - "path"
+      - "srcip"
+      - "dstip"
+      - "ip"
+      - "devid"
+      - "devname"
+      - "hostname"
+      - "device_name"
+      - "fortinet_device"
+      - "filename"
+      - "source_file"
+      - "tz"
+      - "vd"
+    
+    # Metodi di anonimizzazione
+    methods:
+      hash:
+        algorithm: "sha256"
+        salt: "clean_parser_salt_2024"
+        fields:
+          - "user_id"
+          - "session_id"
+          - "device_id"
+      
+      mask:
+        pattern: "***"
+        fields:
+          - "credit_card"
+          - "ssn"
+          - "phone"
+      
+      replace:
+        ip_address: "<IP>"
+        mac_address: "<MAC>"
+        email: "<EMAIL>"
+        timestamp: "<TIMESTAMP>"
+        date: "<DATE>"
+        time: "<TIME>"
+        version: "<VERSION>"
+        sequence: "<SEQ_NUM>"
+        number: "<NUM>"
+        path: "<PATH>"
+        url: "<URL>"
+
+# Configurazione parser specifici
+parsers:
+  # Parser CSV
+  csv:
+    enabled: true
+    auto_detect_delimiter: true
+    supported_delimiters: [",", ";", "\t", "|"]
+    encoding_detection: true
+    
+  # Parser JSON
+  json:
+    enabled: true
+    support_jsonl: true
+    max_depth: 10
+    
+  # Parser Syslog
+  syslog:
+    enabled: true
+    formats:
+      - "RFC3164"
+      - "RFC5424"
+      - "Cisco"
+      - "Linux"
+      - "FacilitySeverity"
+    
+  # Parser CEF
+  cef:
+    enabled: true
+    parse_extensions: true
+    
+  # Parser Fortinet
+  fortinet:
+    enabled: true
+    key_value_separator: "="
+    
+  # Parser Apache
+  apache:
+    enabled: true
+    formats:
+      - "Common"
+      - "Combined"
+      - "Custom"
+
+# Configurazione regex per anonimizzazione
+regex_patterns:
+  # Pattern per IP
+  ip_address:
+    pattern: r'\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+    replacement: "<IP>"
+    
+  # Pattern per MAC
+  mac_address:
+    pattern: r'\b([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})\b'
+    replacement: "<MAC>"
+    
+  # Pattern per email
+  email:
+    pattern: r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    replacement: "<EMAIL>"
+    
+  # Pattern per credit card
+  credit_card:
+    pattern: r'\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b'
+    replacement: "****-****-****-****"
+    
+  # Pattern per SSN
+  ssn:
+    pattern: r'\b\d{3}-\d{2}-\d{4}\b'
+    replacement: "***-**-****"
+    
+  # Pattern per phone
+  phone:
+    pattern: r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b'
+    replacement: "***-***-****"
+    
+  # Pattern per timestamp
+  timestamp:
+    pattern: r'\b\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?\b'
+    replacement: "<TIMESTAMP>"
+    
+  # Pattern per date
+  date:
+    pattern: r'\b\d{4}-\d{2}-\d{2}\b'
+    replacement: "<DATE>"
+    
+  # Pattern per time
+  time:
+    pattern: r'\b\d{2}:\d{2}:\d{2}\b'
+    replacement: "<TIME>"
+    
+  # Pattern per version
+  version:
+    pattern: r'\b(?:v?)?\d+\.\d+(?:\.\d+)?(?:-[a-zA-Z0-9]+)?\b'
+    replacement: "<VERSION>"
+    
+  # Pattern per sequence number
+  sequence:
+    pattern: r'\b\d{10,}\b'
+    replacement: "<SEQ_NUM>"
+    
+  # Pattern per number
+  number:
+    pattern: r'\b\d+\b'
+    replacement: "<NUM>"
+    
+  # Pattern per path
+  path:
+    pattern: r'(?:^|\s)(?:[\\\/][^\\\/\s]+(?:[\\\/][^\\\/\s]+)*|[a-zA-Z]:[\\\/][^\\\/\s]+(?:[\\\/][^\\\/\s]+)*)'
+    replacement: "<PATH>"
+    
+  # Pattern per URL
+  url:
+    pattern: r'https?://[^\s]+'
+    replacement: "<URL>"
+    
+  # Pattern per dispositivi Fortinet (FGT)
+  fortinet_device:
+    pattern: r'\bFGT[A-Z0-9]{12,}\b'
+    replacement: "<FORTINET_DEVICE>"
+    
+  # Pattern per nomi di dispositivi
+  device_name:
+    pattern: r'\b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\b'
+    replacement: "<DEVICE_NAME>"
+    
+  # Pattern per ID di dispositivi generici
+  device_id:
+    pattern: r'\b[A-Z]{2,}[A-Z0-9]{8,}\b'
+    replacement: "<DEVICE_ID>"
+    
+  # Pattern per hostname
+  hostname:
+    pattern: r'\b[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z]{2,}\b'
+    replacement: "<HOSTNAME>"
+
+# Configurazione output
+output:
+  format: "json"
+  pretty_print: true
+  include_metadata: true
+  include_statistics: true
+  
+  # Organizzazione output
+  organization:
+    by_parser: true
+    by_file: true
+    combined: true
+    
+  # Directory output
+  directory: "outputs"
+  
+  # Naming convention
+  naming:
+    pattern: "{parser}_{timestamp}.json"
+    timestamp_format: "%Y%m%d_%H%M%S"
+
+# Configurazione logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "clean_parser.log"
+  console: true 
+
+# Configurazione per il parser universale adattivo
+parser:
+  adaptive:
+    enabled: true
+    priority: 0
+    
+# Configurazione per anonimizzazione
+anonymization:
+  enabled: true
+  patterns:
+    ip_address:
+      pattern: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+      replacement: "<IP>"
+    email:
+      pattern: '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+      replacement: "<EMAIL>"
+    hash:
+      pattern: '\b[a-fA-F0-9]{32,64}\b'
+      replacement: "<HASH>"
+    user_id:
+      pattern: '\b\d{6,}\b'
+      replacement: "<USER_ID>"
+    path:
+      pattern: '(/[^/\s]+)+'
+      replacement: "<PATH>"
+
+# Configurazione per rilevamento automatico dei tipi
+field_detection:
+  name_patterns:
+    timestamp:
+      patterns: ["timestamp", "time", "date", "datetime"]
+      field_type: "timestamp"
+      confidence: 0.9
+    ip_address:
+      patterns: ["ip", "srcip", "dstip", "source_ip", "dest_ip"]
+      field_type: "ip_address"
+      confidence: 0.9
+    user_id:
+      patterns: ["user_id", "userid", "uid", "user"]
+      field_type: "user_id"
+      confidence: 0.9
+    process_id:
+      patterns: ["pid", "process_id", "processid"]
+      field_type: "process_id"
+      confidence: 0.9
+    port:
+      patterns: ["port", "port_number"]
+      field_type: "port"
+      confidence: 0.9
+    message:
+      patterns: ["message", "content", "msg", "log"]
+      field_type: "message"
+      confidence: 0.9
+    level:
+      patterns: ["level", "severity", "priority"]
+      field_type: "level"
+      confidence: 0.9
+    component:
+      patterns: ["component", "service", "module", "class"]
+      field_type: "component"
+      confidence: 0.9
+    hostname:
+      patterns: ["hostname", "host", "server"]
+      field_type: "hostname"
+      confidence: 0.9
+    url:
+      patterns: ["url", "uri", "link"]
+      field_type: "url"
+      confidence: 0.9
+    path:
+      patterns: ["path", "filepath", "directory"]
+      field_type: "path"
+      confidence: 0.9
+    email:
+      patterns: ["email", "mail", "e-mail"]
+      field_type: "email"
+      confidence: 0.9
+    hash:
+      patterns: ["hash", "sha1", "sha256", "md5", "checksum"]
+      field_type: "hash"
+      confidence: 0.9
+
+  value_patterns:
+    timestamp:
+      patterns:
+        - '\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}'
+        - '\d{2}:\d{2}:\d{2}'
+        - '\d{8}-\d{2}:\d{2}:\d{2}:\d{3}'
+    ip_address:
+      patterns:
+        - '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+    user_id:
+      patterns:
+        - '\b\d{6,}\b'
+        - '[a-zA-Z0-9_]{3,20}'
+    process_id:
+      patterns:
+        - '\b\d{1,5}\b'
+    port:
+      patterns:
+        - '\b\d{1,5}\b'
+    hash:
+      patterns:
+        - '\b[a-fA-F0-9]{32,64}\b'
+    email:
+      patterns:
+        - '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+# Configurazione per normalizzazione timestamp
+timestamp_normalization:
+  enabled: true
+  patterns:
+    - name: "date_time_separated"
+      pattern: '(\d{2}-\d{2}),(\d{2}:\d{2}:\d{2}\.\d+)'
+      replacement: '{year}-\\1 \\2'
+    - name: "iso_timestamp"
+      pattern: '(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})'
+      replacement: '\\1 \\2'
+
+# Configurazione per CSV complessi
+complex_csv:
+  enabled: true
+  max_fields: 10
+  timestamp_fields: ["date", "time", "datetime"]
+  complex_indicators:
+    - "Event Time"
+    - "Machine Id"
+    - "LineId"
+    - "EventId"
+    - "EventTemplate"
+
+# Configurazione per analisi intelligente
+intelligent_analysis:
+  enabled: true
+  features:
+    - "has_commas"
+    - "has_pipes"
+    - "has_tabs"
+    - "has_quotes"
+    - "length"
+    - "word_count"
+    - "field_count"
+    - "timestamp_patterns"
+    - "ip_patterns"
+    - "hash_patterns"

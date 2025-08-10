@@ -1,0 +1,19 @@
+### File: examples/example_syslog.txt ###
+
+  [L:1] Original: 2024-01-15T10:30:45.123Z server1 kernel: [ERROR] Out of memory
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2024-01-15T10:30:45.123Z server1 kernel: [ERROR] Out of memory
+      - cluster_id: 1
+      - cluster_size: 1
+      - timestamp_info: {'normalized_timestamp': '2024-01-15T10:30:45.123000+00:00', 'confidence': 0.9, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2024-01-15T10:30:45.123'}
+--------------------
+  [L:2] Original: 2024-01-15T10:30:46.456Z server1 sshd[1234]: Failed password for user admin from 192.168.1.100
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2024-01-15T10:30:46.456Z server1 sshd[1234]: Failed password for user admin from 192.168.1.100
+      - cluster_id: 2
+      - cluster_size: 1
+      - timestamp_info: {'normalized_timestamp': '2024-01-15T10:30:46.456000+00:00', 'confidence': 0.9, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2024-01-15T10:30:46.456'}
+--------------------
+

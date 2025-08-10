@@ -1,0 +1,44 @@
+{
+  "analysis_timestamp": "2025-08-07T03:00:13.893266",
+  "total_records_analyzed": 4,
+  "files_analyzed": 1,
+  "global_analysis": {
+    "identifier": "GLOBAL",
+    "total_logs": 4,
+    "templates": [],
+    "statistics": {
+      "error": "'TemplateMinerConfig' object has no attribute 'load_state'"
+    },
+    "dynamic_variables": {},
+    "template_distribution": {}
+  },
+  "file_analyses": {
+    "examples/test.xlsx": {
+      "identifier": "examples/test.xlsx",
+      "total_logs": 4,
+      "templates": [],
+      "statistics": {
+        "error": "'TemplateMinerConfig' object has no attribute 'load_state'"
+      },
+      "dynamic_variables": {},
+      "template_distribution": {}
+    }
+  },
+  "summary": {
+    "global_templates": 0,
+    "total_files": 1,
+    "file_templates": {
+      "examples/test.xlsx": {
+        "templates": 0,
+        "logs": 0,
+        "avg_logs_per_template": 0
+      }
+    },
+    "coverage_summary": {
+      "high_coverage": 0,
+      "medium_coverage": 0,
+      "low_coverage": 0,
+      "avg_coverage": 0
+    }
+  }
+}

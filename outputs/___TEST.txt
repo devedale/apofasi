@@ -1,0 +1,2180 @@
+### File: FGT80FTK22013405.root.elog.txt ###
+
+  [L:1] Original: logver=0702111740 idseq=19900372806008834 itime=1751754627 devid="FGT80FTK22013405" devname="mg-proj...
+    Parser: multi_strategy_parsing_fortinet_log_kv
+    Template: logver=0702111740 idseq=19900372806008834 itime=1751754627 devid="FGT80FTK22013405" devname="mg-proj...
+    Cluster ID: 1
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['10.63.44.101'], 'unix_timestamp': ['0702111740', '1751754627', '0100026001'], 'mac_address': ['9C:53:22:49:C7:8C'], 'status_code': ['101']}
+    Parsed Data:
+      - logver: 0702111740
+      - idseq: 19900372806008834
+      - itime: 1751754627
+      - devid: "FGT80FTK22013405"
+      - devname: "mg-project-bari"
+      - vd: "root"
+      - date: 2025-07-06
+      - time: 00:30:24
+      - eventtime: 1751754624843767899
+      - tz: "+0200"
+      - logid: "0100026001"
+      - type: "event"
+      - subtype: "system"
+      - level: "information"
+      - logdesc: "DHCP Ack log"
+      - interface: "internal1"
+      - dhcp_msg: "Ack"
+      - mac: "9C:53:22:49:C7:8C"
+      - ip: 10.63.44.101
+      - lease: 86400
+      - hostname: "ArcherAX55"
+      - msg: "DHCP server sends a DHCPACK"
+      - regex_ip_address: 10.63.44.101
+      - regex_unix_timestamp: ['0702111740', '1751754627', '0100026001']
+      - regex_mac_address: 9C:53:22:49:C7:8C
+      - regex_status_code: 101
+--------------------
+  [L:2] Original: logver=0702111740 idseq=19900372806008832 itime=1751754689 devid="FGT80FTK22013405" devname="mg-proj...
+    Parser: multi_strategy_parsing_fortinet_log_kv
+    Template: logver=0702111740 idseq=19900372806008832 itime=1751754689 devid="FGT80FTK22013405" devname="mg-proj...
+    Cluster ID: 2
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['88.61.48.146', '93.64.253.210'], 'unix_timestamp': ['0702111740', '1751754689', '0101037141', '2206215695'], 'file_path': ['/7c26da8af8e39c6e', '/A'], 'status_code': ['146', '253', '210', '500']}
+    Parsed Data:
+      - logver: 0702111740
+      - idseq: 19900372806008832
+      - itime: 1751754689
+      - devid: "FGT80FTK22013405"
+      - devname: "mg-project-bari"
+      - vd: "root"
+      - date: 2025-07-06
+      - time: 00:31:24
+      - eventtime: 1751754684862908499
+      - tz: "+0200"
+      - logid: "0101037141"
+      - type: "event"
+      - subtype: "vpn"
+      - level: "notice"
+      - logdesc: "IPsec tunnel statistics"
+      - msg: "IPsec tunnel statistics"
+      - action: "tunnel-stats"
+      - remip: 88.61.48.146
+      - locip: 93.64.253.210
+      - remport: 500
+      - locport: 500
+      - outintf: "wan1"
+      - cookies: "5df8cf6e832e3278/7c26da8af8e39c6e"
+      - user: "88.61.48.146"
+      - group: "N/A"
+      - useralt: "N/A"
+      - xauthuser: "N/A"
+      - xauthgroup: "N/A"
+      - assignip: N/A
+      - vpntunnel: "to-pescara-pri"
+      - tunnelip: N/A
+      - tunnelid: 2206215695
+      - tunneltype: "ipsec"
+      - duration: 1114987
+      - sentbyte: 400945590
+      - rcvdbyte: 185308176
+      - nextstat: 600
+      - advpnsc: 0
+      - regex_ip_address: ['88.61.48.146', '93.64.253.210']
+      - regex_unix_timestamp: ['0702111740', '1751754689', '0101037141', '2206215695']
+      - regex_file_path: ['/7c26da8af8e39c6e', '/A']
+      - regex_status_code: ['146', '253', '210', '500']
+--------------------
+
+### File: FGT80FTK22013405.root.tlog.txt ###
+
+  [L:1] Original: logver=0702111740 idseq=19900372806008863 itime=1751754584 devid="FGT80FTK22013405" devname="mg-proj...
+    Parser: multi_strategy_parsing_fortinet_log_kv
+    Template: logver=0702111740 idseq=19900372806008863 itime=1751754584 devid="FGT80FTK22013405" devname="mg-proj...
+    Cluster ID: 3
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['83.222.190.254', '93.64.253.210'], 'unix_timestamp': ['0702111740', '1751754584', '0001000014'], 'file_path': ['/39999'], 'status_code': ['222', '190', '254', '253', '210']}
+    Parsed Data:
+      - logver: 0702111740
+      - idseq: 19900372806008863
+      - itime: 1751754584
+      - devid: "FGT80FTK22013405"
+      - devname: "mg-project-bari"
+      - vd: "root"
+      - date: 2025-07-06
+      - time: 00:29:41
+      - eventtime: 1751754580373266859
+      - tz: "+0200"
+      - logid: "0001000014"
+      - type: "traffic"
+      - subtype: "local"
+      - level: "notice"
+      - srcip: 83.222.190.254
+      - srcport: 42000
+      - srcintf: "wan1"
+      - srcintfrole: "wan"
+      - dstip: 93.64.253.210
+      - dstport: 39999
+      - dstintf: "root"
+      - dstintfrole: "undefined"
+      - srccountry: "Bulgaria"
+      - dstcountry: "Italy"
+      - sessionid: 607126
+      - proto: 6
+      - action: "deny"
+      - policyid: 0
+      - policytype: "local-in-policy"
+      - service: "tcp/39999"
+      - trandisp: "noop"
+      - app: "tcp/39999"
+      - duration: 0
+      - sentbyte: 0
+      - rcvdbyte: 0
+      - sentpkt: 0
+      - rcvdpkt: 0
+      - appcat: "unscanned"
+      - crscore: 5
+      - craction: 262144
+      - crlevel: "low"
+      - regex_ip_address: ['83.222.190.254', '93.64.253.210']
+      - regex_unix_timestamp: ['0702111740', '1751754584', '0001000014']
+      - regex_file_path: /39999
+      - regex_status_code: ['222', '190', '254', '253', '210']
+--------------------
+  [L:2] Original: logver=0702111740 idseq=19900372806008860 itime=1751754594 devid="FGT80FTK22013405" devname="mg-proj...
+    Parser: multi_strategy_parsing_fortinet_log_kv
+    Template: logver=0702111740 idseq=19900372806008860 itime=1751754594 devid="FGT80FTK22013405" devname="mg-proj...
+    Cluster ID: 4
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['212.131.197.170', '93.64.253.210'], 'unix_timestamp': ['0702111740', '1751754594', '0001000014'], 'status_code': ['212', '131', '197', '170', '253', '210', '161', '180', '174']}
+    Parsed Data:
+      - logver: 0702111740
+      - idseq: 19900372806008860
+      - itime: 1751754594
+      - devid: "FGT80FTK22013405"
+      - devname: "mg-project-bari"
+      - vd: "root"
+      - date: 2025-07-06
+      - time: 00:29:54
+      - eventtime: 1751754594322840799
+      - tz: "+0200"
+      - logid: "0001000014"
+      - type: "traffic"
+      - subtype: "local"
+      - level: "notice"
+      - srcip: 212.131.197.170
+      - srcport: 47858
+      - srcintf: "wan1"
+      - srcintfrole: "wan"
+      - dstip: 93.64.253.210
+      - dstport: 161
+      - dstintf: "root"
+      - dstintfrole: "undefined"
+      - srccountry: "Italy"
+      - dstcountry: "Italy"
+      - sessionid: 607051
+      - proto: 17
+      - action: "accept"
+      - policyid: 0
+      - policytype: "local-in-policy"
+      - service: "SNMP"
+      - trandisp: "noop"
+      - app: "SNMP"
+      - duration: 180
+      - sentbyte: 174
+      - rcvdbyte: 622
+      - sentpkt: 2
+      - rcvdpkt: 2
+      - appcat: "unscanned"
+      - regex_ip_address: ['212.131.197.170', '93.64.253.210']
+      - regex_unix_timestamp: ['0702111740', '1751754594', '0001000014']
+      - regex_status_code: ['212', '131', '197', '170', '253', '210', '161', '180', '174']
+--------------------
+
+### File: aaa9b30098d31c056625c603cf1a98e6e10afe77_2025-06-30_2025-07-07.csv ###
+
+  [L:1] Original: Event Time,Machine Id,Computer Name,Action Type,File Name,Folder Path,Sha1,Sha256,MD5,Process Comman...
+    Parser: multi_strategy_csv
+    Detected Headers: ['event_time', 'machine_id', 'computer_name', 'action_type', 'file_name', 'folder_path', 'sha1', 'sha256', 'md5', 'process_command_line', 'account_domain', 'account_name', 'account_sid', 'logon_id', 'process_id', 'process_creation_time', 'process_token_elevation', 'registry_key', 'registry_value_name', 'registry_value_data', 'remote_url', 'remote_computer_name', 'remote_ip', 'remote_port', 'local_ip', 'local_port', 'file_origin_url', 'file_origin_ip', 'initiating_process_sha1', 'initiating_process_sha256', 'initiating_process_file_name', 'initiating_process_folder_path', 'initiating_process_id', 'initiating_process_command_line', 'initiating_process_creation_time', 'initiating_process_integrity_level', 'initiating_process_token_elevation', 'initiating_process_parent_id', 'initiating_process_parent_file_name', 'initiating_process_parent_creation_time', 'initiating_process_md5', 'initiating_process_account_domain', 'initiating_process_account_name', 'initiating_process_account_sid', 'initiating_process_logon_id', 'report_id', 'additional_fields', 'typed_details', 'app_guard_container_id', 'protocol', 'logon_type', 'process_integrity_level', 'registry_value_type', 'previous_registry_value_name', 'previous_registry_value_data', 'previous_registry_key', 'file_origin_referrer_url', 'sensitivity_label', 'sensitivity_sub_label', 'is_endpoint_dlp_applied', 'is_azure_info_protection_applied', 'alert_ids', 'categories', 'severities', 'is_marked', 'data_type']
+    Template: Event Time,Machine Id,Computer Name,Action Type,File Name,Folder Path,Sha1,Sha256,MD5,Process Comman...
+    Cluster ID: 5
+    Cluster Size: 1
+    Detected Patterns: {'timestamp_iso': ['2025-07-07T09:03:15.809', '2025-07-07T09:03:15.775', '2025-07-07T09:03:15.739'], 'url': ['https://clients2.google.com/cr/report'], 'hash_sha256': ['437295233c61d4097fc54bc8fc3e5d2ae176d445fe42bde97135d3db1749cf25'], 'file_path': ['C:\\Program', '//clients2.google.com/cr/report', '/Initiating', '/Pipe', 'e:\\Device\\NamedPipe\\crashpad_29828_CDEMURUNEGTNXHXH/Desired', '/Thread', '/File', '/Remote', '/Session', '/Account:S-1-5-18/Pipe'], 'severity_level': ['Info'], 'process_id': ['19984'], 'status_code': ['138']}
+    Parsed Data:
+      - event_time: Event Time
+      - machine_id: Machine Id
+      - computer_name: Computer Name
+      - action_type: Action Type
+      - file_name: File Name
+      - folder_path: Folder Path
+      - sha1: Sha1
+      - sha256: Sha256
+      - md5: MD5
+      - process_command_line: Process Command Line
+      - account_domain: Account Domain
+      - account_name: Account Name
+      - account_sid: Account Sid
+      - logon_id: Logon Id
+      - process_id: Process Id
+      - process_creation_time: Process Creation Time
+      - process_token_elevation: Process Token Elevation
+      - registry_key: Registry Key
+      - registry_value_name: Registry Value Name
+      - registry_value_data: Registry Value Data
+      - remote_url: Remote Url
+      - remote_computer_name: Remote Computer Name
+      - remote_ip: Remote IP
+      - remote_port: Remote Port
+      - local_ip: Local IP
+      - local_port: Local Port
+      - file_origin_url: File Origin Url
+      - file_origin_ip: File Origin IP
+      - initiating_process_sha1: Initiating Process SHA1
+      - initiating_process_sha256: Initiating Process SHA256
+      - initiating_process_file_name: Initiating Process File Name
+      - initiating_process_folder_path: Initiating Process Folder Path
+      - initiating_process_id: Initiating Process Id
+      - initiating_process_command_line: Initiating Process Command Line
+      - initiating_process_creation_time: Initiating Process Creation Time
+      - initiating_process_integrity_level: Initiating Process Integrity Level
+      - initiating_process_token_elevation: Initiating Process Token Elevation
+      - initiating_process_parent_id: Initiating Process Parent Id
+      - initiating_process_parent_file_name: Initiating Process Parent File Name
+      - initiating_process_parent_creation_time: Initiating Process Parent Creation Time
+      - initiating_process_md5: Initiating Process MD5
+      - initiating_process_account_domain: Initiating Process Account Domain
+      - initiating_process_account_name: Initiating Process Account Name
+      - initiating_process_account_sid: Initiating Process Account Sid
+      - initiating_process_logon_id: Initiating Process Logon Id
+      - report_id: Report Id
+      - additional_fields: Additional Fields
+      - typed_details: Typed Details
+      - app_guard_container_id: App Guard Container Id
+      - protocol: Protocol
+      - logon_type: Logon Type
+      - process_integrity_level: Process Integrity Level
+      - registry_value_type: Registry Value Type
+      - previous_registry_value_name: Previous Registry Value Name
+      - previous_registry_value_data: Previous Registry Value Data
+      - previous_registry_key: Previous Registry Key
+      - file_origin_referrer_url: File Origin Referrer Url
+      - sensitivity_label: Sensitivity Label
+      - sensitivity_sub_label: Sensitivity Sub Label
+      - is_endpoint_dlp_applied: Is Endpoint Dlp Applied
+      - is_azure_info_protection_applied: Is Azure Info Protection Applied
+      - alert_ids: Alert Ids
+      - categories: Categories
+      - severities: Severities
+      - is_marked: Is Marked
+      - data_type: Data Type
+      - regex_timestamp_iso: ['2025-07-07T09:03:15.809', '2025-07-07T09:03:15.775', '2025-07-07T09:03:15.739']
+      - regex_url: https://clients2.google.com/cr/report
+      - regex_hash_sha256: 437295233c61d4097fc54bc8fc3e5d2ae176d445fe42bde97135d3db1749cf25
+      - regex_file_path: ['C:\\Program', '//clients2.google.com/cr/report', '/Initiating', '/Pipe', 'e:\\Device\\NamedPipe\\c...
+      - regex_severity_level: Info
+      - regex_process_id: 19984
+      - regex_status_code: 138
+--------------------
+
+### File: ai_ml_cybersecurity_dataset.csv ###
+
+  [L:1] Original: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,...
+    Parser: multi_strategy_csv
+    Detected Headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+    Template: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,...
+    Cluster ID: 6
+    Cluster Size: 1
+    Parsed Data:
+      - event_id: Event ID
+      - timestamp: Timestamp
+      - source_ip: Source IP
+      - destination_ip: Destination IP
+      - user_agent: User Agent
+      - attack_type: Attack Type
+      - attack_severity: Attack Severity
+      - data_exfiltrated: Data Exfiltrated
+      - threat_intelligence: Threat Intelligence
+      - response_action: Response Action
+--------------------
+  [L:2] Original: 2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Ma...
+    Parser: multi_strategy_csv
+    Detected Headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+    Template: 2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Ma...
+    Cluster ID: 7
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['219.80.193.15', '44.155.75.24'], 'timestamp_log': ['2020-02-07 23:46:57'], 'uuid': ['2019969e-ecfa-41c4-b681-9b684bc3b3bf'], 'file_path': ['/5.0', '/531.26.1', '/4.1'], 'severity_level': ['Critical'], 'status_code': ['219', '193', '155', '531']}
+    Parsed Data:
+      - event_id: 2019969e-ecfa-41c4-b681-9b684bc3b3bf
+      - timestamp: 2020-02-07 23:46:57
+      - source_ip: 219.80.193.15
+      - destination_ip: 44.155.75.24
+      - user_agent: Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) ...
+      - attack_type: Ransomware
+      - attack_severity: Critical
+      - data_exfiltrated: False
+      - threat_intelligence: Crime low this behind option tax product.
+      - response_action: Eradicated
+      - regex_ip_address: ['219.80.193.15', '44.155.75.24']
+      - regex_timestamp_log: 2020-02-07 23:46:57
+      - regex_uuid: 2019969e-ecfa-41c4-b681-9b684bc3b3bf
+      - regex_file_path: ['/5.0', '/531.26.1', '/4.1']
+      - regex_severity_level: Critical
+      - regex_status_code: ['219', '193', '155', '531']
+--------------------
+
+### Errore durante la processazione di: ai_ml_cybersecurity_dataset.xlsx - Cannot read file: examples/ai_ml_cybersecurity_dataset.xlsx ###
+
+### File: cybersecurity_intrusion_data.csv ###
+
+  [L:1] Original: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_repu...
+    Parser: multi_strategy_csv
+    Detected Headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+    Template: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_repu...
+    Cluster ID: 8
+    Cluster Size: 1
+    Parsed Data:
+      - session_id: 93ebce33ced70b9b
+      - network_packet_size: network_packet_size
+      - protocol_type: protocol_type
+      - login_attempts: login_attempts
+      - session_duration: session_duration
+      - encryption_used: encryption_used
+      - ip_reputation_score: ip_reputation_score
+      - failed_logins: failed_logins
+      - browser_type: browser_type
+      - unusual_time_access: unusual_time_access
+      - attack_detected: attack_detected
+--------------------
+  [L:2] Original: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+    Parser: multi_strategy_csv
+    Detected Headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+    Template: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+    Cluster ID: 9
+    Cluster Size: 1
+    Detected Patterns: {'status_code': ['599', '492']}
+    Parsed Data:
+      - session_id: ceda68dab4393273
+      - network_packet_size: 599
+      - protocol_type: TCP
+      - login_attempts: 4
+      - session_duration: 492.9832634426563
+      - encryption_used: DES
+      - ip_reputation_score: 0.606818080396889
+      - failed_logins: 1
+      - browser_type: Edge
+      - unusual_time_access: 0
+      - attack_detected: 1
+      - regex_status_code: ['599', '492']
+--------------------
+
+### File: example_csv.csv ###
+
+  [L:1] Original: timestamp,level,service,message,ip,server
+2024-01-15T10:30:45.123Z,ERROR,kernel,Out of memory,,serve...
+    Parser: multi_strategy_csv
+    Detected Headers: ['timestamp', 'level', 'service', 'message', 'ip', 'server']
+    Template: timestamp,level,service,message,ip,server 2024-01-15T10:30:45.123Z,ERROR,kernel,Out of memory,,serve...
+    Cluster ID: 10
+    Cluster Size: 1
+    Detected Patterns: {'timestamp_iso': ['2024-01-15T10:30:45.123Z'], 'severity_level': ['ERROR']}
+    Parsed Data:
+      - timestamp: timestamp
+      - level: level
+      - service: service
+      - message: message
+      - ip: ip
+      - server: server
+      - regex_timestamp_iso: 2024-01-15T10:30:45.123Z
+      - regex_severity_level: ERROR
+--------------------
+
+### File: example_json.json ###
+
+  [L:1] Original: {"timestamp": "2024-01-15T10:30:45.123Z", "level": "ERROR", "service": "kernel", "message": "Out of ...
+    Parser: multi_strategy_json
+    Template: {"timestamp": "2024-01-15T10:30:45.123Z", "level": "ERROR", "service": "kernel", "message": "Out of ...
+    Cluster ID: 11
+    Cluster Size: 1
+    Detected Patterns: {'timestamp_iso': ['2024-01-15T10:30:45.123Z'], 'severity_level': ['ERROR']}
+    Parsed Data:
+      - timestamp: 2024-01-15T10:30:45.123Z
+      - level: ERROR
+      - service: kernel
+      - message: Out of memory
+      - server: server1
+      - regex_timestamp_iso: 2024-01-15T10:30:45.123Z
+      - regex_severity_level: ERROR
+--------------------
+  [L:2] Original: {"timestamp": "2024-01-15T10:30:46.456Z", "level": "WARN", "service": "sshd", "message": "Failed pas...
+    Parser: multi_strategy_json
+    Template: {"timestamp": "2024-01-15T10:30:46.456Z", "level": "WARN", "service": "sshd", "message": "Failed pas...
+    Cluster ID: 12
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['192.168.1.100'], 'timestamp_iso': ['2024-01-15T10:30:46.456Z'], 'severity_level': ['WARN'], 'status_code': ['192', '168', '100']}
+    Parsed Data:
+      - timestamp: 2024-01-15T10:30:46.456Z
+      - level: WARN
+      - service: sshd
+      - message: Failed password for user admin
+      - ip: 192.168.1.100
+      - server: server1
+      - regex_ip_address: 192.168.1.100
+      - regex_timestamp_iso: 2024-01-15T10:30:46.456Z
+      - regex_severity_level: WARN
+      - regex_status_code: ['192', '168', '100']
+--------------------
+
+### File: example_syslog.txt ###
+
+  [L:1] Original: 2024-01-15T10:30:45.123Z server1 kernel: [ERROR] Out of memory
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2024-01-15T10:30:45.123Z server1 kernel: [ERROR] Out of memory
+      - cluster_id: 1
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_iso': ['2024-01-15T10:30:45.123Z'], 'severity_level': ['ERROR']}
+      - regex_timestamp_iso: 2024-01-15T10:30:45.123Z
+      - regex_severity_level: ERROR
+--------------------
+  [L:2] Original: 2024-01-15T10:30:46.456Z server1 sshd[1234]: Failed password for user admin from 192.168.1.100
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2024-01-15T10:30:46.456Z server1 sshd[1234]: Failed password for user admin from 192.168.1.100
+      - cluster_id: 2
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['192.168.1.100'], 'timestamp_iso': ['2024-01-15T10:30:46.456Z'], 'status_code': ['19...
+      - regex_ip_address: 192.168.1.100
+      - regex_timestamp_iso: 2024-01-15T10:30:46.456Z
+      - regex_status_code: ['192', '168', '100']
+--------------------
+
+### File: HEAD ###
+
+  [L:1] Original: ref: refs/heads/master
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: ref: refs/heads/master
+      - cluster_id: 3
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/heads/master']}
+      - regex_file_path: /heads/master
+--------------------
+
+### File: config ###
+
+  [L:1] Original: [core]
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: [core]
+      - cluster_id: 4
+      - cluster_size: 1
+--------------------
+  [L:2] Original: 	repositoryformatversion = 0
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: repositoryformatversion = 0
+      - cluster_id: 5
+      - cluster_size: 1
+--------------------
+
+### File: description ###
+
+  [L:1] Original: Unnamed repository; edit this file 'description' to name the repository.
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Unnamed repository; edit this file 'description' to name the repository.
+      - cluster_id: 6
+      - cluster_size: 1
+--------------------
+
+### Errore durante la processazione di: applypatch-msg.sample - Cannot read file: examples/loghub/.git/hooks/applypatch-msg.sample ###
+
+### Errore durante la processazione di: commit-msg.sample - Cannot read file: examples/loghub/.git/hooks/commit-msg.sample ###
+
+### Errore durante la processazione di: fsmonitor-watchman.sample - Cannot read file: examples/loghub/.git/hooks/fsmonitor-watchman.sample ###
+
+### Errore durante la processazione di: post-update.sample - Cannot read file: examples/loghub/.git/hooks/post-update.sample ###
+
+### Errore durante la processazione di: pre-applypatch.sample - Cannot read file: examples/loghub/.git/hooks/pre-applypatch.sample ###
+
+### Errore durante la processazione di: pre-commit.sample - Cannot read file: examples/loghub/.git/hooks/pre-commit.sample ###
+
+### Errore durante la processazione di: pre-merge-commit.sample - Cannot read file: examples/loghub/.git/hooks/pre-merge-commit.sample ###
+
+### Errore durante la processazione di: pre-push.sample - Cannot read file: examples/loghub/.git/hooks/pre-push.sample ###
+
+### Errore durante la processazione di: pre-rebase.sample - Cannot read file: examples/loghub/.git/hooks/pre-rebase.sample ###
+
+### Errore durante la processazione di: pre-receive.sample - Cannot read file: examples/loghub/.git/hooks/pre-receive.sample ###
+
+### Errore durante la processazione di: prepare-commit-msg.sample - Cannot read file: examples/loghub/.git/hooks/prepare-commit-msg.sample ###
+
+### Errore durante la processazione di: push-to-checkout.sample - Cannot read file: examples/loghub/.git/hooks/push-to-checkout.sample ###
+
+### Errore durante la processazione di: update.sample - Cannot read file: examples/loghub/.git/hooks/update.sample ###
+
+### File: index ###
+
+  [L:1] Original: DIRC      Gh�%�PP;h�%�PP;  0 �y  ��  �  �  ��r����LΑ�}�.A] %.github/workflows/crawl_dow...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: DIRC      Gh�%�PP;h�%�PP;  0 �y  ��  �  �  ��r����LΑ�}�.A] %.github/workflows/crawl_dow...
+      - cluster_id: 7
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/workflows/crawl_downloads.yml\x00\x00\x00\x00\x00h�%�\x0fPP;h�%�\x0fPP;\x00\x00\x08...
+      - regex_file_path: /workflows/crawl_downloads.yml     h�%�PP;h�%�PP;  0 �z  ��  �  �  �&{:G�k:
+--------------------
+  [L:2] Original: .gitignore        h�%�PP;h�%�PP;  0 �|  ��  �  � B$��򯊧Ά1X�$�A9���f Android/Android_2k.log  ...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: .gitignore        h�%�PP;h�%�PP;  0 �|  ��  �  � B$��򯊧Ά1X�$�A9���f Android/Android_2k.log  ...
+      - cluster_id: 8
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ["/Android_2k.log\x00\x00\x00\x00h�%�\x0f�Y#h�%�\x0f�Y#\x00\x00\x080\x00\x11�}\x00\x00...
+      - regex_file_path: /Android_2k.log    h�%��Y#h�%��Y#  0 �}  ��  �  � �rz���'(R�C
+--------------------
+
+### File: exclude ###
+
+  [L:1] Original: # git ls-files --others --exclude-from=.git/info/exclude
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: # git ls-files --others --exclude-from=.git/info/exclude
+      - cluster_id: 9
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/info/exclude'], 'severity_level': ['info']}
+      - regex_file_path: /info/exclude
+      - regex_severity_level: info
+--------------------
+  [L:2] Original: # Lines that start with '#' are comments.
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: # Lines that start with '#' are comments.
+      - cluster_id: 10
+      - cluster_size: 1
+--------------------
+
+### File: HEAD ###
+
+  [L:1] Original: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+      - cluster_id: 11
+      - cluster_size: 1
+      - detected_patterns: {'email': ['edoardo.dalesio@gmail.com'], 'unix_timestamp': ['1754473937'], 'url': ['https://github.c...
+      - regex_email: edoardo.dalesio@gmail.com
+      - regex_unix_timestamp: 1754473937
+      - regex_url: https://github.com/logpai/loghub.git
+      - regex_file_path: //github.com/logpai/loghub.git
+--------------------
+
+### File: master ###
+
+  [L:1] Original: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+      - cluster_id: 11
+      - cluster_size: 2
+      - detected_patterns: {'email': ['edoardo.dalesio@gmail.com'], 'unix_timestamp': ['1754473937'], 'url': ['https://github.c...
+      - regex_email: edoardo.dalesio@gmail.com
+      - regex_unix_timestamp: 1754473937
+      - regex_url: https://github.com/logpai/loghub.git
+      - regex_file_path: //github.com/logpai/loghub.git
+--------------------
+
+### File: HEAD ###
+
+  [L:1] Original: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 0000000000000000000000000000000000000000 dd61d0952749ee7963bde24220d1be5ede023033 devedale <edoardo....
+      - cluster_id: 11
+      - cluster_size: 3
+      - detected_patterns: {'email': ['edoardo.dalesio@gmail.com'], 'unix_timestamp': ['1754473937'], 'url': ['https://github.c...
+      - regex_email: edoardo.dalesio@gmail.com
+      - regex_unix_timestamp: 1754473937
+      - regex_url: https://github.com/logpai/loghub.git
+      - regex_file_path: //github.com/logpai/loghub.git
+--------------------
+
+### Errore durante la processazione di: pack-9e88a48723b3a77228188179816d73227aa02be8.idx - Cannot read file: examples/loghub/.git/objects/pack/pack-9e88a48723b3a77228188179816d73227aa02be8.idx ###
+
+### Errore durante la processazione di: pack-9e88a48723b3a77228188179816d73227aa02be8.pack - Cannot read file: examples/loghub/.git/objects/pack/pack-9e88a48723b3a77228188179816d73227aa02be8.pack ###
+
+### File: packed-refs ###
+
+  [L:1] Original: # pack-refs with: peeled fully-peeled sorted 
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: # pack-refs with: peeled fully-peeled sorted
+      - cluster_id: 12
+      - cluster_size: 1
+--------------------
+  [L:2] Original: dd61d0952749ee7963bde24220d1be5ede023033 refs/remotes/origin/master
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: dd61d0952749ee7963bde24220d1be5ede023033 refs/remotes/origin/master
+      - cluster_id: 13
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/remotes/origin/master']}
+      - regex_file_path: /remotes/origin/master
+--------------------
+
+### File: master ###
+
+  [L:1] Original: dd61d0952749ee7963bde24220d1be5ede023033
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: dd61d0952749ee7963bde24220d1be5ede023033
+      - cluster_id: 14
+      - cluster_size: 1
+--------------------
+
+### File: HEAD ###
+
+  [L:1] Original: ref: refs/remotes/origin/master
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: ref: <*>
+      - cluster_id: 3
+      - cluster_size: 2
+      - detected_patterns: {'file_path': ['/remotes/origin/master']}
+      - regex_file_path: /remotes/origin/master
+--------------------
+
+### Errore durante la processazione di: crawl_downloads.yml - Cannot read file: examples/loghub/.github/workflows/crawl_downloads.yml ###
+
+### File: .gitignore ###
+
+  [L:1] Original: # Byte-compiled / optimized / DLL files
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: # Byte-compiled / optimized / DLL files
+      - cluster_id: 15
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/']}
+      - regex_file_path: /
+--------------------
+  [L:2] Original: __pycache__/
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: __pycache__/
+      - cluster_id: 16
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/']}
+      - regex_file_path: /
+--------------------
+
+### File: Android_2k.log ###
+
+  [L:1] Original: 03-17 16:13:38.811  1702  2395 D WindowManager: printFreezingDisplayLogsopening app wtoken = AppWind...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 03-17 16:13:38.811 1702 2395 D WindowManager: printFreezingDisplayLogsopening app wtoken = AppWindow...
+      - cluster_id: 17
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/.activity.info.NewsDetailXmlActivity'], 'severity_level': ['info']}
+      - regex_file_path: /.activity.info.NewsDetailXmlActivity
+      - regex_severity_level: info
+--------------------
+  [L:2] Original: 03-17 16:13:38.819  1702  8671 D PowerManagerService: acquire lock=233570404, flags=0x1, tag="View L...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 03-17 16:13:38.819 1702 8671 D PowerManagerService: acquire lock=233570404, flags=0x1, tag="View Loc...
+      - cluster_id: 18
+      - cluster_size: 1
+      - detected_patterns: {'process_id': ['2227']}
+      - regex_process_id: 2227
+--------------------
+
+### File: Android_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Pid,Tid,Level,Component,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'pid', 'tid', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Pid,Tid,Level,Component,Content,EventId,EventTemplate
+    Cluster ID: 13
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - pid: Pid
+      - tid: Tid
+      - level: Level
+      - component: Component
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,03-17,16:13:38.811,1702,2395,D,WindowManager,"printFreezingDisplayLogsopening app wtoken = AppWind...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'pid', 'tid', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: 1,03-17,16:13:38.811,1702,2395,D,WindowManager,"printFreezingDisplayLogsopening app wtoken = AppWind...
+    Cluster ID: 14
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/.activity.info.NewsDetailXmlActivity', '/.'], 'severity_level': ['info']}
+    Parsed Data:
+      - lineid: 1
+      - date: 03-17
+      - time: 16:13:38.811
+      - pid: 1702
+      - tid: 2395
+      - level: D
+      - component: WindowManager
+      - content: printFreezingDisplayLogsopening app wtoken = AppWindowToken{9f4ef63 token=Token{a64f992 ActivityReco...
+      - eventid: E100
+      - eventtemplate: printFreezingDisplayLogsopening app wtoken = AppWindowToken{<*> token=Token{<*> ActivityRecord{<*> u...
+      - regex_file_path: ['/.activity.info.NewsDetailXmlActivity', '/.']
+      - regex_severity_level: info
+--------------------
+
+### File: Android_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,*** register callback for <*>@<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,*** register callback for <*>@<*>
+    Cluster ID: 16
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: *** register callback for <*>@<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Android/README.md ###
+
+### File: Apache_2k.log ###
+
+  [L:1] Original: [Sun Dec 04 04:47:44 2005] [notice] workerEnv.init() ok /etc/httpd/conf/workers2.properties
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: [Sun Dec 04 04:47:44 2005] [notice] workerEnv.init() ok /etc/httpd/conf/workers2.properties
+      - cluster_id: 19
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/etc/httpd/conf/workers2.properties']}
+      - regex_file_path: /etc/httpd/conf/workers2.properties
+--------------------
+  [L:2] Original: [Sun Dec 04 04:47:44 2005] [error] mod_jk child workerEnv in error state 6
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: [Sun Dec 04 04:47:44 2005] [error] mod_jk child workerEnv in error state 6
+      - cluster_id: 20
+      - cluster_size: 1
+      - detected_patterns: {'severity_level': ['error']}
+      - regex_severity_level: error
+--------------------
+
+### File: Apache_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Time,Level,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'level', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Time,Level,Content,EventId,EventTemplate
+    Cluster ID: 17
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - time: Time
+      - level: Level
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,Sun Dec 04 04:47:44 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerE...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'level', 'content', 'eventid', 'eventtemplate']
+    Template: 1,Sun Dec 04 04:47:44 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerE...
+    Cluster ID: 18
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/etc/httpd/conf/workers2.properties,E2,workerEnv.init()']}
+    Parsed Data:
+      - lineid: 1
+      - time: Sun Dec 04 04:47:44 2005
+      - level: notice
+      - content: workerEnv.init() ok /etc/httpd/conf/workers2.properties
+      - eventid: E2
+      - eventtemplate: workerEnv.init() ok <*>
+      - regex_file_path: /etc/httpd/conf/workers2.properties,E2,workerEnv.init()
+--------------------
+
+### File: Apache_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 2
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,jk2_init() Found child <*> in scoreboard slot <*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,jk2_init() Found child <*> in scoreboard slot <*>
+    Cluster ID: 19
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: jk2_init() Found child <*> in scoreboard slot <*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Apache/README.md ###
+
+### File: BGL_2k.log ###
+
+  [L:1] Original: - 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNE...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNE...
+      - cluster_id: 21
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_dotted': ['2005.06.03'], 'timestamp_detailed': ['2005-06-03-15.42.50.675872'], 'unix_tim...
+      - regex_timestamp_dotted: 2005.06.03
+      - regex_timestamp_detailed: 2005-06-03-15.42.50.675872
+      - regex_unix_timestamp: 1117838570
+      - regex_severity_level: ['INFO', 'error']
+      - regex_hostname: R02-M1-N0-C:J12-U11
+--------------------
+  [L:2] Original: - 1117838573 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.53.276129 R02-M1-N0-C:J12-U11 RAS KERNE...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - <*> 2005.06.03 R02-M1-N0-C:J12-U11 <*> R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parit...
+      - cluster_id: 21
+      - cluster_size: 2
+      - detected_patterns: {'timestamp_dotted': ['2005.06.03'], 'timestamp_detailed': ['2005-06-03-15.42.53.276129'], 'unix_tim...
+      - regex_timestamp_dotted: 2005.06.03
+      - regex_timestamp_detailed: 2005-06-03-15.42.53.276129
+      - regex_unix_timestamp: 1117838573
+      - regex_severity_level: ['INFO', 'error']
+      - regex_hostname: R02-M1-N0-C:J12-U11
+--------------------
+
+### File: BGL_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Label,Timestamp,Date,Node,Time,NodeRepeat,Type,Component,Level,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'label', 'timestamp', 'date', 'node', 'time', 'noderepeat', 'type', 'component', 'level', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Label,Timestamp,Date,Node,Time,NodeRepeat,Type,Component,Level,Content,EventId,EventTemplate
+    Cluster ID: 20
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - label: Label
+      - timestamp: Timestamp
+      - date: Date
+      - node: Node
+      - time: Time
+      - noderepeat: NodeRepeat
+      - type: Type
+      - component: Component
+      - level: Level
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,-,1117838570,2005.06.03,R02-M1-N0-C:J12-U11,2005-06-03-15.42.50.675872,R02-M1-N0-C:J12-U11,RAS,KER...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'label', 'timestamp', 'date', 'node', 'time', 'noderepeat', 'type', 'component', 'level', 'content', 'eventid', 'eventtemplate']
+    Template: 1,-,1117838570,2005.06.03,R02-M1-N0-C:J12-U11,2005-06-03-15.42.50.675872,R02-M1-N0-C:J12-U11,RAS,KER...
+    Cluster ID: 21
+    Cluster Size: 1
+    Detected Patterns: {'timestamp_dotted': ['2005.06.03'], 'timestamp_detailed': ['2005-06-03-15.42.50.675872'], 'unix_timestamp': ['1117838570'], 'severity_level': ['INFO', 'error'], 'hostname': ['R02-M1-N0-C:J12-U11']}
+    Parsed Data:
+      - lineid: 1
+      - label: -
+      - timestamp: 1117838570
+      - date: 2005.06.03
+      - node: R02-M1-N0-C:J12-U11
+      - time: 2005-06-03-15.42.50.675872
+      - noderepeat: R02-M1-N0-C:J12-U11
+      - type: RAS
+      - component: KERNEL
+      - level: INFO
+      - content: instruction cache parity error corrected
+      - eventid: E77
+      - eventtemplate: instruction cache parity error corrected
+      - regex_timestamp_dotted: 2005.06.03
+      - regex_timestamp_detailed: 2005-06-03-15.42.50.675872
+      - regex_unix_timestamp: 1117838570
+      - regex_severity_level: ['INFO', 'error']
+      - regex_hostname: R02-M1-N0-C:J12-U11
+--------------------
+
+### File: BGL_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 3
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,"<*> ddr error(s) detected and corrected on rank <*>, symbol <*> over <*> seconds"
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,"<*> ddr error(s) detected and corrected on rank <*>, symbol <*> over <*> seconds"
+    Cluster ID: 22
+    Cluster Size: 1
+    Detected Patterns: {'severity_level': ['error']}
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*> ddr error(s) detected and corrected on rank <*>, symbol <*> over <*> seconds
+      - regex_severity_level: error
+--------------------
+
+### File: BGL_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 4
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,<*>:<*> <*>:<*> <*>:<*> <*>:<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,<*>:<*> <*>:<*> <*>:<*> <*>:<*>
+    Cluster ID: 23
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*>:<*> <*>:<*> <*>:<*> <*>:<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/BGL/README.md ###
+
+### File: CITATION ###
+
+  [L:1] Original: @inproceedings{Loghub,
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: @inproceedings{Loghub,
+      - cluster_id: 22
+      - cluster_size: 1
+--------------------
+  [L:2] Original:   author       = {Jieming Zhu and
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: author = {Jieming Zhu and
+      - cluster_id: 23
+      - cluster_size: 1
+--------------------
+
+### File: HDFS_2k.log ###
+
+  [L:1] Original: 081109 203615 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_388650490641396...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 081109 203615 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_388650490641396...
+      - cluster_id: 24
+      - cluster_size: 1
+      - detected_patterns: {'severity_level': ['INFO'], 'status_code': ['148']}
+      - regex_severity_level: INFO
+      - regex_status_code: 148
+--------------------
+  [L:2] Original: 081109 203807 222 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-69522958684876...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 081109 <*> <*> INFO dfs.DataNode$PacketResponder: PacketResponder <*> for block <*> terminating
+      - cluster_id: 24
+      - cluster_size: 2
+      - detected_patterns: {'severity_level': ['INFO'], 'status_code': ['222']}
+      - regex_severity_level: INFO
+      - regex_status_code: 222
+--------------------
+
+### File: HDFS_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Pid,Level,Component,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'pid', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Pid,Level,Component,Content,EventId,EventTemplate
+    Cluster ID: 24
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - pid: Pid
+      - level: Level
+      - component: Component
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,081109,203615,148,INFO,dfs.DataNode$PacketResponder,PacketResponder 1 for block blk_38865049064139...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'pid', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: 1,081109,203615,148,INFO,dfs.DataNode$PacketResponder,PacketResponder 1 for block blk_38865049064139...
+    Cluster ID: 25
+    Cluster Size: 1
+    Detected Patterns: {'severity_level': ['INFO'], 'status_code': ['148']}
+    Parsed Data:
+      - lineid: 1
+      - date: 081109
+      - time: 203615
+      - pid: 148
+      - level: INFO
+      - component: dfs.DataNode$PacketResponder
+      - content: PacketResponder 1 for block blk_38865049064139660 terminating
+      - eventid: E10
+      - eventtemplate: PacketResponder <*> for block blk_<*> terminating
+      - regex_severity_level: INFO
+      - regex_status_code: 148
+--------------------
+
+### File: HDFS_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 5
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,<*>:<*> Served block blk_<*> to /<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,<*>:<*> Served block blk_<*> to /<*>
+    Cluster ID: 26
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/']}
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*>:<*> Served block blk_<*> to /<*>
+      - regex_file_path: /
+--------------------
+
+### File: HDFS_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 6
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,<*>Adding an already existing block<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,<*>Adding an already existing block<*>
+    Cluster ID: 27
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*>Adding an already existing block<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/HDFS/README.md ###
+
+### File: HPC_2k.log ###
+
+  [L:1] Original: 134681 node-246 unix.hw state_change.unavailable 1077804742 1 Component State Change: Component \042...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 134681 node-246 unix.hw state_change.unavailable 1077804742 1 Component State Change: Component \042...
+      - cluster_id: 25
+      - cluster_size: 1
+      - detected_patterns: {'unix_timestamp': ['1077804742'], 'status_code': ['246']}
+      - regex_unix_timestamp: 1077804742
+      - regex_status_code: 246
+--------------------
+  [L:2] Original: 350766 node-109 unix.hw state_change.unavailable 1084680778 1 Component State Change: Component \042...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: <*> <*> unix.hw state_change.unavailable <*> 1 Component State Change: Component <*> is in the unava...
+      - cluster_id: 25
+      - cluster_size: 2
+      - detected_patterns: {'unix_timestamp': ['1084680778'], 'status_code': ['109']}
+      - regex_unix_timestamp: 1084680778
+      - regex_status_code: 109
+--------------------
+
+### File: HPC_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,LogId,Node,Component,State,Time,Flag,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'logid', 'node', 'component', 'state', 'time', 'flag', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,LogId,Node,Component,State,Time,Flag,Content,EventId,EventTemplate
+    Cluster ID: 28
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - logid: LogId
+      - node: Node
+      - component: Component
+      - state: State
+      - time: Time
+      - flag: Flag
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,134681,node-246,unix.hw,state_change.unavailable,1077804742,1,Component State Change: Component \0...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'logid', 'node', 'component', 'state', 'time', 'flag', 'content', 'eventid', 'eventtemplate']
+    Template: 1,134681,node-246,unix.hw,state_change.unavailable,1077804742,1,Component State Change: Component \0...
+    Cluster ID: 29
+    Cluster Size: 1
+    Detected Patterns: {'unix_timestamp': ['1077804742'], 'status_code': ['246']}
+    Parsed Data:
+      - lineid: 1
+      - logid: 134681
+      - node: node-246
+      - component: unix.hw
+      - state: state_change.unavailable
+      - time: 1077804742
+      - flag: 1
+      - content: Component State Change: Component \042SCSI-WWID:01000010:6005-08b4-0001-00c6-0006-3000-003d-0000\042...
+      - eventid: E13
+      - eventtemplate: Component State Change: Component <*> is in the unavailable state (HWID=<*>)
+      - regex_unix_timestamp: 1077804742
+      - regex_status_code: 246
+--------------------
+
+### File: HPC_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 7
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,active
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,active
+    Cluster ID: 30
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: active
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/HPC/README.md ###
+
+### File: Hadoop_2k.log ###
+
+  [L:1] Original: 2015-10-18 18:01:47,978 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Created MRAppMas...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2015-10-18 18:01:47,978 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Created MRAppMas...
+      - cluster_id: 26
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_log': ['2015-10-18 18:01:47'], 'severity_level': ['INFO']}
+      - regex_timestamp_log: 2015-10-18 18:01:47
+      - regex_severity_level: INFO
+--------------------
+  [L:2] Original: 2015-10-18 18:01:48,963 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Executing with t...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2015-10-18 18:01:48,963 INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Executing with t...
+      - cluster_id: 27
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_log': ['2015-10-18 18:01:48'], 'severity_level': ['INFO']}
+      - regex_timestamp_log: 2015-10-18 18:01:48
+      - regex_severity_level: INFO
+--------------------
+
+### File: Hadoop_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Level,Process,Component,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'process', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Level,Process,Component,Content,EventId,EventTemplate
+    Cluster ID: 31
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - level: Level
+      - process: Process
+      - component: Component
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,2015-10-18,"18:01:47,978",INFO,main,org.apache.hadoop.mapreduce.v2.app.MRAppMaster,Created MRAppMa...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'process', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: 1,2015-10-18,"18:01:47,978",INFO,main,org.apache.hadoop.mapreduce.v2.app.MRAppMaster,Created MRAppMa...
+    Cluster ID: 32
+    Cluster Size: 1
+    Detected Patterns: {'severity_level': ['INFO']}
+    Parsed Data:
+      - lineid: 1
+      - date: 2015-10-18
+      - time: 18:01:47,978
+      - level: INFO
+      - process: main
+      - component: org.apache.hadoop.mapreduce.v2.app.MRAppMaster
+      - content: Created MRAppMaster for application appattempt_1445144423722_0020_000001
+      - eventid: E29
+      - eventtemplate: Created MRAppMaster for application appattempt_<*>
+      - regex_severity_level: INFO
+--------------------
+
+### File: Hadoop_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 8
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,<*> failures on node MININT-<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,<*> failures on node MININT-<*>
+    Cluster ID: 33
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*> failures on node MININT-<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Hadoop/README.md ###
+
+### File: HealthApp_2k.log ###
+
+  [L:1] Original: 20171223-22:15:29:606|Step_LSC|30002312|onStandStepChanged 3579
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 20171223-22:15:29:606|Step_LSC|30002312|onStandStepChanged 3579
+      - cluster_id: 28
+      - cluster_size: 1
+--------------------
+  [L:2] Original: 20171223-22:15:29:615|Step_LSC|30002312|onExtend:1514038530000 14 0 4
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 20171223-22:15:29:615|Step_LSC|30002312|onExtend:1514038530000 14 0 4
+      - cluster_id: 29
+      - cluster_size: 1
+--------------------
+
+### File: HealthApp_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Time,Component,Pid,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Time,Component,Pid,Content,EventId,EventTemplate
+    Cluster ID: 34
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - time: Time
+      - component: Component
+      - pid: Pid
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,20171223-22:15:29:606,Step_LSC,30002312,onStandStepChanged 3579,E42,onStandStepChanged <*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: 1,20171223-22:15:29:606,Step_LSC,30002312,onStandStepChanged 3579,E42,onStandStepChanged <*>
+    Cluster ID: 35
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: 1
+      - time: 20171223-22:15:29:606
+      - component: Step_LSC
+      - pid: 30002312
+      - content: onStandStepChanged 3579
+      - eventid: E42
+      - eventtemplate: onStandStepChanged <*>
+--------------------
+
+### File: HealthApp_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 9
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,Alarm uploadStaticsToDB totalSteps=<*>:<*>:<*>:<*>
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,Alarm uploadStaticsToDB totalSteps=<*>:<*>:<*>:<*>
+    Cluster ID: 36
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: Alarm uploadStaticsToDB totalSteps=<*>:<*>:<*>:<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/HealthApp/README.md ###
+
+### File: LICENSE ###
+
+  [L:1] Original: LICENSE OF LOGHUB
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: LICENSE OF LOGHUB
+      - cluster_id: 30
+      - cluster_size: 1
+--------------------
+
+### File: Linux_2k.log ###
+
+  [L:1] Original: Jun 14 15:16:01 combo sshd(pam_unix)[19939]: authentication failure; logname= uid=0 euid=0 tty=NODEV...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Jun 14 15:16:01 combo sshd(pam_unix)[19939]: authentication failure; logname= uid=0 euid=0 tty=NODEV...
+      - cluster_id: 31
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['218.188.2.4'], 'status_code': ['218', '188']}
+      - regex_ip_address: 218.188.2.4
+      - regex_status_code: ['218', '188']
+--------------------
+  [L:2] Original: Jun 14 15:16:02 combo sshd(pam_unix)[19937]: check pass; user unknown
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Jun 14 15:16:02 combo sshd(pam_unix)[19937]: check pass; user unknown
+      - cluster_id: 32
+      - cluster_size: 1
+--------------------
+
+### File: Linux_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Month,Date,Time,Level,Component,PID,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'month', 'date', 'time', 'level', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Month,Date,Time,Level,Component,PID,Content,EventId,EventTemplate
+    Cluster ID: 37
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - month: Month
+      - date: Date
+      - time: Time
+      - level: Level
+      - component: Component
+      - pid: PID
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,Jun,14,15:16:01,combo,sshd(pam_unix),19939,authentication failure; logname= uid=0 euid=0 tty=NODEV...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'month', 'date', 'time', 'level', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: 1,Jun,14,15:16:01,combo,sshd(pam_unix),19939,authentication failure; logname= uid=0 euid=0 tty=NODEV...
+    Cluster ID: 38
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['218.188.2.4'], 'status_code': ['218', '188']}
+    Parsed Data:
+      - lineid: 1
+      - month: Jun
+      - date: 14
+      - time: 15:16:01
+      - level: combo
+      - component: sshd(pam_unix)
+      - pid: 19939
+      - content: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=218.188.2.4
+      - eventid: E16
+      - eventtemplate: authentication failure; logname= uid=0 euid=0 tty=NODEVssh ruser= rhost=<*>
+      - regex_ip_address: 218.188.2.4
+      - regex_status_code: ['218', '188']
+--------------------
+
+### File: Linux_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 10
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,*** info [mice.c(<*>)]:
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,*** info [mice.c(<*>)]:
+    Cluster ID: 39
+    Cluster Size: 1
+    Detected Patterns: {'severity_level': ['info']}
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: *** info [mice.c(<*>)]:
+      - regex_severity_level: info
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Linux/README.md ###
+
+### File: Mac_2k.log ###
+
+  [L:1] Original: Jul  1 09:00:55 calvisitor-10-105-160-95 kernel[0]: IOThunderboltSwitch<0>(0x0)::listenerCallback - ...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Jul 1 09:00:55 calvisitor-10-105-160-95 kernel[0]: IOThunderboltSwitch<0>(0x0)::listenerCallback - T...
+      - cluster_id: 33
+      - cluster_size: 1
+      - detected_patterns: {'status_code': ['105', '160']}
+      - regex_status_code: ['105', '160']
+--------------------
+  [L:2] Original: Jul  1 09:01:05 calvisitor-10-105-160-95 com.apple.CDScheduler[43]: Thermal pressure state: 1 Memory...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Jul 1 09:01:05 calvisitor-10-105-160-95 com.apple.CDScheduler[43]: Thermal pressure state: 1 Memory ...
+      - cluster_id: 34
+      - cluster_size: 1
+      - detected_patterns: {'status_code': ['105', '160']}
+      - regex_status_code: ['105', '160']
+--------------------
+
+### File: Mac_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Month,Date,Time,User,Component,PID,Address,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'month', 'date', 'time', 'user', 'component', 'pid', 'address', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Month,Date,Time,User,Component,PID,Address,Content,EventId,EventTemplate
+    Cluster ID: 40
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - month: Month
+      - date: Date
+      - time: Time
+      - user: User
+      - component: Component
+      - pid: PID
+      - address: Address
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,Jul,1,09:00:55,calvisitor-10-105-160-95,kernel,0,,IOThunderboltSwitch<0>(0x0)::listenerCallback - ...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'month', 'date', 'time', 'user', 'component', 'pid', 'address', 'content', 'eventid', 'eventtemplate']
+    Template: 1,Jul,1,09:00:55,calvisitor-10-105-160-95,kernel,0,,IOThunderboltSwitch<0>(0x0)::listenerCallback - ...
+    Cluster ID: 41
+    Cluster Size: 1
+    Detected Patterns: {'status_code': ['105', '160']}
+    Parsed Data:
+      - lineid: 1
+      - month: Jul
+      - date: 1
+      - time: 09:00:55
+      - user: calvisitor-10-105-160-95
+      - component: kernel
+      - pid: 0
+      - address: 
+      - content: IOThunderboltSwitch<0>(0x0)::listenerCallback - Thunderbolt HPD packet for route = 0x0 port = 11 unp...
+      - eventid: E252
+      - eventtemplate: IOThunderboltSwitch<<*>>(<*>)::listenerCallback - Thunderbolt HPD packet for route = <*> port = <*> ...
+      - regex_status_code: ['105', '160']
+--------------------
+
+### File: Mac_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 11
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,############################## _getSysMsgList
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,############################## _getSysMsgList
+    Cluster ID: 42
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: ############################## _getSysMsgList
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Mac/README.md ###
+
+### File: OpenSSH_2k.log ###
+
+  [L:1] Original: Dec 10 06:55:46 LabSZ sshd[24200]: reverse mapping checking getaddrinfo for ns.marryaldkfaczcz.com [...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Dec 10 06:55:46 LabSZ sshd[24200]: reverse mapping checking getaddrinfo for ns.marryaldkfaczcz.com [...
+      - cluster_id: 35
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['173.234.31.186'], 'status_code': ['173', '234', '186']}
+      - regex_ip_address: 173.234.31.186
+      - regex_status_code: ['173', '234', '186']
+--------------------
+  [L:2] Original: Dec 10 06:55:46 LabSZ sshd[24200]: Invalid user webmaster from 173.234.31.186
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Dec 10 06:55:46 LabSZ sshd[24200]: Invalid user webmaster from 173.234.31.186
+      - cluster_id: 36
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['173.234.31.186'], 'status_code': ['173', '234', '186']}
+      - regex_ip_address: 173.234.31.186
+      - regex_status_code: ['173', '234', '186']
+--------------------
+
+### File: OpenSSH_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Day,Time,Component,Pid,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'day', 'time', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Day,Time,Component,Pid,Content,EventId,EventTemplate
+    Cluster ID: 43
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - day: Day
+      - time: Time
+      - component: Component
+      - pid: Pid
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,Dec,10,06:55:46,LabSZ,24200,reverse mapping checking getaddrinfo for ns.marryaldkfaczcz.com [173.2...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'day', 'time', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: 1,Dec,10,06:55:46,LabSZ,24200,reverse mapping checking getaddrinfo for ns.marryaldkfaczcz.com [173.2...
+    Cluster ID: 44
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['173.234.31.186'], 'status_code': ['173', '234', '186']}
+    Parsed Data:
+      - lineid: 1
+      - date: Dec
+      - day: 10
+      - time: 06:55:46
+      - component: LabSZ
+      - pid: 24200
+      - content: reverse mapping checking getaddrinfo for ns.marryaldkfaczcz.com [173.234.31.186] failed - POSSIBLE B...
+      - eventid: E27
+      - eventtemplate: reverse mapping checking getaddrinfo for <*> [<*>] failed - POSSIBLE BREAK-IN ATTEMPT!
+      - regex_ip_address: 173.234.31.186
+      - regex_status_code: ['173', '234', '186']
+--------------------
+
+### File: OpenSSH_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 12
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,Accepted password for <*> from <*> port <*> ssh2
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,Accepted password for <*> from <*> port <*> ssh2
+    Cluster ID: 45
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: Accepted password for <*> from <*> port <*> ssh2
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/OpenSSH/README.md ###
+
+### File: OpenStack_2k.log ###
+
+  [L:1] Original: nova-api.log.1.2017-05-16_13:53:08 2017-05-16 00:00:00.008 25746 INFO nova.osapi_compute.wsgi.server...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: nova-api.log.1.2017-05-16_13:53:08 2017-05-16 00:00:00.008 25746 INFO nova.osapi_compute.wsgi.server...
+      - cluster_id: 37
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['10.11.10.1'], 'timestamp_log': ['2017-05-16 00:00:00.008'], 'uuid': ['38101a0b-2096...
+      - regex_ip_address: 10.11.10.1
+      - regex_timestamp_log: 2017-05-16 00:00:00.008
+      - regex_uuid: 38101a0b-2096-447d-96ea-a692162415ae
+      - regex_hash_md5: ['113d3a99c3da401fbd62cc2caa5b96d2', '54fadb412c4e40cdbaed9335e4c35a9e']
+      - regex_file_path: ['/v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail', '/1.1']
+      - regex_severity_level: INFO
+      - regex_status_code: 200
+--------------------
+  [L:2] Original: nova-api.log.1.2017-05-16_13:53:08 2017-05-16 00:00:00.272 25746 INFO nova.osapi_compute.wsgi.server...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: nova-api.log.1.2017-05-16_13:53:08 2017-05-16 <*> 25746 INFO nova.osapi_compute.wsgi.server <*> 113d...
+      - cluster_id: 37
+      - cluster_size: 2
+      - detected_patterns: {'ip_address': ['10.11.10.1'], 'timestamp_log': ['2017-05-16 00:00:00.272'], 'uuid': ['9bc36dd9-91c5...
+      - regex_ip_address: 10.11.10.1
+      - regex_timestamp_log: 2017-05-16 00:00:00.272
+      - regex_uuid: 9bc36dd9-91c5-4314-898a-47625eb93b09
+      - regex_hash_md5: ['113d3a99c3da401fbd62cc2caa5b96d2', '54fadb412c4e40cdbaed9335e4c35a9e']
+      - regex_file_path: ['/v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail', '/1.1']
+      - regex_severity_level: INFO
+      - regex_status_code: ['272', '200']
+--------------------
+
+### File: OpenStack_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Logrecord,Date,Time,Pid,Level,Component,ADDR,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'logrecord', 'date', 'time', 'pid', 'level', 'component', 'addr', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Logrecord,Date,Time,Pid,Level,Component,ADDR,Content,EventId,EventTemplate
+    Cluster ID: 46
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - logrecord: Logrecord
+      - date: Date
+      - time: Time
+      - pid: Pid
+      - level: Level
+      - component: Component
+      - addr: ADDR
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,nova-api.log.1.2017-05-16_13:53:08,2017-05-16,00:00:00.008,25746,INFO,nova.osapi_compute.wsgi.serv...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'logrecord', 'date', 'time', 'pid', 'level', 'component', 'addr', 'content', 'eventid', 'eventtemplate']
+    Template: 1,nova-api.log.1.2017-05-16_13:53:08,2017-05-16,00:00:00.008,25746,INFO,nova.osapi_compute.wsgi.serv...
+    Cluster ID: 47
+    Cluster Size: 1
+    Detected Patterns: {'ip_address': ['10.11.10.1'], 'uuid': ['38101a0b-2096-447d-96ea-a692162415ae'], 'hash_md5': ['113d3a99c3da401fbd62cc2caa5b96d2', '54fadb412c4e40cdbaed9335e4c35a9e'], 'file_path': ['/v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail', '/1.1'], 'severity_level': ['INFO'], 'status_code': ['200']}
+    Parsed Data:
+      - lineid: 1
+      - logrecord: nova-api.log.1.2017-05-16_13:53:08
+      - date: 2017-05-16
+      - time: 00:00:00.008
+      - pid: 25746
+      - level: INFO
+      - component: nova.osapi_compute.wsgi.server
+      - addr: req-38101a0b-2096-447d-96ea-a692162415ae 113d3a99c3da401fbd62cc2caa5b96d2 54fadb412c4e40cdbaed9335e4...
+      - content: 10.11.10.1 "GET /v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail HTTP/1.1" status: 200 len: 1893 ...
+      - eventid: E25
+      - eventtemplate: <*> "GET <*>" status: <*> len: <*> time: <*>.<*>
+      - regex_ip_address: 10.11.10.1
+      - regex_uuid: 38101a0b-2096-447d-96ea-a692162415ae
+      - regex_hash_md5: ['113d3a99c3da401fbd62cc2caa5b96d2', '54fadb412c4e40cdbaed9335e4c35a9e']
+      - regex_file_path: ['/v2/54fadb412c4e40cdbaed9335e4c35a9e/servers/detail', '/1.1']
+      - regex_severity_level: INFO
+      - regex_status_code: 200
+--------------------
+
+### File: OpenStack_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 13
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,"[instance: <*>] Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU"
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,"[instance: <*>] Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU"
+    Cluster ID: 48
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: [instance: <*>] Attempting claim: memory <*> MB, disk <*> GB, vcpus <*> CPU
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/OpenStack/README.md ###
+
+### File: Proxifier_2k.log ###
+
+  [L:1] Original: [10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:50...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: [10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:50...
+      - cluster_id: 38
+      - cluster_size: 1
+--------------------
+  [L:2] Original: [10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:50...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: [10.30 16:49:06] chrome.exe - proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:50...
+      - cluster_id: 38
+      - cluster_size: 2
+--------------------
+
+### File: Proxifier_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Time,Program,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'program', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Time,Program,Content,EventId,EventTemplate
+    Cluster ID: 49
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - time: Time
+      - program: Program
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,10.30 16:49:06,chrome.exe,proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'time', 'program', 'content', 'eventid', 'eventtemplate']
+    Template: 1,10.30 16:49:06,chrome.exe,proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070...
+    Cluster ID: 50
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: 1
+      - time: 10.30 16:49:06
+      - program: chrome.exe
+      - content: proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS
+      - eventid: E2
+      - eventtemplate: <*>:<*> open through proxy <*>:<*> HTTPS
+--------------------
+
+### File: Proxifier_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 14
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,<*>:<*> open through proxy <*>:<*> SOCKS5
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,<*>:<*> open through proxy <*>:<*> SOCKS5
+    Cluster ID: 51
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*>:<*> open through proxy <*>:<*> SOCKS5
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Proxifier/README.md ###
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/README.md ###
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Spark/README.md ###
+
+### File: Spark_2k.log ###
+
+  [L:1] Original: 17/06/09 20:10:40 INFO executor.CoarseGrainedExecutorBackend: Registered signal handlers for [TERM, ...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 17/06/09 20:10:40 INFO executor.CoarseGrainedExecutorBackend: Registered signal handlers for [TERM, ...
+      - cluster_id: 39
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/06/09'], 'severity_level': ['INFO']}
+      - regex_file_path: /06/09
+      - regex_severity_level: INFO
+--------------------
+  [L:2] Original: 17/06/09 20:10:40 INFO spark.SecurityManager: Changing view acls to: yarn,curi
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 17/06/09 20:10:40 INFO spark.SecurityManager: Changing view acls to: yarn,curi
+      - cluster_id: 40
+      - cluster_size: 1
+      - detected_patterns: {'file_path': ['/06/09'], 'severity_level': ['INFO']}
+      - regex_file_path: /06/09
+      - regex_severity_level: INFO
+--------------------
+
+### File: Spark_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Level,Component,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Level,Component,Content,EventId,EventTemplate
+    Cluster ID: 52
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - level: Level
+      - component: Component
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,17/06/09,20:10:40,INFO,executor.CoarseGrainedExecutorBackend,"Registered signal handlers for [TERM...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: 1,17/06/09,20:10:40,INFO,executor.CoarseGrainedExecutorBackend,"Registered signal handlers for [TERM...
+    Cluster ID: 53
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/06/09,20:10:40,INFO,executor.CoarseGrainedExecutorBackend,'], 'severity_level': ['INFO']}
+    Parsed Data:
+      - lineid: 1
+      - date: 17/06/09
+      - time: 20:10:40
+      - level: INFO
+      - component: executor.CoarseGrainedExecutorBackend
+      - content: Registered signal handlers for [TERM, HUP, INT]
+      - eventid: E22
+      - eventtemplate: Registered signal handlers for [TERM, HUP, INT]
+      - regex_file_path: /06/09,20:10:40,INFO,executor.CoarseGrainedExecutorBackend,
+      - regex_severity_level: INFO
+--------------------
+
+### File: Spark_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 15
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,attempt_<*>: Committed
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,attempt_<*>: Committed
+    Cluster ID: 54
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: attempt_<*>: Committed
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Thunderbird/README.md ###
+
+### File: Thunderbird_2k.log ###
+
+  [L:1] Original: - 1131566461 2005.11.09 dn228 Nov 9 12:01:01 dn228/dn228 crond(pam_unix)[2915]: session closed for u...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - 1131566461 2005.11.09 dn228 Nov 9 12:01:01 dn228/dn228 crond(pam_unix)[2915]: session closed for u...
+      - cluster_id: 41
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_dotted': ['2005.11.09'], 'unix_timestamp': ['1131566461'], 'file_path': ['/dn228']}
+      - regex_timestamp_dotted: 2005.11.09
+      - regex_unix_timestamp: 1131566461
+      - regex_file_path: /dn228
+--------------------
+  [L:2] Original: - 1131566461 2005.11.09 dn228 Nov 9 12:01:01 dn228/dn228 crond(pam_unix)[2915]: session opened for u...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - 1131566461 2005.11.09 dn228 Nov 9 12:01:01 dn228/dn228 crond(pam_unix)[2915]: session opened for u...
+      - cluster_id: 42
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_dotted': ['2005.11.09'], 'unix_timestamp': ['1131566461'], 'file_path': ['/dn228']}
+      - regex_timestamp_dotted: 2005.11.09
+      - regex_unix_timestamp: 1131566461
+      - regex_file_path: /dn228
+--------------------
+
+### File: Thunderbird_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Label,Timestamp,Date,User,Month,Day,Time,Location,Component,PID,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'label', 'timestamp', 'date', 'user', 'month', 'day', 'time', 'location', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Label,Timestamp,Date,User,Month,Day,Time,Location,Component,PID,Content,EventId,EventTemplate
+    Cluster ID: 55
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - label: Label
+      - timestamp: Timestamp
+      - date: Date
+      - user: User
+      - month: Month
+      - day: Day
+      - time: Time
+      - location: Location
+      - component: Component
+      - pid: PID
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,-,1131566461,2005.11.09,dn228,Nov,9,12:01:01,dn228/dn228,crond(pam_unix),2915,session closed for u...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'label', 'timestamp', 'date', 'user', 'month', 'day', 'time', 'location', 'component', 'pid', 'content', 'eventid', 'eventtemplate']
+    Template: 1,-,1131566461,2005.11.09,dn228,Nov,9,12:01:01,dn228/dn228,crond(pam_unix),2915,session closed for u...
+    Cluster ID: 56
+    Cluster Size: 1
+    Detected Patterns: {'timestamp_dotted': ['2005.11.09'], 'unix_timestamp': ['1131566461'], 'file_path': ['/dn228,crond(pam_unix),2915,session']}
+    Parsed Data:
+      - lineid: 1
+      - label: -
+      - timestamp: 1131566461
+      - date: 2005.11.09
+      - user: dn228
+      - month: Nov
+      - day: 9
+      - time: 12:01:01
+      - location: dn228/dn228
+      - component: crond(pam_unix)
+      - pid: 2915
+      - content: session closed for user root
+      - eventid: E117
+      - eventtemplate: session closed for user root
+      - regex_timestamp_dotted: 2005.11.09
+      - regex_unix_timestamp: 1131566461
+      - regex_file_path: /dn228,crond(pam_unix),2915,session
+--------------------
+
+### File: Thunderbird_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 16
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,(C) <*>-<*> Netfilter core team
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,(C) <*>-<*> Netfilter core team
+    Cluster ID: 57
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: (C) <*>-<*> Netfilter core team
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Windows/README.md ###
+
+### File: Windows_2k.log ###
+
+  [L:1] Original: 2016-09-28 04:30:30, Info                  CBS    Loaded Servicing Stack v6.1.7601.23505 with Core: ...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2016-09-28 04:30:30, Info CBS Loaded Servicing Stack v6.1.7601.23505 with Core: C:\Windows\winsxs\am...
+      - cluster_id: 43
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_log': ['2016-09-28 04:30:30'], 'file_path': ['C:\\Windows\\winsxs\\amd64_microsoft-windo...
+      - regex_timestamp_log: 2016-09-28 04:30:30
+      - regex_file_path: C:\Windows\winsxs\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.1.7601.23505_none_681aa4...
+      - regex_severity_level: Info
+--------------------
+  [L:2] Original: 2016-09-28 04:30:31, Info                  CSI    00000001@2016/9/27:20:30:31.455 WcpInitialize (wcp...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2016-09-28 04:30:31, Info CSI 00000001@2016/9/27:20:30:31.455 WcpInitialize (wcp.dll version 0.0.0.6...
+      - cluster_id: 44
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['0.0.0.6'], 'timestamp_log': ['2016-09-28 04:30:31'], 'file_path': ['/9/27:20:30:31....
+      - regex_ip_address: 0.0.0.6
+      - regex_timestamp_log: 2016-09-28 04:30:31
+      - regex_file_path: /9/27:20:30:31.455
+      - regex_severity_level: Info
+      - regex_status_code: 455
+--------------------
+
+### File: Windows_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Level,Component,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Level,Component,Content,EventId,EventTemplate
+    Cluster ID: 52
+    Cluster Size: 2
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - level: Level
+      - component: Component
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,2016-09-28,04:30:30,Info,CBS,Loaded Servicing Stack v6.1.7601.23505 with Core: C:\Windows\winsxs\a...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'component', 'content', 'eventid', 'eventtemplate']
+    Template: 1,2016-09-28,04:30:30,Info,CBS,Loaded Servicing Stack v6.1.7601.23505 with Core: C:\Windows\winsxs\a...
+    Cluster ID: 58
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['C:\\Windows\\winsxs\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.1.7601.23505_none_681aa442f6fed7f0\\cbscore.dll,E23,Loaded'], 'severity_level': ['Info']}
+    Parsed Data:
+      - lineid: 1
+      - date: 2016-09-28
+      - time: 04:30:30
+      - level: Info
+      - component: CBS
+      - content: Loaded Servicing Stack v6.1.7601.23505 with Core: C:\Windows\winsxs\amd64_microsoft-windows-servicin...
+      - eventid: E23
+      - eventtemplate: Loaded Servicing Stack <*> with Core: <*>\cbscore.dll
+      - regex_file_path: C:\Windows\winsxs\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.1.7601.23505_none_681aa4...
+      - regex_severity_level: Info
+--------------------
+
+### File: Windows_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 17
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,"<*> Created NT transaction (seq <*>) result <*>, handle @<*>"
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,"<*> Created NT transaction (seq <*>) result <*>, handle @<*>"
+    Cluster ID: 59
+    Cluster Size: 1
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: <*> Created NT transaction (seq <*>) result <*>, handle @<*>
+--------------------
+
+### Errore durante la processazione di: README.md - Cannot read file: examples/loghub/Zookeeper/README.md ###
+
+### File: Zookeeper_2k.log ###
+
+  [L:1] Original: 2015-07-29 17:41:44,747 - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:FastLeaderElection@774] - N...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2015-07-29 17:41:44,747 - INFO [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:2181:FastLeaderElection@774] - No...
+      - cluster_id: 45
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_log': ['2015-07-29 17:41:44'], 'file_path': ['/0:0:0:0:0:0:0:0:2181:FastLeaderElection@7...
+      - regex_timestamp_log: 2015-07-29 17:41:44
+      - regex_file_path: /0:0:0:0:0:0:0:0:2181:FastLeaderElection@774]
+      - regex_severity_level: INFO
+--------------------
+  [L:2] Original: 2015-07-29 19:04:12,394 - INFO  [/10.10.34.11:3888:QuorumCnxManager$Listener@493] - Received connect...
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: 2015-07-29 <*> - INFO <*> - <*> <*> <*> <*>
+      - cluster_id: 45
+      - cluster_size: 2
+      - detected_patterns: {'ip_address': ['10.10.34.11'], 'timestamp_log': ['2015-07-29 19:04:12'], 'file_path': ['/10.10.34.1...
+      - regex_ip_address: 10.10.34.11
+      - regex_timestamp_log: 2015-07-29 19:04:12
+      - regex_file_path: ['/10.10.34.11:3888:QuorumCnxManager$Listener@493]', '/10.10.34.11:45307']
+      - regex_severity_level: INFO
+      - regex_status_code: ['394', '493']
+--------------------
+
+### File: Zookeeper_2k.log_structured.csv ###
+
+  [L:1] Original: LineId,Date,Time,Level,Node,Component,Id,Content,EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'node', 'component', 'id', 'content', 'eventid', 'eventtemplate']
+    Template: LineId,Date,Time,Level,Node,Component,Id,Content,EventId,EventTemplate
+    Cluster ID: 60
+    Cluster Size: 1
+    Parsed Data:
+      - lineid: LineId
+      - date: Date
+      - time: Time
+      - level: Level
+      - node: Node
+      - component: Component
+      - id: Id
+      - content: Content
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: 1,2015-07-29,"17:41:44,747",INFO,QuorumPeer[myid=1]/0,0:0:0:0:0:0:0:2181:FastLeaderElection,774,Noti...
+    Parser: multi_strategy_csv
+    Detected Headers: ['lineid', 'date', 'time', 'level', 'node', 'component', 'id', 'content', 'eventid', 'eventtemplate']
+    Template: 1,2015-07-29,"17:41:44,747",INFO,QuorumPeer[myid=1]/0,0:0:0:0:0:0:0:2181:FastLeaderElection,774,Noti...
+    Cluster ID: 61
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/0,0:0:0:0:0:0:0:2181:FastLeaderElection,774,Notification'], 'severity_level': ['INFO']}
+    Parsed Data:
+      - lineid: 1
+      - date: 2015-07-29
+      - time: 17:41:44,747
+      - level: INFO
+      - node: QuorumPeer[myid=1]/0
+      - component: 0:0:0:0:0:0:0:2181:FastLeaderElection
+      - id: 774
+      - content: Notification time out: 3200
+      - eventid: E31
+      - eventtemplate: Notification time out: <*>
+      - regex_file_path: /0,0:0:0:0:0:0:0:2181:FastLeaderElection,774,Notification
+      - regex_severity_level: INFO
+--------------------
+
+### File: Zookeeper_2k.log_templates.csv ###
+
+  [L:1] Original: EventId,EventTemplate
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: EventId,EventTemplate
+    Cluster ID: 15
+    Cluster Size: 18
+    Parsed Data:
+      - eventid: EventId
+      - eventtemplate: EventTemplate
+--------------------
+  [L:2] Original: E1,******* GOODBYE /<*>:<*> ********
+    Parser: multi_strategy_csv
+    Detected Headers: ['eventid', 'eventtemplate']
+    Template: E1,******* GOODBYE /<*>:<*> ********
+    Cluster ID: 62
+    Cluster Size: 1
+    Detected Patterns: {'file_path': ['/']}
+    Parsed Data:
+      - eventid: E1
+      - eventtemplate: ******* GOODBYE /<*>:<*> ********
+      - regex_file_path: /
+--------------------
+
+### Errore durante la processazione di: test.xlsx - Cannot read file: examples/test.xlsx ###
+

@@ -1,0 +1,32 @@
+### File: cybersecurity_intrusion_data.csv ###
+
+  [L:1] Original: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_repu...
+    Parser: multi_strategy_csv
+    Detected Headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+    Template: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_repu...
+    Cluster ID: 1
+    Cluster Size: 1
+    Parsed Data:
+      - session_id: 93ebce33ced70b9b
+      - network_packet_size: network_packet_size
+      - protocol_type: protocol_type
+      - login_attempts: login_attempts
+      - session_duration: session_duration
+      ... e altri 6 campi
+--------------------
+  [L:2] Original: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+    Parser: multi_strategy_csv
+    Detected Headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+    Template: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+    Cluster ID: 2
+    Cluster Size: 1
+    Detected Patterns: {'status_code': ['599', '492']}
+    Parsed Data:
+      - session_id: ceda68dab4393273
+      - network_packet_size: 599
+      - protocol_type: TCP
+      - login_attempts: 4
+      - session_duration: 492.9832634426563
+      ... e altri 7 campi
+--------------------
+

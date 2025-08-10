@@ -1,0 +1,5 @@
+{"timestamp": "2024-01-15T10:30:45.123Z", "level": "ERROR", "service": "kernel", "message": "Out of memory", "server": "server1"}
+{"timestamp": "2024-01-15T10:30:46.456Z", "level": "WARN", "service": "sshd", "message": "Failed password for user admin", "ip": "192.168.1.100", "server": "server1"}
+{"timestamp": "2024-01-15T10:30:47.789Z", "level": "INFO", "service": "nginx", "message": "200 GET /api/users", "method": "GET", "path": "/api/users", "status": 200, "server": "server1"}
+{"timestamp": "2024-01-15T10:30:48.012Z", "level": "ERROR", "service": "postgres", "message": "connection timeout", "server": "server1"}
+{"timestamp": "2024-01-15T10:30:49.345Z", "level": "INFO", "service": "kernel", "message": "CPU usage: 85%", "cpu_usage": 85, "server": "server1"} 

@@ -1,0 +1,238 @@
+{
+  "analysis_timestamp": "2025-08-07T03:55:46.436038",
+  "total_records_analyzed": 4,
+  "files_analyzed": 1,
+  "global_analysis": {
+    "identifier": "GLOBAL",
+    "total_logs": 4,
+    "templates": [
+      {
+        "cluster_id": 1,
+        "template_mined": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>",
+        "size": 2
+      },
+      {
+        "cluster_id": 2,
+        "template_mined": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}",
+        "size": 1
+      },
+      {
+        "cluster_id": 3,
+        "template_mined": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}",
+        "size": 1
+      }
+    ],
+    "statistics": {
+      "total_templates": 3,
+      "total_logs": 4,
+      "avg_logs_per_template": 1.33,
+      "template_coverage": {
+        "1": {
+          "count": 2,
+          "percentage": 50.0,
+          "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>"
+        },
+        "2": {
+          "count": 1,
+          "percentage": 25.0,
+          "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}"
+        },
+        "3": {
+          "count": 1,
+          "percentage": 25.0,
+          "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}"
+        }
+      },
+      "top_templates": [
+        [
+          1,
+          {
+            "count": 2,
+            "percentage": 50.0,
+            "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>"
+          }
+        ],
+        [
+          2,
+          {
+            "count": 1,
+            "percentage": 25.0,
+            "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}"
+          }
+        ],
+        [
+          3,
+          {
+            "count": 1,
+            "percentage": 25.0,
+            "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}"
+          }
+        ]
+      ],
+      "coverage_analysis": {
+        "high_coverage_count": 3,
+        "medium_coverage_count": 0,
+        "low_coverage_count": 0,
+        "avg_coverage_percentage": 33.33,
+        "max_coverage_percentage": 50.0,
+        "min_coverage_percentage": 25.0
+      }
+    },
+    "dynamic_variables": {
+      "total_templates_with_variables": 1,
+      "templates": {
+        "1": {
+          "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>",
+          "variable_count": 6,
+          "variables": {
+            "variable_1": "wildcard",
+            "variable_2": "wildcard",
+            "variable_3": "wildcard",
+            "variable_4": "wildcard",
+            "variable_5": "wildcard",
+            "variable_6": "wildcard"
+          },
+          "sample_size": 2
+        }
+      },
+      "variable_statistics": {
+        "total_templates": 1,
+        "avg_variables_per_template": 6.0,
+        "max_variables_in_template": 6,
+        "min_variables_in_template": 6,
+        "total_variables": 6
+      }
+    },
+    "template_distribution": {
+      "1": 2,
+      "2": 1,
+      "3": 1
+    }
+  },
+  "file_analyses": {
+    "examples/FGT80FTK22013405.root.elog.txt": {
+      "identifier": "examples/FGT80FTK22013405.root.elog.txt",
+      "total_logs": 4,
+      "templates": [
+        {
+          "cluster_id": 1,
+          "template_mined": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>",
+          "size": 2
+        },
+        {
+          "cluster_id": 2,
+          "template_mined": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}",
+          "size": 1
+        },
+        {
+          "cluster_id": 3,
+          "template_mined": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}",
+          "size": 1
+        }
+      ],
+      "statistics": {
+        "total_templates": 3,
+        "total_logs": 4,
+        "avg_logs_per_template": 1.33,
+        "template_coverage": {
+          "1": {
+            "count": 2,
+            "percentage": 50.0,
+            "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>"
+          },
+          "2": {
+            "count": 1,
+            "percentage": 25.0,
+            "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}"
+          },
+          "3": {
+            "count": 1,
+            "percentage": 25.0,
+            "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}"
+          }
+        },
+        "top_templates": [
+          [
+            1,
+            {
+              "count": 2,
+              "percentage": 50.0,
+              "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>"
+            }
+          ],
+          [
+            2,
+            {
+              "count": 1,
+              "percentage": 25.0,
+              "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}"
+            }
+          ],
+          [
+            3,
+            {
+              "count": 1,
+              "percentage": 25.0,
+              "template": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}"
+            }
+          ]
+        ],
+        "coverage_analysis": {
+          "high_coverage_count": 3,
+          "medium_coverage_count": 0,
+          "low_coverage_count": 0,
+          "avg_coverage_percentage": 33.33,
+          "max_coverage_percentage": 50.0,
+          "min_coverage_percentage": 25.0
+        }
+      },
+      "dynamic_variables": {
+        "total_templates_with_variables": 1,
+        "templates": {
+          "1": {
+            "template": "{'logver': '0702111740', 'idseq': <*> 'itime': <*> 'devid': 'FGT80FTK22013405', 'devname': 'mg-project-bari', 'vd': 'root', 'date': '2025-07-06', 'time': <*> 'eventtime': <*> 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': <*> 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': <*>",
+            "variable_count": 6,
+            "variables": {
+              "variable_1": "wildcard",
+              "variable_2": "wildcard",
+              "variable_3": "wildcard",
+              "variable_4": "wildcard",
+              "variable_5": "wildcard",
+              "variable_6": "wildcard"
+            },
+            "sample_size": 2
+          }
+        },
+        "variable_statistics": {
+          "total_templates": 1,
+          "avg_variables_per_template": 6.0,
+          "max_variables_in_template": 6,
+          "min_variables_in_template": 6,
+          "total_variables": 6
+        }
+      },
+      "template_distribution": {
+        "1": 2,
+        "2": 1,
+        "3": 1
+      }
+    }
+  },
+  "summary": {
+    "global_templates": 3,
+    "total_files": 1,
+    "file_templates": {
+      "examples/FGT80FTK22013405.root.elog.txt": {
+        "templates": 3,
+        "logs": 4,
+        "avg_logs_per_template": 1.33
+      }
+    },
+    "coverage_summary": {
+      "high_coverage": 3,
+      "medium_coverage": 0,
+      "low_coverage": 0,
+      "avg_coverage": 33.33
+    }
+  }
+}

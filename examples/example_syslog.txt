@@ -1,0 +1,10 @@
+2024-01-15T10:30:45.123Z server1 kernel: [ERROR] Out of memory
+2024-01-15T10:30:46.456Z server1 sshd[1234]: Failed password for user admin from 192.168.1.100
+2024-01-15T10:30:47.789Z server1 nginx[5678]: 200 GET /api/users HTTP/1.1
+2024-01-15T10:30:48.012Z server1 postgres[9012]: [ERROR] connection timeout
+2024-01-15T10:30:49.345Z server1 kernel: [INFO] CPU usage: 85%
+2024-01-15T10:30:50.678Z server1 sshd[1234]: Accepted password for user admin from 192.168.1.100
+2024-01-15T10:30:51.901Z server1 nginx[5678]: 404 GET /api/invalid HTTP/1.1
+2024-01-15T10:30:52.234Z server1 postgres[9012]: [INFO] Query executed in 150ms
+2024-01-15T10:30:53.567Z server1 kernel: [WARNING] High disk usage: 90%
+2024-01-15T10:30:54.890Z server1 sshd[1234]: Disconnected from 192.168.1.100 

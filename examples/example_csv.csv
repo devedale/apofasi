@@ -1,0 +1,6 @@
+timestamp,level,service,message,ip,server
+2024-01-15T10:30:45.123Z,ERROR,kernel,Out of memory,,server1
+2024-01-15T10:30:46.456Z,WARN,sshd,Failed password for user admin,192.168.1.100,server1
+2024-01-15T10:30:47.789Z,INFO,nginx,200 GET /api/users,192.168.1.100,server1
+2024-01-15T10:30:48.012Z,ERROR,postgres,connection timeout,,server1
+2024-01-15T10:30:49.345Z,INFO,kernel,CPU usage: 85%,,server1 

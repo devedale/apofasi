@@ -1,0 +1,35 @@
+### File: examples/ai_ml_cybersecurity_dataset.csv ###
+
+  [L:2] Original: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) Version/4.1 Safari/531.26.1",Ransomware,Critical,False,Crime low this behind option tax product.,Eradicated
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action 2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) Version/4.1 Safari/531.26.1",Ransomware,Critical,False,Crime low this behind option tax product.,Eradicated
+      - cluster_id: 1
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['219.80.193.15', '44.155.75.24'], 'timestamp_log': ['2020-02-07 23:46:57'], 'uuid': ['2019969e-ecfa-41c4-b681-9b684bc3b3bf'], 'file_path': ['/5.0', '/531.26.1', '/4.1'], 'severity_level': ['Critical'], 'status_code': ['219', '193', '155', '531']}
+      - regex_ip_address: ['219.80.193.15', '44.155.75.24']
+      - regex_timestamp_log: 2020-02-07 23:46:57
+      - regex_uuid: 2019969e-ecfa-41c4-b681-9b684bc3b3bf
+      - regex_file_path: ['/5.0', '/531.26.1', '/4.1']
+      - regex_severity_level: Critical
+      - regex_status_code: ['219', '193', '155', '531']
+      - timestamp_info: {'normalized_timestamp': '2020-02-07T23:46:57+00:00', 'confidence': 0.85, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2020-02-07 23:46:57'}
+--------------------
+  [L:3] Original: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+1668e954-781f-4731-94dc-24218b983ba1,2021-05-25 19:03:44,110.155.68.245,178.123.150.38,"Mozilla/5.0 (Windows 95) AppleWebKit/534.2 (KHTML, like Gecko) Chrome/40.0.877.0 Safari/534.2",Malware,Critical,True,Responsibility work way effect.,Eradicated
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action 1668e954-781f-4731-94dc-24218b983ba1,2021-05-25 19:03:44,110.155.68.245,178.123.150.38,"Mozilla/5.0 (Windows 95) AppleWebKit/534.2 (KHTML, like Gecko) Chrome/40.0.877.0 Safari/534.2",Malware,Critical,True,Responsibility work way effect.,Eradicated
+      - cluster_id: 2
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['110.155.68.245', '178.123.150.38'], 'timestamp_log': ['2021-05-25 19:03:44'], 'uuid': ['1668e954-781f-4731-94dc-24218b983ba1'], 'file_path': ['/5.0', '/534.2', '/40.0.877.0'], 'severity_level': ['Critical'], 'status_code': ['110', '155', '245', '178', '123', '150', '534']}
+      - regex_ip_address: ['110.155.68.245', '178.123.150.38']
+      - regex_timestamp_log: 2021-05-25 19:03:44
+      - regex_uuid: 1668e954-781f-4731-94dc-24218b983ba1
+      - regex_file_path: ['/5.0', '/534.2', '/40.0.877.0']
+      - regex_severity_level: Critical
+      - regex_status_code: ['110', '155', '245', '178', '123', '150', '534']
+      - timestamp_info: {'normalized_timestamp': '2021-05-25T19:03:44+00:00', 'confidence': 0.85, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2021-05-25 19:03:44'}
+--------------------
+

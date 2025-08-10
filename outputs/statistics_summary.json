@@ -1,0 +1,9 @@
+{
+  "total_records": 4,
+  "successful_parses": 4,
+  "failed_parses": 0,
+  "parser_distribution": {
+    "unknown": 4
+  },
+  "generated_at": "2025-08-10T21:30:17.785957"
+}
