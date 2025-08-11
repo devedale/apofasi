@@ -1,2 +1,0 @@
-Jan 10 10:00:00 host app[1234]: User login from 192.168.1.10
-Jan 10 10:01:00 host app[1234]: Error: invalid credentials for user test@example.com

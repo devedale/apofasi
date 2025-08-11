@@ -5,7 +5,7 @@ class ConfigService:
     """
     A service for loading from and saving to the YAML configuration file.
     """
-    def __init__(self, config_path: str = 'config/config.yaml'):
+    def __init__(self, config_path: str = '/app/config/config.yaml'):
         """
         Initializes the service with the path to the config file.
 
@@ -24,12 +24,17 @@ class ConfigService:
         """
         try:
             with open(self.config_path, 'r') as f:
-                return yaml.safe_load(f)
+                config = yaml.safe_load(f)
+                if not config:
+                    print(f"CRITICAL ERROR: Config file at {self.config_path} is empty or invalid.")
+                    return {}
+                return config
         except FileNotFoundError:
-            print(f"Warning: Config file not found at {self.config_path}. Using defaults.")
+            print(f"CRITICAL ERROR: Config file not found at {self.config_path}. The application cannot run without it.")
+            # In a real app, this might raise an exception.
             return {}
         except yaml.YAMLError as e:
-            print(f"Error parsing YAML file: {e}")
+            print(f"CRITICAL ERROR: Could not parse YAML file at {self.config_path}. Error: {e}")
             return {}
 
     def save_config(self, config_data: Dict[str, Any]) -> bool:
