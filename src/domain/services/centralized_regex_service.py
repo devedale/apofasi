@@ -3,13 +3,19 @@ Servizio centralizzato per la gestione di tutte le regex e pattern di anonimizza
 
 DESIGN: Centralizza tutte le regex per garantire coerenza tra anonimizzazione,
 pattern detection e template generation. Evita duplicazioni e inconsistenze.
+
+WHY: Ottimizzato per usare ConfigCache e evitare caricamenti ripetuti di YAML
+durante il processing di grandi dataset.
 """
 
 from typing import Dict, List, Tuple, Optional, Pattern, Any
 import re
-import yaml
-from pathlib import Path
 from abc import ABC, abstractmethod
+from pathlib import Path
+import yaml
+
+# WHY: Importa ConfigCache per evitare caricamenti ripetuti di YAML
+from ...core.services.config_cache import ConfigCache
 
 
 class CentralizedRegexService(ABC):
@@ -42,7 +48,7 @@ class CentralizedRegexService(ABC):
 
 
 class CentralizedRegexServiceImpl(CentralizedRegexService):
-    """Implementazione del servizio regex centralizzato."""
+    """Implementazione del servizio regex centralizzato ottimizzata."""
     
     def __init__(self, config: Dict[str, Any]):
         """
@@ -52,35 +58,87 @@ class CentralizedRegexServiceImpl(CentralizedRegexService):
             config: Configurazione contenente le regex centralizzate
         """
         self._config = config
-        self._anonymization_patterns = {}
-        self._detection_patterns = {}
-        self._compiled_anonymization = {}
-        self._compiled_detection = {}
         
-        # Carica configurazione da file YAML se disponibile
-        self._load_configuration()
+        # WHY: Usa ConfigCache per evitare caricamenti ripetuti di YAML
+        self._config_cache = ConfigCache()
+        
+        # Carica configurazione da cache invece che da file
+        self._load_configuration_from_cache()
         
         # Compila i pattern
         self._compiled_anonymization = self._compile_anonymization_patterns()
         self._compiled_detection = self._compile_detection_patterns()
     
-    def _load_configuration(self):
-        """Carica la configurazione da file YAML o usa i default."""
-        config_file = self._config.get("centralized_regex", {}).get("config_file", "config/centralized_regex.yaml")
+    def _load_configuration_from_cache(self) -> None:
+        """
+        Carica la configurazione regex dalla cache invece che dal file.
         
+        WHY: Evita caricamenti ripetuti di YAML durante il processing
+        di grandi dataset, riducendo il tempo da minuti a secondi.
+        """
         try:
-            if Path(config_file).exists():
-                with open(config_file, 'r', encoding='utf-8') as f:
-                    yaml_config = yaml.safe_load(f)
-                    self._anonymization_patterns = yaml_config.get("anonymization", {}).get("patterns", {})
-                    self._detection_patterns = yaml_config.get("pattern_detection", {}).get("patterns", {})
-                print(f"✅ Configurazione regex caricata da {config_file}")
+            # WHY: Usa la cache invece di ricaricare YAML
+            regex_config = self._config_cache.get_config('centralized_regex')
+            anonymization_config = regex_config.get('anonymization', {})
+            parsing_config = regex_config.get('parsing', {})
+            cleaning_config = regex_config.get('cleaning', {})
+            
+            # Converti i pattern da config.yaml nel formato atteso
+            self._anonymization_patterns = {}
+            for pattern_name, regex_pattern in anonymization_config.items():
+                self._anonymization_patterns[pattern_name] = {
+                    "regex": regex_pattern,
+                    "replacement": f"<{pattern_name.upper()}>",
+                    "description": f"Pattern per {pattern_name}"
+                }
+            
+            # Carica pattern di parsing
+            self._parsing_patterns = {}
+            for pattern_name, regex_pattern in parsing_config.items():
+                self._parsing_patterns[pattern_name] = {
+                    "regex": regex_pattern,
+                    "description": f"Pattern per parsing {pattern_name}"
+                }
+            
+            # Carica pattern di cleaning
+            self._cleaning_patterns = {}
+            for pattern_name, regex_pattern in cleaning_config.items():
+                self._cleaning_patterns[pattern_name] = {
+                    "regex": regex_pattern,
+                    "description": f"Pattern per cleaning {pattern_name}"
+                }
+            
+            # Carica pattern di detection dalla cache se disponibili
+            detection_config = regex_config.get("detection", {})
+            if detection_config:
+                self._detection_patterns = {}
+                for pattern_name, regex_pattern in detection_config.items():
+                    self._detection_patterns[pattern_name] = {
+                        "regex": regex_pattern,
+                        "description": f"Pattern per detection {pattern_name}"
+                    }
             else:
-                print(f"⚠️ File configurazione {config_file} non trovato, uso pattern di default")
-                self._load_default_patterns()
+                self._detection_patterns = self._get_default_detection_patterns()
+            
+            total_patterns = (len(self._anonymization_patterns) + 
+                            len(self._parsing_patterns) + 
+                            len(self._cleaning_patterns) + 
+                            len(self._detection_patterns))
+            
+            print(f"✅ Configurazione regex caricata da cache: {total_patterns} pattern totali")
+            
         except Exception as e:
-            print(f"⚠️ Errore caricamento configurazione: {e}, uso pattern di default")
-            self._load_default_patterns()
+            print(f"❌ Errore nel caricamento della configurazione dalla cache: {e}")
+            print("📝 Usando configurazione di default...")
+    
+    def _load_configuration(self) -> None:
+        """
+        Metodo legacy mantenuto per compatibilità.
+        
+        WHY: Deprecato in favore di _load_configuration_from_cache.
+        """
+        print("⚠️ Metodo legacy _load_configuration chiamato, usando cache...")
+        self._load_configuration_from_cache()
     
     def _load_default_patterns(self):
         """Carica i pattern di default se la configurazione non è disponibile."""
@@ -112,7 +170,11 @@ class CentralizedRegexServiceImpl(CentralizedRegexService):
             }
         }
         
-        self._detection_patterns = {
+        self._detection_patterns = self._get_default_detection_patterns()
+    
+    def _get_default_detection_patterns(self):
+        """Restituisce i pattern di detection di default."""
+        return {
             "ip_address": {
                 "regex": r"\b(?:\d{1,3}\.){3}\d{1,3}\b",
                 "description": "Indirizzi IPv4"
@@ -149,11 +211,99 @@ class CentralizedRegexServiceImpl(CentralizedRegexService):
     
     def get_anonymization_patterns(self) -> Dict[str, Dict[str, str]]:
         """Restituisce tutti i pattern di anonimizzazione."""
-        return self._anonymization_patterns.copy()
+        return self._anonymization_patterns
     
     def get_pattern_detection_patterns(self) -> Dict[str, Dict[str, str]]:
         """Restituisce tutti i pattern per la detection."""
-        return self._detection_patterns.copy()
+        return self._detection_patterns
+    
+    def get_detection_patterns(self) -> Dict[str, str]:
+        """
+        Restituisce i pattern di detection in formato semplificato.
+        
+        WHY: Metodo di compatibilità per PatternDetectionService.
+        Converte il formato interno in un formato semplice per la detection.
+        """
+        simple_patterns = {}
+        for pattern_name, pattern_config in self._detection_patterns.items():
+            if isinstance(pattern_config, dict) and "regex" in pattern_config:
+                simple_patterns[pattern_name] = pattern_config["regex"]
+            elif isinstance(pattern_config, str):
+                simple_patterns[pattern_name] = pattern_config
+        return simple_patterns
+    
+    def get_parsing_patterns(self) -> Dict[str, Dict[str, str]]:
+        """Restituisce tutti i pattern per il parsing."""
+        return self._parsing_patterns
+    
+    def get_cleaning_patterns(self) -> Dict[str, Dict[str, str]]:
+        """Restituisce tutti i pattern per il cleaning."""
+        return self._cleaning_patterns
+    
+    def get_csv_recognition_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per il riconoscimento CSV."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_csv_recognition_config()
+    
+    def get_field_detection_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per il rilevamento automatico dei tipi."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_field_detection_config()
+    
+    def get_timestamp_normalization_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per la normalizzazione timestamp."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_timestamp_normalization_config()
+    
+    def get_complex_csv_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per CSV complessi."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_complex_csv_config()
+    
+    def get_intelligent_analysis_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per l'analisi intelligente."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_intelligent_analysis_config()
+    
+    def get_parsers_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per i parser specifici."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_parsers_config()
+    
+    def get_output_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per l'output."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_output_config()
+    
+    def get_logging_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per il logging."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_logging_config()
+    
+    def get_parser_adaptive_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per il parser universale adattivo."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_parser_adaptive_config()
+    
+    def get_file_formats_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione per i formati di file supportati."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_file_formats_config()
+    
+    def get_app_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione generale dell'applicazione."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_app_config()
+    
+    def get_drain3_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione Drain3."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_drain3_config()
+    
+    def get_presidio_config(self) -> Dict[str, Any]:
+        """Restituisce la configurazione Microsoft Presidio."""
+        # WHY: Usa la cache invece di ricaricare YAML ogni volta
+        return self._config_cache.get_presidio_config()
     
     def anonymize_content(self, content: str) -> str:
         """
@@ -167,6 +317,57 @@ class CentralizedRegexServiceImpl(CentralizedRegexService):
         """
         anonymized_content = content
         
+        # 🚨 CORREZIONE: Applica PRIMA always_anonymize ai campi testuali
+        # WHY: I campi in always_anonymize devono essere anonimizzati SEMPRE,
+        # anche quando sono nel testo completo, non solo nei campi strutturati
+        try:
+            # WHY: Usa la cache per ottenere i campi always_anonymize
+            regex_config = self._config_cache.get_config('centralized_regex')
+            anonymization_config = regex_config.get('anonymization', {})
+            
+            # Cerca i campi always_anonymize nella configurazione
+            if 'always_anonymize' in anonymization_config:
+                always_fields = anonymization_config['always_anonymize']
+                verbose = bool(self._config_cache.get_config('centralized_regex').get('verbose_logging', False))
+                if verbose:
+                    print(f"🔍 DEBUG always_anonymize: campi configurati = {always_fields}")
+                
+                for field_name in always_fields:
+                    # Crea pattern per trovare il campo nel testo (es: vd="root", tz="+0200")
+                    field_pattern = rf'{field_name}\s*=\s*"([^"]*)"'
+                    if verbose:
+                        print(f"🔍 DEBUG always_anonymize: pattern per '{field_name}' = {field_pattern}")
+                    
+                    try:
+                        # Cerca se il pattern matcha
+                        matches = re.findall(field_pattern, anonymized_content, flags=re.IGNORECASE)
+                        if matches:
+                            if verbose:
+                                print(f"🔍 DEBUG always_anonymize: TROVATO '{field_name}' con valori = {matches}")
+                            # Sostituisci con il placeholder appropriato dal config
+                            placeholder_key = f"placeholder_{field_name}"
+                            if placeholder_key in anonymization_config:
+                                placeholder = anonymization_config[placeholder_key]
+                            else:
+                                placeholder = f"<{field_name.upper()}>"
+                            
+                            replacement = f'{field_name}="{placeholder}"'
+                            anonymized_content = re.sub(field_pattern, replacement, anonymized_content, flags=re.IGNORECASE)
+                            if verbose:
+                                print(f"🔍 DEBUG always_anonymize: SOSTITUITO '{field_name}' con '{replacement}'")
+                        else:
+                            if verbose:
+                                print(f"🔍 DEBUG always_anonymize: NESSUN MATCH per '{field_name}'")
+                    except re.error as e:
+                        print(f"⚠️ Errore regex always_anonymize per '{field_name}': {e}")
+                
+                if verbose:
+                    print(f"🔍 DEBUG always_anonymize: testo dopo always_anonymize = {anonymized_content[:200]}...")
+                
+        except Exception as e:
+            print(f"⚠️ Errore nell'applicazione always_anonymize: {e}")
+        
+        # WHY: Applica i pattern regex generici DOPO always_anonymize
         # Applica i pattern in ordine di specificità (più specifici prima)
         for name, pattern in self._compiled_anonymization.items():
             pattern_info = self._anonymization_patterns[name]
@@ -205,37 +406,74 @@ class CentralizedRegexServiceImpl(CentralizedRegexService):
     def get_template_from_content(self, content: str, anonymized: bool = False) -> str:
         """
         Genera un template dal contenuto, opzionalmente anonimizzato.
-        
-        DESIGN: Se anonimizzato=True, preserva i placeholder di anonimizzazione
-        prima di applicare i pattern generici per evitare perdita di coerenza.
+        WHY: Tutte le regex sono ora centralizzate nel file di configurazione
+        per evitare duplicazioni e inconsistenze.
         """
         if anonymized:
-            # Usa il contenuto anonimizzato per il template
             template_content = self.anonymize_content(content)
         else:
-            # Usa il contenuto originale
             template_content = content
         
-        # Sostituisci valori specifici con placeholder generici
         template = template_content
         
-        # IMPORTANTE: Se il contenuto è anonimizzato, preserva i placeholder specifici
-        if anonymized:
-            # Sostituisci solo i valori che NON sono già placeholder di anonimizzazione
-            # Numeri che non sono parte di placeholder esistenti
-            template = re.sub(r'\b(?<!<)(?<!>)\d+(?!>)\b', '<NUM>', template)
-            
-            # Stringhe tra virgolette che non sono già placeholder
-            template = re.sub(r'"([^"]*)"', lambda m: f'"{m.group(1)}"' if any(ph in m.group(1) for ph in ['<IP>', '<MAC>', '<FORTINET_DEVICE>', '<DEVICE_NAME>', '<HOSTNAME>', '<USERNAME>', '<SESSION_ID>', '<LOG_ID>', '<UNIX_TIMESTAMP>', '<SEQ_NUM>', '<PORT>', '<VERSION>']) else '"<STR>"', template)
-            
-            # Timestamp che non sono già placeholder
-            template = re.sub(r'\b(?<!<)(?<!>)\d{4}-\d{2}-\d{2}(?!>)\b', '<DATE>', template)
-            template = re.sub(r'\b(?<!<)(?<!>)\d{2}:\d{2}:\d{2}(?!>)\b', '<TIME>', template)
-        else:
-            # Per contenuto non anonimizzato, applica tutti i pattern generici
-            template = re.sub(r'\b\d+\b', '<NUM>', template)
-            template = re.sub(r'"([^"]*)"', '"<STR>"', template)
-            template = re.sub(r'\d{4}-\d{2}-\d{2}', '<DATE>', template)
-            template = re.sub(r'\d{2}:\d{2}:\d{2}', '<TIME>', template)
+        # ✅ IMPORTANTE: Usa le regex dal file di configurazione invece di hardcoded
+        # Applica i pattern generici in ordine di specificità
+        
+        # 1. Prima i pattern più specifici (timestamp, date, time)
+        if "generic_timestamp" in self._anonymization_patterns:
+            timestamp_pattern = self._compiled_anonymization.get("generic_timestamp")
+            if timestamp_pattern:
+                template = timestamp_pattern.sub("<TIMESTAMP>", template)
+        
+        if "generic_date" in self._anonymization_patterns:
+            date_pattern = self._compiled_anonymization.get("generic_date")
+            if date_pattern:
+                template = date_pattern.sub("<DATE>", template)
+        
+        if "generic_time" in self._anonymization_patterns:
+            time_pattern = self._compiled_anonymization.get("generic_time")
+            if time_pattern:
+                template = time_pattern.sub("<TIME>", template)
+        
+        # 2. Poi i pattern generici (numeri, stringhe)
+        if "generic_number" in self._anonymization_patterns:
+            number_pattern = self._compiled_anonymization.get("generic_number")
+            if number_pattern:
+                template = number_pattern.sub("<NUM>", template)
+        
+        if "generic_string" in self._anonymization_patterns:
+            string_pattern = self._compiled_anonymization.get("generic_string")
+            if string_pattern:
+                # Sostituisci stringhe tra virgolette con <STR> se non sono già placeholder
+                template = string_pattern.sub(lambda m: f'"{m.group(1)}"' if any(ph in m.group(1) for ph in ['<IP>', '<MAC>', '<DEVICE_ID>', '<DEVICE_NAME>', '<HOSTNAME>', '<TIMEZONE>', '<VD>', '<UNIX_TIMESTAMP>', '<NUMERIC_ID>', '<PORT>', '<VERSION>', '<HASH>', '<UUID>']) else '"<STR>"', template)
         
         return template
+    
+    def get_placeholder_for_field(self, field_name: str) -> str:
+        """
+        Ottiene il placeholder corretto per un campo specifico.
+        WHY: Garantisce coerenza tra always_anonymize e i placeholder del config.
+        
+        Args:
+            field_name: Nome del campo da anonimizzare
+            
+        Returns:
+            Placeholder appropriato per il campo
+        """
+        try:
+            # WHY: Usa la cache per ottenere i placeholder dal config
+            regex_config = self._config_cache.get_config('centralized_regex')
+            anonymization_config = regex_config.get('anonymization', {})
+            
+            # Cerca il placeholder specifico per questo campo
+            placeholder_key = f"placeholder_{field_name}"
+            if placeholder_key in anonymization_config:
+                return anonymization_config[placeholder_key]
+            
+            # Fallback: usa il nome del campo in maiuscolo
+            return f"<{field_name.upper()}>"
+            
+        except Exception as e:
+            print(f"⚠️ Errore nel recupero placeholder per '{field_name}': {e}")
+            # Fallback sicuro
+            return f"<{field_name.upper()}>"

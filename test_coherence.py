@@ -32,7 +32,7 @@ def test_template_coherence():
     # Configurazione di test
     config = {
         "centralized_regex": {
-            "config_file": "config/centralized_regex.yaml"
+            "generate_anonymized_templates": True
         },
         "drain3": {
             "original": {"depth": 4, "max_children": 100, "max_clusters": 1000, "similarity_threshold": 0.4},

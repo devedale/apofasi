@@ -32,5 +32,20 @@ python3 cli_parser.py parse <input_file> <output_dir>
 
 ## Configurazione
 
-- `config/config.ini`: Configurazione principale
-- `config/centralized_regex.yaml`: Pattern regex centralizzati
+Il progetto utilizza una configurazione centralizzata in `config/config.yaml` che include:
+
+- **Regex Patterns**: Tutti i pattern regex per anonimizzazione, parsing e cleaning
+- **Drain3 Configuration**: Parametri per il template mining
+- **File Formats**: Configurazione per i formati di file supportati
+- **Parser Configuration**: Configurazione dettagliata per tutti i parser
+- **Timestamp Normalization**: Pattern per la normalizzazione delle date
+- **Output & Logging**: Configurazione per output e logging
+
+### Struttura della Configurazione
+
+```
+config/
+└── config.yaml             # Configurazione centralizzata unificata
+```
+
+**Nota**: Tutta la configurazione è ora centralizzata in `config.yaml` per evitare duplicazioni e garantire coerenza.

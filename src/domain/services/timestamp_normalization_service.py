@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from ..entities.parsed_record import ParsedRecord
 from ..entities.log_entry import LogEntry
+from ..interfaces.centralized_regex_service import CentralizedRegexService
 
 
 @dataclass
@@ -44,33 +45,49 @@ class TimestampNormalizationService:
     seguendo i pattern architetturali del dominio.
     """
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, 
+                 centralized_regex_service: Optional[CentralizedRegexService] = None):
         """Inizializza il servizio di normalizzazione temporale.
 
         Args:
             config: configurazione globale. Usa `timestamp_normalization.allow_content_scan` (default: False).
+            centralized_regex_service: servizio regex centralizzato per configurazione
         """
         self._config = config or {}
-        tn_cfg = self._config.get('timestamp_normalization', {})
+        self._centralized_regex_service = centralized_regex_service
+        
+        # WHY: Usa il servizio centralizzato se disponibile, altrimenti fallback alla configurazione locale
+        if self._centralized_regex_service:
+            timestamp_config = self._centralized_regex_service.get_timestamp_normalization_config()
+            tn_cfg = timestamp_config
+        else:
+            tn_cfg = self._config.get('timestamp_normalization', {})
+        
         # Policy M7: content scan disabilitato di default; permesso solo se esplicitamente abilitato
         self.allow_content_scan: bool = bool(tn_cfg.get('allow_content_scan', False))
-        # Pattern per riconoscimento timestamp (ordinati per specificità)
-        self.timestamp_patterns = [
-            # ISO 8601 completo
-            (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?', 0.95),
-            # ISO 8601 senza timezone
-            (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.9),
-            # Formato standard con spazio
-            (r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.85),
-            # Formato syslog RFC3164
-            (r'\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.8),
-            # Formato loghub
-            (r'\d{8}-\d{2}:\d{2}:\d{2}:\d{3}', 0.75),
-            # Solo data
-            (r'\d{4}-\d{2}-\d{2}', 0.6),
-            # Solo ora
-            (r'\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.5),
-        ]
+        
+        # WHY: Carica i pattern dalla configurazione centralizzata se disponibili
+        if self._centralized_regex_service:
+            # Usa i pattern dalla configurazione centralizzata
+            self.timestamp_patterns = self._load_timestamp_patterns_from_config()
+        else:
+            # Pattern per riconoscimento timestamp (ordinati per specificità) - fallback
+            self.timestamp_patterns = [
+                # ISO 8601 completo
+                (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?', 0.95),
+                # ISO 8601 senza timezone
+                (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.9),
+                # Formato standard con spazio
+                (r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.85),
+                # Formato syslog RFC3164
+                (r'\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.8),
+                # Formato loghub
+                (r'\d{8}-\d{2}:\d{2}:\d{2}:\d{3}', 0.75),
+                # Solo data
+                (r'\d{4}-\d{2}-\d{2}', 0.6),
+                # Solo ora
+                (r'\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.5),
+            ]
         
         # Formati di parsing supportati
         self.datetime_formats = [
@@ -86,6 +103,42 @@ class TimestampNormalizationService:
             '%H:%M:%S',
             '%H:%M:%S.%f',
         ]
+    
+    def _load_timestamp_patterns_from_config(self) -> List[Tuple[str, float]]:
+        """Carica i pattern timestamp dalla configurazione centralizzata."""
+        try:
+            timestamp_config = self._centralized_regex_service.get_timestamp_normalization_config()
+            patterns = timestamp_config.get('patterns', [])
+            
+            # Converte i pattern dalla configurazione nel formato atteso
+            timestamp_patterns = []
+            for pattern_info in patterns:
+                if isinstance(pattern_info, dict):
+                    pattern = pattern_info.get('pattern', '')
+                    replacement = pattern_info.get('replacement', '')
+                    # Usa una confidence di default per i pattern configurati
+                    confidence = 0.8
+                    if pattern:
+                        timestamp_patterns.append((pattern, confidence))
+            
+            # Aggiunge pattern di fallback se nessuno è configurato
+            if not timestamp_patterns:
+                timestamp_patterns = [
+                    (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?', 0.95),
+                    (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.9),
+                    (r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.85),
+                ]
+            
+            return timestamp_patterns
+            
+        except Exception as e:
+            print(f"⚠️ Errore nel caricamento pattern timestamp: {e}")
+            # Fallback ai pattern di default
+            return [
+                (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?', 0.95),
+                (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.9),
+                (r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?', 0.85),
+            ]
     
     def normalize_parsed_record(self, record) -> ParsedRecord:
         """

@@ -14,7 +14,7 @@ class KnowledgeService(RegexService, IKnowledgeService):
     basati sui pattern regex caricati.
     """
     
-    def __init__(self, config_path: Path = Path('config/regex_patterns.yaml')):
+    def __init__(self, config_path: Path = Path('config/config.yaml')):
         super().__init__(config_path)
         # Cache per i pattern aggregati, per evitare di ricalcolarli ogni volta
         self._aggregated_timestamp_pattern = None

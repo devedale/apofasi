@@ -84,7 +84,7 @@ def test_entities():
 def test_config():
     """Test della configurazione."""
     try:
-        config_path = Path(__file__).parent / "config" / "parser_config.yaml"
+        config_path = Path(__file__).parent / "config" / "config.yaml"
         assert config_path.exists(), f"File di configurazione non trovato: {config_path}"
         
         print("✅ File di configurazione trovato")

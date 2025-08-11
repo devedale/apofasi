@@ -15,6 +15,7 @@ from drain3 import TemplateMiner
 from pathlib import Path
 
 from .regex_service import RegexService
+from ...domain.interfaces.centralized_regex_service import CentralizedRegexService
 
 
 class PatternDetectionService:
@@ -25,22 +26,18 @@ class PatternDetectionService:
     da tutti i parser, garantendo funzionalità consistenti.
     """
     
-    def __init__(self, config: Dict[str, Any] = None, regex_service: Optional["RegexService"] = None):
+    def __init__(self, config: Dict[str, Any] = None, centralized_regex_service: Optional["CentralizedRegexService"] = None):
         """
         Inizializza il servizio di detection pattern.
         
         Args:
             config: Configurazione per Drain3 e pattern detection
-            regex_service: Servizio regex condiviso (opzionale)
+            centralized_regex_service: Servizio regex centralizzato per coerenza
         """
         self.config = config or {}
         
-        # Usa RegexService condiviso o creane uno nuovo
-        if regex_service:
-            self.regex_service = regex_service
-        else:
-            from .regex_service import RegexService
-            self.regex_service = RegexService()
+        # Usa CentralizedRegexService per coerenza
+        self.centralized_regex_service = centralized_regex_service
         
         # Inizializza Drain3 per template mining
         # Usa configurazione di default per TemplateMiner
@@ -80,7 +77,25 @@ class PatternDetectionService:
         
         # Pattern regex per detection automatica di entità comuni
         # WHY: Pattern ottimizzati per ridurre falsi positivi e essere più precisi
-        self.detection_patterns = {
+        if self.centralized_regex_service:
+            try:
+                self.detection_patterns = self.centralized_regex_service.get_detection_patterns()
+                print(f"✅ Pattern detection caricati da CentralizedRegexService: {len(self.detection_patterns)} pattern")
+            except Exception as e:
+                print(f"⚠️ Errore nel caricamento pattern centralizzati: {e}, uso pattern di default")
+                self.detection_patterns = self._get_default_detection_patterns()
+        else:
+            print("⚠️ CentralizedRegexService non disponibile, uso pattern di default")
+            self.detection_patterns = self._get_default_detection_patterns()
+    
+    def _get_default_detection_patterns(self) -> Dict[str, str]:
+        """
+        Restituisce i pattern di detection di default.
+        
+        WHY: Fallback quando CentralizedRegexService non è disponibile.
+        Mantiene la funzionalità anche in caso di errori di configurazione.
+        """
+        return {
             'ip_address': r'\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b',
             'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
             'timestamp_iso': r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?',
@@ -93,8 +108,6 @@ class PatternDetectionService:
             'uuid': r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
             'hash_md5': r'\b[a-fA-F0-9]{32}\b',
             'hash_sha256': r'\b[a-fA-F0-9]{64}\b',
-            # Rimuovo port_number che era mal formato
-            # Aggiusto file_path per essere meno aggressivo con XML
             'file_path': r'(?:[a-zA-Z]:\\|\/)[^\s<>"]*(?:\/[^\s<>"]*)*',  # Path reali, non tag XML
             'severity_level': r'\b(?:DEBUG|INFO|WARN|WARNING|ERROR|FATAL|CRITICAL|TRACE)\b',
             'process_id': r'\b(?:pid|PID)[\s:=]+(\d+)\b',

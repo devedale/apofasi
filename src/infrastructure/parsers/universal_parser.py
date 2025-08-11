@@ -145,10 +145,35 @@ class ParserOrchestrator(LogParser):
         return True
     
     def parse(self, log_entry: "LogEntry") -> Iterator[ParsedRecord]:
-        """Parsa il contenuto usando il parser multi-strategy universale"""
+        """
+        Parsa il contenuto usando il parser multi-strategy universale.
+        
+        WHY: source_file deve essere SEMPRE definito per evitare errori
+        "source_file is not defined". Validiamo by design.
+        
+        Args:
+            log_entry: Entry del log da parsare
+            
+        Yields:
+            ParsedRecord instances
+            
+        Raises:
+            ValueError: Se log_entry.source_file è None o vuoto
+        """
+        # VALIDAZIONE BY DESIGN: source_file deve essere sempre definito
+        if not log_entry.source_file:
+            raise ValueError(
+                f"LogEntry deve avere source_file definito. "
+                f"Ricevuto: {log_entry.source_file}"
+            )
+        
         content = log_entry.content
         source_file = log_entry.source_file
         line_number = log_entry.line_number
+        
+        # WHY: Assicuriamoci che source_file sia sempre definita per evitare errori
+        if source_file is None:
+            source_file = Path("unknown")
         
         try:
             # Usa prima il parser multi-strategy universale
@@ -166,16 +191,6 @@ class ParserOrchestrator(LogParser):
             except Exception as e:
                 print(f"⚠️ ADAPTIVE PARSER FAILED [{source_file}:{line_number}]: {str(e)}")
                 # Fallback al parser robusto per file problematici
-            
-            # Fallback al parser robusto per file problematici
-            # Rimosso per evitare conflitti con MultiStrategyParser
-            # try:
-            #     if self.robust_csv_parser.can_parse(content, str(source_file) if source_file else None):
-            #         yield from self.robust_csv_parser.parse(log_entry)
-            #         return
-            # except Exception as e:
-            #     print(f"⚠️ ROBUST CSV PARSER FAILED [{source_file}:{line_number}]: {str(e)}")
-            #     # Fallback ai parser specifici
             
             # Special handling for CSV structured logs (single lines only)
             # Rimosso per evitare conflitti con MultiStrategyParser
@@ -209,14 +224,19 @@ class ParserOrchestrator(LogParser):
             
             # Trova il parser appropriato
             selected_parser = None
+            error_msg = ''
+            
             for parser in self.parsers:
-                if parser.can_parse(content, str(source_file)):
-                    selected_parser = parser
-                    break
+                try:
+                    if parser.can_parse(content, str(source_file)):
+                        selected_parser = parser
+                        break
+                except Exception as e:
+                    print(f"⚠️ PARSER CAN_PARSE ERROR [{source_file}:{line_number}]: {str(e)}")
+                    continue
             
             if not selected_parser:
-                # Fallback: tratta come testo generico
-                error_msg = 'Nessun parser appropriato trovato'
+                error_msg = 'Nessun parser disponibile per questo contenuto'
                 print(f"⚠️ NO PARSER FOUND [{source_file}:{line_number}]: {error_msg}")
                 yield ParsedRecord(
                     original_content=content,
@@ -228,7 +248,7 @@ class ParserOrchestrator(LogParser):
                         'extracted_fields': {}
                     },
                     parser_name="fallback",
-                    source_file=source_file,
+                    source_file=source_file,  # ✅ SEMPRE definito
                     line_number=line_number,
                 )
                 return

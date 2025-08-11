@@ -37,7 +37,7 @@ class RegexEngine(BaseService):
             config_path: Percorso al file di configurazione
         """
         super().__init__()
-        self.config_path = config_path or Path("config/regex_patterns.yaml")
+        self.config_path = config_path or Path("config/config.yaml")
         self._patterns = {}
         self._compiled_patterns = {}
         self._config = {}

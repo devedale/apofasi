@@ -25,7 +25,7 @@ def debug_syslog_parsing(file_path: Path):
         return
 
     # Carica una configurazione di base per il parser
-    config = {'config_path': 'config/parser_config.yaml'}
+    config = {'config_path': 'config/config.yaml'}
     parser = MultiStrategyParser(config)
     
     print(f"✅ Parser {parser.name} inizializzato.")

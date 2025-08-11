@@ -11,7 +11,7 @@ class ConfigLoader:
     
     def __init__(self) -> None:
         """Initialize the config loader."""
-        self._default_config_path = Path(__file__).parent.parent.parent / "config" / "config.ini"
+        self._default_config_path = Path(__file__).parent.parent.parent / "config" / "config.yaml"
     
     def load_config(self, config_path: Optional[Path] = None) -> Dict[str, Any]:
         """

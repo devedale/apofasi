@@ -32,21 +32,21 @@ from .smart_excel_parser import SmartExcelParser
 # Rimosso ParserOrchestrator - ora usiamo solo MultiStrategyParser
 
 
-def create_parsers(config: Dict[str, Any], regex_service: Optional["RegexService"] = None) -> List[LogParser]:
+def create_parsers(config: Dict[str, Any], centralized_regex_service: Optional["CentralizedRegexService"] = None) -> List[LogParser]:
     """
     Crea i parser disponibili.
     
     Args:
         config: Configurazione del sistema
-        regex_service: Servizio regex condiviso (opzionale)
+        centralized_regex_service: Servizio regex centralizzato per coerenza
         
     Returns:
         Lista di parser configurati
     """
     from .multi_strategy_parser import MultiStrategyParser
     
-    # Crea solo MultiStrategyParser con RegexService condiviso
-    return [MultiStrategyParser(config, regex_service)]
+    # Crea solo MultiStrategyParser con CentralizedRegexService
+    return [MultiStrategyParser(config, centralized_regex_service)]
 
 
 def get_available_parsers() -> List[str]:

@@ -22,15 +22,23 @@ class FileFormatService:
     - Loggare informazioni sui formati supportati
     """
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], centralized_regex_service=None):
         """
         Inizializza il servizio con la configurazione.
         
         Args:
             config: Configurazione dell'applicazione
+            centralized_regex_service: Servizio regex centralizzato opzionale
         """
         self._config = config
-        self._file_formats_config = config.get("file_formats", {})
+        self._centralized_regex_service = centralized_regex_service
+        
+        # WHY: Usa il servizio centralizzato se disponibile, altrimenti fallback alla configurazione locale
+        if self._centralized_regex_service:
+            self._file_formats_config = self._centralized_regex_service.get_file_formats_config()
+        else:
+            self._file_formats_config = config.get("file_formats", {})
+        
         self._verbose_logging = self._file_formats_config.get("verbose_parser_logging", True)
         
         # Configurazione dei formati supportati (struttura INI semplificata)

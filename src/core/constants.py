@@ -23,7 +23,7 @@ from pathlib import Path
 # =============================================================================
 
 # Percorso di default per i file di configurazione
-DEFAULT_CONFIG_PATH = Path("config/parser_config.yaml")
+DEFAULT_CONFIG_PATH = Path("config/config.yaml")
 
 # Formati di log supportati dal sistema
 SUPPORTED_FORMATS = [

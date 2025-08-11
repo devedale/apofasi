@@ -26,7 +26,7 @@ Il sistema **Dual Mining Drain3** permette di calcolare cluster e template sia s
 ### **Configurazione**
 
 ```yaml
-# config/parser_config.yaml
+# config/config.yaml
 drain3:
   # Parametri per messaggi originali
   original:

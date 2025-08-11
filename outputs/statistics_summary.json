@@ -5,5 +5,17 @@
   "parser_distribution": {
     "unknown": 4
   },
-  "generated_at": "2025-08-10T21:30:17.785957"
+  "batch_processing_stats": {
+    "total_files": 1,
+    "similarity_groups": 2,
+    "records_with_content": 4,
+    "file_extensions": [
+      ".txt"
+    ],
+    "parser_distribution": {
+      "adaptive_drain": 4
+    },
+    "total_records": 4
+  },
+  "generated_at": "2025-08-11T20:05:49.318133"
 }

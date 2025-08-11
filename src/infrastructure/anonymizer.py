@@ -7,22 +7,28 @@ from typing import Any, Dict, Optional
 from ..domain.interfaces.anonymizer import Anonymizer
 from ..domain.entities.parsed_record import ParsedRecord
 from ..core.services.regex_service import RegexService
+from ..domain.interfaces.centralized_regex_service import CentralizedRegexService
 
 
 class RegexAnonymizer(Anonymizer):
     """Regex-based implementation of anonymizer."""
     
-    def __init__(self, config: Dict[str, Any], regex_service: Optional[RegexService] = None) -> None:
+    def __init__(self, config: Dict[str, Any], centralized_regex_service: Optional[CentralizedRegexService] = None) -> None:
         """
-        Initialize the regex anonymizer.
+        Inizializza l'anonymizer.
         
         Args:
-            config: Configuration dictionary
+            config: Configurazione del sistema
+            centralized_regex_service: Servizio regex centralizzato per coerenza
         """
         self._config = config
-        self._regex_service = regex_service or RegexService(config)
-        self._regex_patterns = self._load_regex_patterns()
+        self._centralized_regex_service = centralized_regex_service
+        
+        # Carica configurazione anonimizzazione
         self._anonymization_config = self._load_anonymization_config()
+        
+        # Carica pattern regex per anonimizzazione
+        self._regex_patterns = self._load_regex_patterns()
     
     def anonymize_record(self, record: ParsedRecord) -> ParsedRecord:
         """
@@ -39,7 +45,11 @@ class RegexAnonymizer(Anonymizer):
         if hasattr(record, 'parsed_data') and record.parsed_data:
             anonymized_parsed_data = {}
             for key, value in record.parsed_data.items():
-                if isinstance(value, str):
+                # WHY: Applica anonimizzazione specifica per i campi configurati
+                if key.lower() in [field.lower() for field in self._anonymization_config.always_anonymize_fields]:
+                    anonymized_parsed_data[key] = self.anonymize_field(key, value)
+                elif isinstance(value, str):
+                    # WHY: Per gli altri campi stringa, applica solo pattern regex
                     anonymized_parsed_data[key] = self.anonymize_text(value)
                 elif isinstance(value, dict):
                     # Anonimizza valori nei dizionari annidati
@@ -65,19 +75,24 @@ class RegexAnonymizer(Anonymizer):
         if not isinstance(field_value, str):
             return field_value
         
-        # Get anonymization method for this field
-        method = self._anonymization_config.get_method_for_field(field_name)
+        # WHY: Controlla se il campo deve essere anonimizzato sempre
+        if field_name.lower() in [field.lower() for field in self._anonymization_config.always_anonymize_fields]:
+            # Get anonymization method for this field
+            method = self._anonymization_config.get_method_for_field(field_name)
+            
+            if method == "hash":
+                return self._hash_value(field_value)
+            elif method == "mask":
+                return self._mask_value(field_value)
+            elif method == "replace":
+                replacement = self._anonymization_config.methods.get("replace", {}).get(field_name)
+                return replacement if replacement else f"<{field_name.upper()}>"
+            else:
+                # Apply regex patterns
+                return self.anonymize_text(field_value)
         
-        if method == "hash":
-            return self._hash_value(field_value)
-        elif method == "mask":
-            return self._mask_value(field_value)
-        elif method == "replace":
-            replacement = self._anonymization_config.methods["replace"].get(field_name)
-            return replacement if replacement else field_value
-        else:
-            # Apply regex patterns
-            return self.anonymize_text(field_value)
+        # Se non è un campo da anonimizzare sempre, applica solo i pattern regex
+        return self.anonymize_text(field_value)
     
     def anonymize_text(self, text: str) -> str:
         """
@@ -89,21 +104,66 @@ class RegexAnonymizer(Anonymizer):
         Returns:
             Anonymized text
         """
-        if not isinstance(text, str):
+        if not text:
             return text
         
-        # Usa RegexService centralizzato per applicare categoria anonymization
-        return self._regex_service.apply_patterns_by_category(text, 'anonymization')
+        anonymized_text = text
+        
+        # 🚨 CORREZIONE: Applica PRIMA always_anonymize ai campi testuali
+        # WHY: I campi in always_anonymize devono essere anonimizzati SEMPRE,
+        # anche quando sono nel testo completo, non solo nei campi strutturati
+        if self._anonymization_config and self._anonymization_config.always_anonymize_fields:
+            for field_name in self._anonymization_config.always_anonymize_fields:
+                # Crea pattern per trovare il campo nel testo (es: vd="root", tz="+0200")
+                field_pattern = rf'{field_name}\s*=\s*"([^"]*)"'
+                
+                try:
+                    # Cerca se il pattern matcha
+                    matches = re.findall(field_pattern, anonymized_text, flags=re.IGNORECASE)
+                    if matches:
+                        # Sostituisci con il placeholder appropriato dal config
+                        # WHY: Usa i placeholder definiti nel config per coerenza
+                        if hasattr(self, '_centralized_regex_service') and self._centralized_regex_service:
+                            # Usa il servizio centralizzato per ottenere il placeholder corretto
+                            placeholder = self._centralized_regex_service.get_placeholder_for_field(field_name)
+                        else:
+                            # Fallback: usa il nome del campo in maiuscolo
+                            placeholder = f"<{field_name.upper()}>"
+                        
+                        replacement = f'{field_name}="{placeholder}"'
+                        anonymized_text = re.sub(field_pattern, replacement, anonymized_text, flags=re.IGNORECASE)
+                        
+                except re.error as e:
+                    print(f"⚠️ Errore regex always_anonymize per '{field_name}': {e}")
+        
+        # WHY: Usa i pattern regex centralizzati se disponibili (DOPO always_anonymize)
+        if self._centralized_regex_service:
+            anonymization_patterns = self._centralized_regex_service.get_anonymization_patterns()
+            for pattern_name, pattern_info in anonymization_patterns.items():
+                if isinstance(pattern_info, dict) and "regex" in pattern_info:
+                    pattern = pattern_info["regex"]
+                    replacement = pattern_info.get("replacement", f"<{pattern_name.upper()}>")
+                    try:
+                        anonymized_text = re.sub(pattern, replacement, anonymized_text, flags=re.IGNORECASE)
+                    except re.error as e:
+                        print(f"⚠️ Errore regex pattern '{pattern_name}': {e}")
+        else:
+            # Fallback ai pattern locali
+            for pattern_name, pattern_info in self._regex_patterns.items():
+                if isinstance(pattern_info, dict) and "pattern" in pattern_info:
+                    pattern = pattern_info["pattern"]
+                    replacement = pattern_info.get("replacement", f"<{pattern_name.upper()}>")
+                    try:
+                        anonymized_text = re.sub(pattern, replacement, anonymized_text, flags=re.IGNORECASE)
+                    except re.error as e:
+                        print(f"⚠️ Errore regex pattern '{pattern_name}': {e}")
+        
+        return anonymized_text
     
     @property
     def anonymization_methods(self) -> Dict[str, str]:
         """Get available anonymization methods."""
-        return {
-            "hash": "SHA256 hashing with salt",
-            "mask": "Pattern masking",
-            "replace": "Direct replacement",
-            "regex": "Regex pattern matching",
-        }
+        return self._anonymization_config.methods
     
     @property
     def always_anonymize_fields(self) -> list[str]:
@@ -126,17 +186,44 @@ class RegexAnonymizer(Anonymizer):
         return compiled_patterns
     
     def _load_anonymization_config(self) -> "AnonymizationConfig":
-        """Load anonymization configuration."""
+        """Load anonymization configuration using centralized service."""
         from ..domain.entities.anonymization_config import AnonymizationConfig
         
-        drain3_config = self._config.get("drain3", {})
-        anonymization_config = drain3_config.get("anonymization", {})
+        try:
+            # WHY: Usa il servizio centralizzato se disponibile
+            if self._centralized_regex_service:
+                drain3_config = self._centralized_regex_service.get_drain3_config()
+                anonymization_config = drain3_config.get("anonymization", {})
+                anonymization_patterns = self._centralized_regex_service.get_anonymization_patterns()
+                
+                return AnonymizationConfig(
+                    enabled=anonymization_config.get("enabled", True),
+                    preserve_structure=anonymization_config.get("preserve_structure", True),
+                    always_anonymize_fields=anonymization_config.get("always_anonymize", []),
+                    methods=anonymization_config.get("methods", {}),
+                    regex_patterns=anonymization_patterns,
+                )
+            else:
+                # Fallback alla configurazione locale
+                return self._load_default_anonymization_config()
+                
+        except Exception as e:
+            print(f"❌ Errore nel caricamento della configurazione: {e}")
+            print("📝 Usando configurazione di default...")
+            return self._load_default_anonymization_config()
+    
+    def _load_default_anonymization_config(self) -> "AnonymizationConfig":
+        """Load default anonymization configuration."""
+        from ..domain.entities.anonymization_config import AnonymizationConfig
         
         return AnonymizationConfig(
-            enabled=anonymization_config.get("enabled", True),
-            preserve_structure=anonymization_config.get("preserve_structure", True),
-            always_anonymize_fields=anonymization_config.get("always_anonymize", []),
-            methods=anonymization_config.get("methods", {}),
+            enabled=True,
+            preserve_structure=True,
+            always_anonymize_fields=[
+                "ip_address", "user_id", "session_id", "device_id", 
+                "mac_address", "email", "phone", "credit_card", "ssn"
+            ],
+            methods={},
             regex_patterns=self._regex_patterns,
         )
     

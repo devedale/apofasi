@@ -64,27 +64,40 @@ class ParsingService:
         """
         self.config = config
         
-        # Crea un RegexService condiviso per evitare logging ripetuto
-        from ...core.services.regex_service import RegexService
-        self.regex_service = RegexService()
+        # DESIGN: CentralizedRegexService è l'unico punto di accesso per pattern regex
+        # RegexService è mantenuto solo per compatibilità legacy
+        from ...domain.services.centralized_regex_service import CentralizedRegexServiceImpl
+        self.centralized_regex_service = CentralizedRegexServiceImpl(config)
         
-        # Crea i componenti con RegexService condiviso, consentendo override via DI
+        # Crea i componenti usando esclusivamente CentralizedRegexService
         if log_parser is not None:
             multi_strategy_parser = log_parser
         else:
-            parsers = create_parsers(config, self.regex_service)  # Passa RegexService condiviso
+            parsers = create_parsers(config, centralized_regex_service=self.centralized_regex_service)
             multi_strategy_parser = parsers[0]  # Prendi il primo (e unico) parser
 
-        drain3_service_instance = drain3_service or Drain3ServiceImpl(config)
-        anonymizer_instance = anonymizer or RegexAnonymizer(config)
+        drain3_service_instance = drain3_service or Drain3ServiceImpl(config, self.centralized_regex_service)
+        
+        # Usa l'adapter ibrido se Presidio è abilitato, altrimenti fallback a RegexAnonymizer
+        if config.get('presidio', {}).get('enabled', False):
+            try:
+                from ...infrastructure.hybrid_anonymizer_adapter import HybridAnonymizerAdapter
+                anonymizer_instance = anonymizer or HybridAnonymizerAdapter(config, self.centralized_regex_service)
+                print(f"✅ Usando anonimizzazione ibrida con modalità: {config.get('presidio', {}).get('anonymization_mode', 'hybrid')}")
+            except Exception as e:
+                print(f"⚠️ Presidio non disponibile, fallback a regex: {e}")
+                anonymizer_instance = anonymizer or RegexAnonymizer(config, centralized_regex_service=self.centralized_regex_service)
+        else:
+            anonymizer_instance = anonymizer or RegexAnonymizer(config, centralized_regex_service=self.centralized_regex_service)
         
         # Crea il servizio principale
         self.log_processing_service = LogProcessingService(
-            parser_orchestrator=multi_strategy_parser,  # Usa direttamente MultiStrategyParser
+            parser_orchestrator=multi_strategy_parser,
             drain3_service=drain3_service_instance,
             anonymizer=anonymizer_instance,
-            config=config,  # Passa la configurazione
+            config=config,
             log_reader=log_reader,
+            centralized_regex_service=self.centralized_regex_service,
         )
     
     def parse_files(self, input_path: str) -> List[Dict[str, Any]]:

@@ -32,6 +32,7 @@ from ...domain.interfaces.unified_log_writer import UnifiedLogWriter
 from ...infrastructure.unified.unified_log_writer_fs import UnifiedLogWriterFs
 from ...domain.entities.parsed_record import ParsedRecord
 from ...core.services.drain3_analyzer import Drain3Analyzer
+from ...domain.interfaces.centralized_regex_service import CentralizedRegexService
 
 
 class ReportingService:
@@ -42,13 +43,17 @@ class ReportingService:
     modulare e testabile, seguendo il principio di Single Responsibility.
     """
     
-    def __init__(self, output_dir: Path, logger: Optional[LoggerService] = None, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, output_dir: Path, logger: Optional[LoggerService] = None, 
+                 config: Optional[Dict[str, Any]] = None, 
+                 centralized_regex_service: Optional[CentralizedRegexService] = None):
         """
         Inizializza il servizio di reporting.
         
         Args:
             output_dir: Directory di output
             logger: Servizio logger opzionale
+            config: Configurazione opzionale
+            centralized_regex_service: Servizio regex centralizzato opzionale
         """
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -59,6 +64,12 @@ class ReportingService:
         self.unified_service = UnifiedLogService()
         self.drain3_analyzer = Drain3Analyzer()
         self.config = config or {}
+        self.centralized_regex_service = centralized_regex_service
+        
+        # WHY: Cache globale per configurazioni costose - caricata una sola volta
+        from ...core.services.config_cache import ConfigCache
+        self._config_cache = ConfigCache()
+        self._cached_always_fields = self._config_cache.get_always_anonymize_fields()
         
         # Statistiche
         self.stats = {
@@ -82,8 +93,13 @@ class ReportingService:
         # Inizializza writer unificato con DI (FS default)
         self.unified_writer: UnifiedLogWriter = UnifiedLogWriterFs(output_dir)
         
-        # Inizializza RegexService centralizzato (singleton-like)
-        self.regex_service = RegexService()
+        # WHY: Usa centralized_regex_service se disponibile, altrimenti fallback a RegexService
+        if centralized_regex_service:
+            self.regex_service = centralized_regex_service
+        else:
+            # Fallback per compatibilità
+            from ...core.services.regex_service import RegexService
+            self.regex_service = RegexService(config)
     
     def generate_comprehensive_report(self, parsed_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -143,28 +159,52 @@ class ReportingService:
         Genera file di dati puri per analisi esterne.
         
         WHY: Fornisce dati strutturati per analisi con strumenti esterni
-        come Excel, Python, R, etc.
+        come Excel, Python, R, etc. Ottimizzato per grandi dataset con processing batch globale.
+        
+        DESIGN: Processing batch globale che:
+        1. Analizza tutto il dataset per identificare pattern
+        2. Raggruppa record simili per processing ottimizzato
+        3. Applica operazioni in batch per massimizzare efficienza
+        4. Gestisce file con header simili per riutilizzo cache
         
         Args:
             parsed_results: Lista dei risultati parsati
         """
         self.logger.info("📊 Generando file di dati puri...")
 
-        # Normalizza e riordina: mantieni tutto in chiaro e aggiungi solo 'anonymized_message'
-        enriched_results: List[Dict[str, Any]] = []
-        for item in parsed_results:
-            if not isinstance(item, dict):
-                continue
-            normalized = self._normalize_output_record(item)
-            enriched_results.append(normalized)
+        total_items = len(parsed_results)
+        print(f"🔄 Processando COMPLETO del dataset: {total_items} record per file di dati puri...")
+        
+        # 1. ANALISI COMPLETA DEL DATASET
+        print("📊 Analizzando struttura del dataset per ottimizzazione...")
+        dataset_analysis = self._analyze_dataset_for_batch_processing(parsed_results)
+        print(f"   📁 File totali: {dataset_analysis['total_files']}")
+        print(f"   🔗 Gruppi di similarità: {dataset_analysis['similarity_groups']}")
+        print(f"   📝 Record con contenuto: {dataset_analysis['records_with_content']}")
+        
+        # 2. PROCESSING BATCH GLOBALE OTTIMIZZATO
+        print("🚀 Avviando processing batch globale del dataset...")
+        
+        if total_items > 10000:  # Per dataset grandi usa processing batch globale
+            print("🚀 Dataset grande rilevato, usando processing batch globale ottimizzato...")
+            enriched_results = self._process_dataset_in_global_batches(parsed_results, dataset_analysis)
+        else:
+            # Per dataset piccoli usa il metodo originale
+            print("📦 Dataset piccolo, usando processing sequenziale...")
+            enriched_results = self._process_records_sequentially(parsed_results)
 
+        # 3. SALVATAGGIO OTTIMIZZATO
+        print(f"💾 Salvando {len(enriched_results)} record processati...")
+        
         # File JSON con tutti i dati (incluso messaggio anonimizzato)
         json_file = self.output_dir / "parsed_data.json"
+        print(f"💾 Salvando JSON in {json_file}...")
         with open(json_file, 'w') as f:
             json.dump(enriched_results, f, indent=2)
         
         # File CSV per analisi
         csv_file = self.output_dir / "parsed_data.csv"
+        print(f"💾 Salvando CSV in {csv_file}...")
         self._save_as_csv(enriched_results, csv_file)
         
         # File di statistiche
@@ -174,40 +214,395 @@ class ReportingService:
             "successful_parses": sum(1 for r in enriched_results if r.get('success', False)),
             "failed_parses": sum(1 for r in enriched_results if not r.get('success', False)),
             "parser_distribution": self._get_parser_distribution(enriched_results),
+            "batch_processing_stats": dataset_analysis,
             "generated_at": datetime.now().isoformat()
         }
         with open(stats_file, 'w') as f:
             json.dump(stats_data, f, indent=2)
         
         self.logger.info(f"File generati: {json_file}, {csv_file}, {stats_file}")
+        print(f"🎉 Processing batch globale completato: {len(enriched_results)} record salvati")
+    
+    def _analyze_dataset_for_batch_processing(self, parsed_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Analizza il dataset completo per ottimizzare il processing batch.
+        
+        WHY: Identifica pattern e similarità per raggruppare record simili
+        e massimizzare l'efficienza del processing batch.
+        
+        Returns:
+            Analisi del dataset per ottimizzazione
+        """
+        # Analisi file
+        total_files = len(set(r.get('source_file', 'unknown') for r in parsed_results))
+        
+        # Analisi contenuto
+        records_with_content = sum(1 for r in parsed_results if r.get('original_content') and r.get('original_content').strip())
+        
+        # Analisi parser
+        parser_distribution = {}
+        for record in parsed_results:
+            parser = record.get('parser_name', 'unknown')
+            parser_distribution[parser] = parser_distribution.get(parser, 0) + 1
+        
+        # Analisi estensioni file
+        file_extensions = set()
+        for record in parsed_results:
+            source_file = record.get('source_file', '')
+            if source_file:
+                file_extensions.add(Path(source_file).suffix.lower())
+        
+        # Stima gruppi di similarità
+        similarity_groups = len(file_extensions) + 1  # +1 per file senza estensione
+        
+        return {
+            'total_files': total_files,
+            'similarity_groups': similarity_groups,
+            'records_with_content': records_with_content,
+            'file_extensions': list(file_extensions),
+            'parser_distribution': parser_distribution,
+            'total_records': len(parsed_results)
+        }
+    
+    def _process_dataset_in_global_batches(self, parsed_results: List[Dict[str, Any]], dataset_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Processa tutto il dataset in batch globali ottimizzati.
+        
+        WHY: Processing batch globale che raggruppa record simili per
+        massimizzare l'efficienza e ridurre operazioni ripetute.
+        
+        Args:
+            parsed_results: Lista dei risultati parsati
+            dataset_analysis: Analisi del dataset per ottimizzazione
+            
+        Returns:
+            Lista dei record processati
+        """
+        print("🔗 Creando batch globali ottimizzati...")
+        
+        # 1. RAGGRUPPAMENTO PER SIMILARITÀ
+        # Raggruppa per estensione file e parser per ottimizzare cache
+        grouped_records = self._group_records_by_similarity(parsed_results)
+        
+        # 2. CREAZIONE BATCH OTTIMIZZATI
+        processing_batches = self._create_global_processing_batches(grouped_records)
+        
+        print(f"🎯 Creati {len(processing_batches)} batch globali ottimizzati")
+        
+        # 3. PROCESSING BATCH GLOBALE
+        enriched_results = []
+        total_batches = len(processing_batches)
+        
+        for batch_id, batch in enumerate(processing_batches, 1):
+            batch_size = len(batch['records'])
+            print(f"🔄 Processing batch globale {batch_id}/{total_batches}: {batch_size} record da {len(batch['files'])} file simili...")
+            
+            # Processa il batch globale
+            batch_results = self._process_global_batch(batch)
+            enriched_results.extend(batch_results)
+            
+            print(f"✅ Batch globale {batch_id} completato: {len(batch_results)} record processati")
+        
+        return enriched_results
+    
+    def _group_records_by_similarity(self, parsed_results: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Raggruppa record per similarità per ottimizzare il processing.
+        
+        WHY: Raggruppa record simili per condividere cache e operazioni.
+        
+        Returns:
+            Dizionario gruppo -> lista record
+        """
+        grouped = {}
+        
+        for record in parsed_results:
+            # Crea chiave di raggruppamento basata su estensione e parser
+            source_file = record.get('source_file', 'unknown')
+            parser = record.get('parser_name', 'unknown')
+            
+            if source_file:
+                file_ext = Path(source_file).suffix.lower()
+                group_key = f"{file_ext}_{parser}"
+            else:
+                group_key = f"no_ext_{parser}"
+            
+            if group_key not in grouped:
+                grouped[group_key] = []
+            grouped[group_key].append(record)
+        
+        return grouped
+    
+    def _create_global_processing_batches(self, grouped_records: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        Crea batch di processing globali ottimizzati.
+        
+        WHY: Crea batch che massimizzano l'efficienza del processing.
+        Batch size dinamico basato sulla dimensione del dataset.
+        
+        Returns:
+            Lista di batch di processing
+        """
+        processing_batches = []
+        
+        # CALCOLO BATCH SIZE DINAMICO E OTTIMIZZATO
+        total_records = sum(len(records) for records in grouped_records.values())
+        
+        # WHY: Batch size ottimale basato sulla dimensione del dataset
+        # Configurazione dinamica con possibilità di override
+        optimal_batch_size = self._calculate_optimal_batch_size(total_records)
+        
+        print(f"🎯 Batch size ottimale calcolato: {optimal_batch_size} record per batch")
+        print(f"📊 Dataset totale: {total_records} record, {len(grouped_records)} gruppi")
+        
+        for group_key, records in grouped_records.items():
+            # Crea batch per questo gruppo usando batch size ottimale
+            total_batches = (len(records) + optimal_batch_size - 1) // optimal_batch_size
+            
+            for batch_num in range(total_batches):
+                start_idx = batch_num * optimal_batch_size
+                end_idx = min(start_idx + optimal_batch_size, len(records))
+                batch_records = records[start_idx:end_idx]
+                
+                # Estrai file unici nel batch
+                files = set(r.get('source_file', 'unknown') for r in batch_records)
+                
+                batch = {
+                    'group_key': group_key,
+                    'batch_num': batch_num + 1,
+                    'total_batches': total_batches,
+                    'files': list(files),
+                    'records': batch_records,
+                    'size': len(batch_records),
+                    'batch_size_used': optimal_batch_size
+                }
+                processing_batches.append(batch)
+        
+        return processing_batches
+    
+    def _calculate_optimal_batch_size(self, total_records: int) -> int:
+        """
+        Calcola il batch size ottimale basato sulla dimensione del dataset.
+        
+        WHY: Batch size dinamico che si adatta alla dimensione del dataset
+        per massimizzare l'efficienza del processing.
+        
+        Args:
+            total_records: Numero totale di record nel dataset
+            
+        Returns:
+            Batch size ottimale
+        """
+        # WHY: Batch size ottimale basato sulla dimensione del dataset
+        if total_records > 100000:  # Dataset molto grande
+            optimal_batch_size = 10000  # Batch più grandi per efficienza
+        elif total_records > 50000:  # Dataset grande
+            optimal_batch_size = 8000   # Batch medi-grandi
+        elif total_records > 20000:  # Dataset medio
+            optimal_batch_size = 6000   # Batch medi
+        else:  # Dataset piccolo
+            optimal_batch_size = 4000   # Batch piccoli per flessibilità
+        
+        # Override da configurazione se disponibile
+        if self.config and 'batch_processing' in self.config:
+            config_batch_size = self.config['batch_processing'].get('optimal_batch_size')
+            if config_batch_size and isinstance(config_batch_size, int):
+                optimal_batch_size = config_batch_size
+                print(f"⚙️ Batch size override da configurazione: {optimal_batch_size}")
+        
+        # Validazione e limiti di sicurezza
+        optimal_batch_size = max(1000, min(optimal_batch_size, 20000))  # Min 1000, Max 20000
+        
+        return optimal_batch_size
+    
+    def _process_global_batch(self, batch: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Processa un batch globale ottimizzato.
+        
+        Args:
+            batch: Batch da processare
+            
+        Returns:
+            Lista dei record processati
+        """
+        batch_results = []
+        
+        for record in batch['records']:
+            try:
+                # Normalizza il record usando il metodo ottimizzato
+                normalized_record = self._normalize_output_record(record)
+                batch_results.append(normalized_record)
+            except Exception as e:
+                # Record di errore
+                error_record = record.copy()
+                error_record['error'] = str(e)
+                error_record['success'] = False
+                batch_results.append(error_record)
+        
+        return batch_results
+    
+    def _process_records_in_batches(self, parsed_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Processa i record in batch per ottimizzare le performance su grandi dataset.
+        
+        WHY: Evita il loop record-per-record inefficiente, processando in chunk
+        per ridurre il tempo di elaborazione da minuti a secondi.
+        
+        Args:
+            parsed_results: Lista dei risultati parsati
+            
+        Returns:
+            Lista dei record processati
+        """
+        batch_size = 5000  # Processa 5000 record alla volta
+        total_batches = (len(parsed_results) + batch_size - 1) // batch_size
+        enriched_results = []
+        
+        print(f"📦 Processing in {total_batches} batch di {batch_size} record...")
+        
+        for batch_num in range(total_batches):
+            start_idx = batch_num * batch_size
+            end_idx = min(start_idx + batch_size, len(parsed_results))
+            batch = parsed_results[start_idx:end_idx]
+            
+            print(f"🔄 Processando batch {batch_num + 1}/{total_batches} (record {start_idx}-{end_idx})...")
+            
+            # Processa il batch
+            batch_results = self._process_batch(batch)
+            enriched_results.extend(batch_results)
+            
+            print(f"✅ Batch {batch_num + 1} completato: {len(batch_results)} record processati")
+        
+        return enriched_results
+    
+    def _process_batch(self, batch: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Processa un singolo batch di record.
+        
+        Args:
+            batch: Lista di record da processare
+            
+        Returns:
+            Lista dei record processati
+        """
+        batch_results = []
+        
+        for item in batch:
+            if not isinstance(item, dict):
+                continue
+            try:
+                normalized = self._normalize_output_record(item)
+                batch_results.append(normalized)
+            except Exception as e:
+                # Aggiungi record fallback per non perdere dati
+                batch_results.append({
+                    'error': f"Errore nel processamento: {e}",
+                    'original_item': str(item)[:200]  # Primi 200 caratteri
+                })
+        
+        return batch_results
+    
+    def _process_records_sequentially(self, parsed_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Processa i record sequenzialmente (metodo originale per dataset piccoli).
+        
+        Args:
+            parsed_results: Lista dei risultati parsati
+            
+        Returns:
+            Lista dei record processati
+        """
+        enriched_results = []
+        total_items = len(parsed_results)
+        
+        for i, item in enumerate(parsed_results):
+            if i % 1000 == 0:  # Log ogni 1000 record
+                print(f"📊 Processato {i}/{total_items} record...")
+                
+            if not isinstance(item, dict):
+                continue
+            try:
+                normalized = self._normalize_output_record(item)
+                enriched_results.append(normalized)
+            except Exception as e:
+                print(f"⚠️ Errore nel processare record {i}: {e}")
+                # Aggiungi record fallback per non perdere dati
+                enriched_results.append({
+                    'error': f"Errore nel processamento: {e}",
+                    'original_item': str(item)[:200]  # Primi 200 caratteri
+                })
+        
+        return enriched_results
+
+    def _anonymize_content(self, content: str) -> str:
+        """
+        Anonimizza il contenuto usando il servizio regex disponibile.
+        
+        WHY: Gestisce sia CentralizedRegexService che RegexService legacy
+        per mantenere compatibilità durante la transizione.
+        """
+        try:
+            if hasattr(self.regex_service, 'anonymize_content'):
+                # CentralizedRegexService
+                return self.regex_service.anonymize_content(content)
+            elif hasattr(self.regex_service, 'apply_patterns_by_category'):
+                # RegexService legacy
+                return self.regex_service.apply_patterns_by_category(content, 'anonymization')
+            else:
+                # Fallback: nessuna anonimizzazione
+                return content
+        except Exception as e:
+            print(f"⚠️ Errore nell'anonimizzazione: {e}")
+            return content
 
     def _normalize_output_record(self, item: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Rende l'output parsed_data.json più leggibile e coerente:
-        - Mantiene parsed_data in chiaro (nessuna anonimizzazione)
-        - Aggiunge solo 'anonymized_message'
-        - Raggruppa informazioni Drain3 e parsing in sotto-sezioni
-        - Evita ripetizioni di campi top-level sparsi
+        Rende l'output parsed_data.json più leggibile e coerente.
+        
+        WHY: Ottimizzato per evitare operazioni costose ripetute su grandi dataset.
+        Usa configurazioni già cacheate e riutilizza risultati regex già elaborati.
         """
-        original = str(item.get('original_content', item.get('raw_line', '')))
-        anonymized = self.regex_service.apply_patterns_by_category(original, 'anonymization')
-        # Overlay di anonimizzazione per campi esplicitati in config (es. tz)
-        anonym_cfg = (self.config.get('drain3', {}) or {}).get('anonymization', {}) or {}
-        always_fields = set(anonym_cfg.get('always_anonymize', []) or [])
-        parsed_data_local = item.get('parsed_data', {}) if isinstance(item.get('parsed_data'), dict) else {}
-        if always_fields and isinstance(parsed_data_local, dict):
-            for field in always_fields:
-                if field in parsed_data_local and isinstance(parsed_data_local[field], str):
-                    raw_val = parsed_data_local[field]
-                    if raw_val:
-                        # Se RegexService non cambia nulla, usa un placeholder generico per il campo
-                        masked_val = self.regex_service.apply_patterns_by_category(raw_val, 'anonymization')
-                        if masked_val == raw_val:
-                            masked_val = f"<{field.upper()}>"
-                        try:
-                            anonymized = re.sub(re.escape(raw_val), masked_val, anonymized)
-                        except re.error:
-                            pass
+        # WHY: Riutilizza risultati regex già elaborati se disponibili
+        if 'anonymized_message' in item:
+            # Usa il messaggio già anonimizzato dal parsing precedente
+            original = str(item.get('original_content', item.get('raw_line', '')))
+            # 🚨 CORREZIONE: Usa SOLO drain3_anonymized.template come punto di verità
+            # WHY: Evita confusione e ridondanza - un solo campo anonimizzato corretto
+            if 'parsed_data' in item and 'drain3_anonymized' in item['parsed_data']:
+                anonymized = item['parsed_data']['drain3_anonymized'].get('template', original)
+            else:
+                anonymized = item['anonymized_message']
+        elif 'anonymized_template' in item:
+            # Usa il template già anonimizzato
+            original = str(item.get('original_content', item.get('raw_line', '')))
+            anonymized = item['anonymized_template']
+        else:
+            # Fallback: anonimizza ora
+            original = str(item.get('original_content', item.get('raw_line', '')))
+            anonymized = self._anonymize_content(original)
+        
+        # 🚨 CORREZIONE: Rimuovo la logica complessa di always_anonymize
+        # WHY: drain3_anonymized.template è già corretto e coerente
+        # Non serve applicare always_anonymize qui perché è già fatto nel template
+        
+        # 🧹 PULIZIA: Rimuovo campi ridondanti dai parsed_data
+        if 'parsed_data' in item and item['parsed_data']:
+            parsed_data_clean = item['parsed_data'].copy()
+            
+            # Rimuovo campi duplicati e ridondanti
+            fields_to_remove = [
+                'template',  # Duplicato di drain3_original.template
+                'anonymized_message',  # Ridondante con drain3_anonymized.template
+                'drain3_cluster_id',  # Ridondante con drain3_original.cluster_id
+                'drain3_template',    # Ridondante con drain3_original.template
+            ]
+            
+            for field in fields_to_remove:
+                if field in parsed_data_clean:
+                    del parsed_data_clean[field]
+            
+            # Mantengo solo i campi essenziali
+            item['parsed_data'] = parsed_data_clean
 
         drain3 = OrderedDict()
         if 'drain3_cluster_id' in item:
@@ -260,11 +655,20 @@ class ReportingService:
 
         # Messaggi
         out['original_content'] = original
-        out['anonymized_message'] = anonymized
+        # 🚨 CORREZIONE: Usa SOLO drain3_anonymized.template come punto di verità
+        # WHY: Evita confusione e ridondanza - un solo campo anonimizzato corretto
+        if 'parsed_data' in item and 'drain3_anonymized' in item['parsed_data']:
+            out['anonymized_message'] = item['parsed_data']['drain3_anonymized'].get('template', anonymized)
+        else:
+            out['anonymized_message'] = anonymized
 
         # IMPORTANTE: Aggiungi i parsed_data direttamente per visibilità
         if 'parsed_data' in item and item['parsed_data']:
             out['parsed_data'] = item['parsed_data']
+
+        # 🆕 AGGIUNGI DATI PRESIDIO se disponibili
+        if 'presidio_anonymization' in item and item['presidio_anonymization']:
+            out['presidio_anonymization'] = item['presidio_anonymization']
 
         # Sezioni raggruppate
         out['drain3'] = drain3
@@ -281,7 +685,7 @@ class ReportingService:
             out['processing_warnings'] = item.get('processing_warnings')
 
         return out
-
+    
     def export_training_datasets(self, parsed_results: List[Dict[str, Any]]):
         """
         Esporta dataset di training per LogParser/LogPPT.

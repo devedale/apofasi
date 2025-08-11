@@ -47,7 +47,11 @@ class RegexService(BaseService):
         
         # Carica configurazione regex dalla configurazione unificata
         regex_config = self.config.get('regex', {})
-        patterns_file = regex_config.get('patterns_file', 'config/regex_patterns.yaml')
+        # Carica pattern da configurazione centralizzata se disponibile
+        if 'centralized_regex' in self.config:
+            patterns_file = self.config['centralized_regex'].get('patterns_file', 'config/config.yaml')
+        else:
+            patterns_file = 'config/config.yaml'
         
         # Carica i pattern dal file
         self._load_patterns_from_file(patterns_file)

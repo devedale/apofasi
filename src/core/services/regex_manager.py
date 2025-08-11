@@ -31,7 +31,7 @@ class RegexManager:
         Args:
             config_path: Percorso al file di configurazione
         """
-        self.config_path = config_path or Path("config/regex_patterns.yaml")
+        self.config_path = config_path or Path("config/config.yaml")
         self.regex_service = RegexService(self.config_path)
         self._load_config()
     

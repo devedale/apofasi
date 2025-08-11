@@ -20,22 +20,21 @@ from ...core.services.pattern_detection_service import PatternDetectionService
 from ...core.services.regex_service import RegexService
 
 class MultiStrategyParser(LogParser):
-    def __init__(self, config: Dict[str, Any], regex_service: Optional["RegexService"] = None):
+    def __init__(self, config: Dict[str, Any], centralized_regex_service: Optional["CentralizedRegexService"] = None):
         """
         Inizializza il parser multi-strategy.
         
         Args:
             config: Configurazione del parser
-            regex_service: Servizio regex legacy per compatibilità
+            centralized_regex_service: Servizio regex centralizzato per coerenza
         """
         self._config = config
-        self._regex_service = regex_service or RegexService(config)
         
         # Servizio regex centralizzato per coerenza
-        self._centralized_regex = CentralizedRegexServiceImpl(config)
+        self._centralized_regex = centralized_regex_service or CentralizedRegexServiceImpl(config)
         
         # Pattern detection service
-        self._pattern_detection_service = PatternDetectionService(config)
+        self._pattern_detection_service = PatternDetectionService(config, self._centralized_regex)
         
         # Parsing patterns
         self._parsing_patterns = config.get("parsing_patterns", {})
@@ -62,25 +61,50 @@ class MultiStrategyParser(LogParser):
         return True
 
     def parse(self, log_entry: LogEntry) -> Iterator[ParsedRecord]:
-        parsed_data, parser_type = self._try_structured_parsing(log_entry)
+        """
+        Parsa il contenuto usando strategie multiple.
         
-        if parsed_data:
-            # Mantieni parsed_data in chiaro e aggiungi solo una riga anonimizzata altrove (export)
-            yield self._create_record(log_entry, parsed_data, f"multi_strategy_{parser_type}")
-            return
+        WHY: source_file deve essere SEMPRE definito per evitare errori
+        "source_file is not defined". Validiamo by design.
         
-        # Fallback con parser adattivo se disponibile
-        if self.adaptive_parser:
-            try:
-                for record in self.adaptive_parser.parse(log_entry):
-                    # IMPORTANTE: NON processare con Drain3 qui!
-                    # Il LogProcessingService si occuperà del processing batch
-                    yield record
-            except Exception as e:
-                yield self._create_fallback_record(log_entry, f"Adaptive parser failed: {e}")
-        else:
-            # Fallback semplice se non c'è parser adattivo
-            yield self._create_fallback_record(log_entry, "No adaptive parser available")
+        Args:
+            log_entry: Entry del log da parsare
+            
+        Yields:
+            ParsedRecord instances
+            
+        Raises:
+            ValueError: Se log_entry.source_file è None o vuoto
+        """
+        # VALIDAZIONE BY DESIGN: source_file deve essere sempre definito
+        if not log_entry.source_file:
+            raise ValueError(
+                f"LogEntry deve avere source_file definito. "
+                f"Ricevuto: {log_entry.source_file}"
+            )
+        
+        try:
+            # Prova prima il parsing strutturato
+            parsed_data, parser_type = self._try_structured_parsing(log_entry)
+            
+            if parsed_data:
+                # Crea il record con source_file SEMPRE definito
+                yield self._create_record(log_entry, parsed_data, parser_type)
+                return
+            
+            # Fallback al parser adattivo se disponibile
+            if self.adaptive_parser:
+                try:
+                    yield from self.adaptive_parser.parse(log_entry)
+                    return
+                except Exception as e:
+                    print(f"⚠️ ADAPTIVE PARSER FAILED [{log_entry.source_file}:{log_entry.line_number}]: {str(e)}")
+            
+        except Exception as e:
+            print(f"❌ MULTI-STRATEGY PARSER ERROR [{log_entry.source_file}:{log_entry.line_number}]: {str(e)}")
+        
+        # Fallback semplice se non c'è parser adattivo
+        yield self._create_fallback_record(log_entry, "No adaptive parser available")
 
     def parse_with_fallback(self, log_entry: LogEntry) -> Iterator[ParsedRecord]:
         """
@@ -325,15 +349,36 @@ class MultiStrategyParser(LogParser):
         """
         Crea un record parsato con metadati separati dai dati.
         
+        WHY: source_file deve essere SEMPRE definito per evitare errori
+        "source_file is not defined". Validiamo by design.
+        
         DESIGN: Usa il servizio regex centralizzato per garantire coerenza
         tra template generation e anonimizzazione.
+        
+        Args:
+            log_entry: Entry del log con source_file OBBLIGATORIO
+            parsed_data: Dati parsati
+            parser_type: Tipo di parser utilizzato
+            
+        Returns:
+            ParsedRecord con source_file sempre definito
+            
+        Raises:
+            ValueError: Se log_entry.source_file è None o vuoto
         """
+        # VALIDAZIONE BY DESIGN: source_file deve essere sempre definito
+        if not log_entry.source_file:
+            raise ValueError(
+                f"LogEntry deve avere source_file definito. "
+                f"Ricevuto: {log_entry.source_file}"
+            )
+        
         # Arricchisce i dati con template, cluster e pattern detection
         enriched_data = self._pattern_detection_service.add_template_and_patterns(
             log_entry.content, parsed_data
         )
         
-        # Estrai metadati dai dati arricchiti
+        # Estrai metadati dai dati arricchiti (con fallback sicuri)
         metadata = {
             'template': enriched_data.pop('template', None),
             'cluster_id': enriched_data.pop('cluster_id', None),
@@ -346,9 +391,15 @@ class MultiStrategyParser(LogParser):
         original_template = metadata['template']
         
         # Template anonimizzato (nuovo - coerente con anonymized_message)
-        anonymized_template = self._centralized_regex.get_template_from_content(
-            log_entry.content, anonymized=True
-        )
+        anonymized_template = None
+        if self._centralized_regex:
+            try:
+                anonymized_template = self._centralized_regex.get_template_from_content(
+                    log_entry.content, anonymized=True
+                )
+            except Exception as e:
+                print(f"⚠️ Errore generazione template anonimizzato: {e}")
+                anonymized_template = None
         
         # Estrai timestamp dal log se presente
         log_timestamp = self._extract_timestamp_from_data(parsed_data, log_entry.content)
@@ -356,10 +407,13 @@ class MultiStrategyParser(LogParser):
             # Mantieni timestamp_info direttamente dentro parsed_data (richiesta utente)
             enriched_data['timestamp_info'] = log_timestamp
         
+        # BY DESIGN: Estrai e aggiungi chiavi rilevate
+        enriched_data = self.extract_detected_keys(log_entry.content, enriched_data)
+        
         # Ottieni detected_headers se disponibili per questo file
         detected_headers = None
         if log_entry.source_file in self.csv_headers:
-            header_fields, _ = self.csv_headers[source_file]
+            header_fields, _ = self.csv_headers[log_entry.source_file]
             detected_headers = header_fields
         
         return ParsedRecord(
@@ -367,13 +421,13 @@ class MultiStrategyParser(LogParser):
             original_content=log_entry.content,
             parsed_data=enriched_data,  # Solo i dati effettivi del log
             parser_name=parser_type,
-            source_file=log_entry.source_file,
+            source_file=log_entry.source_file,  # ✅ SEMPRE definito
             line_number=log_entry.line_number,
             confidence_score=0.9,
             # Metadati del parsing
             detected_headers=detected_headers,
-            template=original_template,  # Mantieni compatibilità
-            anonymized_template=anonymized_template,  # Template anonimizzato coerente
+            template=original_template,  # ✅ Template originale
+            anonymized_template=anonymized_template,  # ✅ Template anonimizzato coerente
             cluster_id=metadata['cluster_id'],
             cluster_size=metadata['cluster_size'],
             detected_patterns=metadata['detected_patterns'],
@@ -482,14 +536,214 @@ class MultiStrategyParser(LogParser):
         return None
 
     def _create_fallback_record(self, log_entry: LogEntry, error_msg: str) -> ParsedRecord:
+        """
+        Crea un record di fallback quando il parsing fallisce.
+        
+        WHY: source_file deve essere SEMPRE definito per evitare errori
+        "source_file is not defined". Validiamo by design.
+        
+        Args:
+            log_entry: Entry del log con source_file OBBLIGATORIO
+            error_msg: Messaggio di errore
+            
+        Returns:
+            ParsedRecord di fallback con source_file sempre definito
+            
+        Raises:
+            ValueError: Se log_entry.source_file è None o vuoto
+        """
+        # VALIDAZIONE BY DESIGN: source_file deve essere sempre definito
+        if not log_entry.source_file:
+            raise ValueError(
+                f"LogEntry deve avere source_file definito. "
+                f"Ricevuto: {log_entry.source_file}"
+            )
+        
         record = ParsedRecord(
             timestamp=datetime.now(),
             original_content=log_entry.content,
             parsed_data={},
             parser_name="fallback_failure",
-            source_file=log_entry.source_file,
+            source_file=log_entry.source_file,  # ✅ SEMPRE definito
             line_number=log_entry.line_number,
             confidence_score=0.1
         )
         record.add_error(error_msg)
         return record
+
+    def extract_detected_keys(self, content: str, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Estrae e aggiunge le chiavi rilevate al parsed_data.
+        
+        WHY: By design, tutti i parser devono implementare questa funzione
+        per garantire coerenza nell'estrazione di chiavi e pattern rilevati.
+        
+        DESIGN: Estrazione intelligente multi-strategy che:
+        1. Combina risultati da diversi parser
+        2. Identifica pattern comuni e specifici
+        3. Estrae metadati e caratteristiche
+        4. Garantisce coerenza tra strategie diverse
+        
+        Args:
+            content: Contenuto originale del log
+            parsed_data: Dati già parsati dal parser
+            
+        Returns:
+            parsed_data arricchito con chiavi rilevate
+        """
+        enriched_data = parsed_data.copy()
+        
+        # 1. ESTRAZIONE PATTERN BASE
+        base_patterns = self._extract_base_patterns(content)
+        enriched_data['_base_patterns'] = base_patterns
+        
+        # 2. ESTRAZIONE PATTERN SPECIFICI PER STRATEGIA
+        if self._centralized_regex:
+            # Pattern da regex centralizzati
+            regex_patterns = self._extract_regex_patterns(content)
+            enriched_data['_regex_patterns'] = regex_patterns
+        
+        # 3. ANALISI STRUTTURALE
+        structural_analysis = self._analyze_structural_patterns(content, enriched_data)
+        enriched_data['_structural_analysis'] = structural_analysis
+        
+        # 4. METADATI STANDARD
+        enriched_data.update({
+            '_detected_keys': {
+                'parser_type': 'multi_strategy',
+                'has_patterns': True,
+                'strategy_count': len(self.parsers) if hasattr(self, 'parsers') else 1,
+                'extraction_timestamp': datetime.now().isoformat()
+            }
+        })
+        
+        return enriched_data
+    
+    def _extract_base_patterns(self, content: str) -> Dict[str, Any]:
+        """
+        Estrae pattern base dal contenuto.
+        
+        Returns:
+            Pattern base rilevati
+        """
+        patterns = {}
+        
+        # Pattern di timestamp
+        timestamp_patterns = [
+            r'\d{4}-\d{2}-\d{2}',  # YYYY-MM-DD
+            r'\d{2}:\d{2}:\d{2}',  # HH:MM:SS
+            r'\d{2}/\d{2}/\d{4}',  # MM/DD/YYYY
+        ]
+        
+        for pattern in timestamp_patterns:
+            matches = re.findall(pattern, content)
+            if matches:
+                patterns['timestamp_patterns'] = {
+                    'pattern': pattern,
+                    'matches': len(matches),
+                    'examples': matches[:5]
+                }
+        
+        # Pattern di IP
+        ip_pattern = r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
+        ip_matches = re.findall(ip_pattern, content)
+        if ip_matches:
+            patterns['ip_addresses'] = {
+                'count': len(ip_matches),
+                'examples': list(set(ip_matches))[:5]
+            }
+        
+        # Pattern di email
+        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        email_matches = re.findall(email_pattern, content)
+        if email_matches:
+            patterns['email_addresses'] = {
+                'count': len(email_matches),
+                'examples': email_matches[:5]
+            }
+        
+        return patterns
+    
+    def _extract_regex_patterns(self, content: str) -> Dict[str, Any]:
+        """
+        Estrae pattern usando regex centralizzati.
+        
+        Returns:
+            Pattern regex rilevati
+        """
+        if not self._centralized_regex:
+            return {}
+        
+        patterns = {}
+        
+        try:
+            # Pattern di anonimizzazione
+            anonymization_patterns = self._centralized_regex.get_anonymization_patterns()
+            for pattern_name, pattern_config in anonymization_patterns.items():
+                pattern_str = pattern_config.get('pattern', '')
+                if pattern_str:
+                    matches = re.findall(pattern_str, content)
+                    if matches:
+                        patterns[f'anonymization_{pattern_name}'] = {
+                            'count': len(matches),
+                            'examples': matches[:3]
+                        }
+            
+            # Pattern di parsing
+            parsing_patterns = self._centralized_regex.get_parsing_patterns()
+            for pattern_name, pattern_config in parsing_patterns.items():
+                pattern_str = pattern_config.get('pattern', '')
+                if pattern_str:
+                    matches = re.findall(pattern_str, content)
+                    if matches:
+                        patterns[f'parsing_{pattern_name}'] = {
+                            'count': len(matches),
+                            'examples': matches[:3]
+                        }
+                        
+        except Exception as e:
+            patterns['error'] = str(e)
+        
+        return patterns
+    
+    def _analyze_structural_patterns(self, content: str, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analizza pattern strutturali nel contenuto.
+        
+        Returns:
+            Analisi strutturale
+        """
+        analysis = {}
+        
+        # Analisi lunghezza
+        analysis['length'] = {
+            'content_length': len(content),
+            'word_count': len(content.split()),
+            'line_count': len(content.split('\n'))
+        }
+        
+        # Analisi caratteri
+        char_analysis = {}
+        for char in content:
+            if char.isalpha():
+                char_analysis['alphabetic'] = char_analysis.get('alphabetic', 0) + 1
+            elif char.isdigit():
+                char_analysis['numeric'] = char_analysis.get('numeric', 0) + 1
+            elif char.isspace():
+                char_analysis['whitespace'] = char_analysis.get('whitespace', 0) + 1
+            else:
+                char_analysis['special'] = char_analysis.get('special', 0) + 1
+        
+        analysis['character_distribution'] = char_analysis
+        
+        # Analisi struttura
+        if 'csv' in content.lower() or ',' in content:
+            analysis['structure_type'] = 'csv_like'
+        elif '{' in content and '}' in content:
+            analysis['structure_type'] = 'json_like'
+        elif '=' in content and '&' in content:
+            analysis['structure_type'] = 'key_value_like'
+        else:
+            analysis['structure_type'] = 'text_like'
+        
+        return analysis

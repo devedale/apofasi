@@ -21,7 +21,7 @@ def test_loghub_processing():
     
     # Carica configurazione
     config_service = ConfigurationService()
-    config = config_service.load_configuration("config/parser_config.yaml")
+    config = config_service.load_configuration("config/config.yaml")
     
     # Crea parsing service
     parsing_service = ParsingService(config)

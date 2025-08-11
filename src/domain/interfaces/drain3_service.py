@@ -9,17 +9,16 @@ from ..entities.parsed_record import ParsedRecord
 class Drain3Service(ABC):
     """Abstract interface for Drain3 template mining service with dual mining support."""
     
-    @abstractmethod
-    def add_log_message(self, log_message: str, miner_type: str = "original") -> int:
+    def add_log_message(self, message: str, miner_type: str = "original") -> Dict[str, Any]:
         """
-        Add a log message to Drain3 for template mining.
+        Add a log message to the specified miner.
         
         Args:
-            log_message: The log message to add
-            miner_type: "original" or "anonymized" to specify which miner to use
+            message: Log message to add
+            miner_type: "original" or "anonymized"
             
         Returns:
-            Cluster ID assigned to the message
+            Dictionary with cluster_id, template and cluster_size information
         """
         pass
     
@@ -75,12 +74,24 @@ class Drain3Service(ABC):
         pass
     
     @abstractmethod
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self, miner_type: str = "original") -> Dict[str, Any]:
         """
-        Get Drain3 statistics for both miners.
+        Get statistics about a specific miner.
+        
+        Args:
+            miner_type: "original" or "anonymized"
+            
+        Returns:
+            Dictionary with statistics
+        """
+        pass
+    
+    def get_statistics_combined(self) -> Dict[str, Any]:
+        """
+        Get statistics about both miners combined.
         
         Returns:
-            Statistics dictionary with combined information
+            Dictionary with statistics for both miners
         """
         pass
     
