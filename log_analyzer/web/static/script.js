@@ -1,107 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element Selectors ---
-    const form = document.getElementById('config-form');
+    // General
+    const statusBanner = document.getElementById('status-banner');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Configuration Tab
+    const configForm = document.getElementById('config-form');
     const presidioEnabledCheckbox = document.getElementById('presidio-enabled');
     const presidioConfidenceInput = document.getElementById('presidio-confidence');
     const entitiesTableBody = document.getElementById('entities-table').querySelector('tbody');
     const regexTableBody = document.getElementById('regex-table').querySelector('tbody');
     const addRegexBtn = document.getElementById('add-regex-btn');
-    const sampleTextInput = document.getElementById('sample-text');
+    const sampleFileSelect = document.getElementById('sample-file-select');
+    const sampleLineNumberInput = document.getElementById('sample-line-number');
+    const previewInput = document.getElementById('preview-input').querySelector('code');
     const previewOutput = document.getElementById('preview-output').querySelector('code');
-    const statusBanner = document.getElementById('status-banner');
 
+    // Analysis Tab
+    const analysisFileSelect = document.getElementById('analysis-file-select');
+    const analysisButtons = document.querySelectorAll('.analysis-btn');
+    const analysisResultsDiv = document.getElementById('analysis-results');
+    const analysisStatusMessage = document.getElementById('analysis-status-message');
+    const downloadLink = document.getElementById('download-link');
+
+    // --- State ---
     let initialConfig = {};
     const debounceTimers = {};
 
     // --- Utility Functions ---
-
-    /**
-     * Shows a status message (e.g., "Saved!", "Error!") that fades out.
-     * @param {string} message The message to display.
-     * @param {boolean} isError If true, shows a red error banner.
-     */
-    const showStatus = (message, isError = false) => {
+    const showStatus = (message, isError = false, duration = 3000) => {
         statusBanner.textContent = message;
         statusBanner.className = isError ? 'status-banner error' : 'status-banner success';
         statusBanner.style.display = 'block';
-        setTimeout(() => {
-            statusBanner.style.display = 'none';
-        }, 3000);
+        if (duration > 0) {
+            setTimeout(() => { statusBanner.style.display = 'none'; }, duration);
+        }
     };
 
-    /**
-     * Debounce function to delay execution of a function.
-     * Used to prevent firing save/preview on every single keystroke.
-     * @param {string} key A unique key for the timer (e.g., 'save', 'preview').
-     * @param {function} func The function to execute after the delay.
-     * @param {number} delay The delay in milliseconds.
-     */
     const debounce = (key, func, delay) => {
         clearTimeout(debounceTimers[key]);
         debounceTimers[key] = setTimeout(func, delay);
     };
 
+    // --- Tab Switching Logic ---
+    const switchTab = (targetTabId) => {
+        tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === targetTabId);
+        });
+        tabButtons.forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === targetTabId);
+        });
+    };
 
-    // --- Data Loading and UI Population ---
-
-    /**
-     * Fetches the configuration from the server and populates the UI.
-     */
+    // --- Configuration Tab Logic ---
     const loadConfig = async () => {
         try {
             const response = await fetch('/api/config');
             if (!response.ok) throw new Error('Failed to load configuration.');
-
             const config = await response.json();
-            initialConfig = config; // Store for later reference
+            initialConfig = config;
 
-            // Populate Core Settings
             presidioEnabledCheckbox.checked = config.enabled || false;
             presidioConfidenceInput.value = config.analyzer?.analysis?.confidence_threshold || 0.7;
-
-            // Populate Entities Table
-            populateEntitiesTable(config.analyzer?.entities || {}, config.anonymizer?.strategies || {});
-
-            // Populate Regex Recognizers Table
+            populateEntitiesTable(config.analyzer?.entities || {});
             populateRegexTable(config.analyzer?.ad_hoc_recognizers || []);
-
         } catch (error) {
             showStatus(error.message, true);
         }
     };
 
-    /**
-     * Renders the entities table.
-     * @param {object} entities - The entities object from the config.
-     * @param {object} strategies - The strategies object from the config.
-     */
-    const populateEntitiesTable = (entities, strategies) => {
-        entitiesTableBody.innerHTML = ''; // Clear existing rows
-        const allEntityNames = Object.keys(entities);
-
-        allEntityNames.sort().forEach(name => {
+    const populateEntitiesTable = (entities) => {
+        entitiesTableBody.innerHTML = '';
+        Object.keys(entities).sort().forEach(name => {
+            const entity = entities[name];
             const row = entitiesTableBody.insertRow();
             row.innerHTML = `
                 <td>${name}</td>
-                <td><input type="checkbox" data-entity-name="${name}" ${entities[name] ? 'checked' : ''}></td>
+                <td><input type="checkbox" data-entity-name="${name}" ${entity.enabled ? 'checked' : ''}></td>
                 <td>
                     <select data-entity-name="${name}">
-                        <option value="replace" ${strategies[name] === 'replace' ? 'selected' : ''}>Replace</option>
-                        <option value="mask" ${strategies[name] === 'mask' ? 'selected' : ''}>Mask</option>
-                        <option value="hash" ${strategies[name] === 'hash' ? 'selected' : ''}>Hash</option>
-                        <option value="keep" ${strategies[name] === 'keep' ? 'selected' : ''}>Keep</option>
+                        <option value="replace" ${entity.strategy === 'replace' ? 'selected' : ''}>Replace</option>
+                        <option value="mask" ${entity.strategy === 'mask' ? 'selected' : ''}>Mask</option>
+                        <option value="hash" ${entity.strategy === 'hash' ? 'selected' : ''}>Hash</option>
+                        <option value="keep" ${entity.strategy === 'keep' ? 'selected' : ''}>Keep</option>
                     </select>
                 </td>
+                <td><div class="regex-display-wrapper"><pre class="regex-display">${entity.regex}</pre></div></td>
             `;
         });
     };
 
-    /**
-     * Renders the custom regex recognizers table.
-     * @param {Array} recognizers - The list of ad-hoc recognizers.
-     */
     const populateRegexTable = (recognizers) => {
-        regexTableBody.innerHTML = ''; // Clear existing rows
+        regexTableBody.innerHTML = '';
         recognizers.forEach((rec, index) => {
             const row = regexTableBody.insertRow();
             row.dataset.index = index;
@@ -114,33 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-
-    // --- UI Event Handlers and Data Persistence ---
-
-    /**
-     * Gathers all settings from the UI and builds a config object.
-     * @returns {object} The complete Presidio configuration object.
-     */
     const buildConfigFromUI = () => {
-        const newConfig = {
-            ...initialConfig, // Start with the initial config to preserve fields not in the UI
-            enabled: presidioEnabledCheckbox.checked,
-            analyzer: {
-                ...initialConfig.analyzer, // Preserve other analyzer settings
-                analysis: {
-                    ...(initialConfig.analyzer?.analysis || {}),
-                    confidence_threshold: parseFloat(presidioConfidenceInput.value)
-                },
-                entities: {},
-                ad_hoc_recognizers: []
-            },
-            anonymizer: {
-                ...initialConfig.anonymizer, // Preserve other anonymizer settings
-                strategies: {}
-            }
-        };
+        const newConfig = { ...initialConfig, enabled: presidioEnabledCheckbox.checked };
+        newConfig.analyzer = { ...initialConfig.analyzer };
+        newConfig.anonymizer = { ...initialConfig.anonymizer };
+        newConfig.analyzer.analysis = { ...(initialConfig.analyzer?.analysis || {}), confidence_threshold: parseFloat(presidioConfidenceInput.value) };
+        newConfig.analyzer.entities = {};
+        newConfig.anonymizer.strategies = {};
+        newConfig.analyzer.ad_hoc_recognizers = [];
 
-        // Gather entities and strategies
         entitiesTableBody.querySelectorAll('tr').forEach(row => {
             const name = row.cells[0].textContent;
             const enabled = row.querySelector('input[type="checkbox"]').checked;
@@ -149,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             newConfig.anonymizer.strategies[name] = strategy;
         });
 
-        // Gather regex recognizers
         regexTableBody.querySelectorAll('tr').forEach(row => {
             newConfig.analyzer.ad_hoc_recognizers.push({
                 name: row.cells[0].querySelector('input').value,
@@ -161,9 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return { presidio: newConfig };
     };
 
-    /**
-     * Saves the current UI configuration to the server.
-     */
     const saveConfig = async () => {
         const configToSave = buildConfigFromUI();
         try {
@@ -175,38 +144,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to save configuration.');
             const result = await response.json();
             showStatus(result.message || 'Configuration saved!');
-            // After a successful save, update the initialConfig to match the new state
             initialConfig = configToSave.presidio;
         } catch (error) {
             showStatus(error.message, true);
         }
     };
 
-    /**
-     * Triggers a live preview of the anonymization.
-     */
-    const triggerPreview = async () => {
-        const sampleText = sampleTextInput.value;
+    const triggerPreview = async (sampleText) => {
+        previewInput.textContent = sampleText;
         if (!sampleText) {
             previewOutput.textContent = '';
             return;
         }
-
-        const recognizers = buildConfigFromUI().presidio.analyzer.ad_hoc_recognizers;
-
+        const uiConfig = buildConfigFromUI();
         try {
             const response = await fetch('/api/preview', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sample_text: sampleText,
-                    recognizers: recognizers
-                })
+                body: JSON.stringify({ sample_text: sampleText, presidio_config: uiConfig.presidio })
             });
-            if (!response.ok) {
-                 const errData = await response.json();
-                 throw new Error(errData.error || 'Preview request failed.');
-            }
+            if (!response.ok) throw new Error((await response.json()).error || 'Preview request failed.');
             const result = await response.json();
             previewOutput.textContent = result.anonymized_text;
         } catch (error) {
@@ -214,9 +171,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Adds a new, empty row to the regex recognizers table.
-     */
+    const updatePreviewFromLine = async () => {
+        const filepath = sampleFileSelect.value;
+        const lineNumber = sampleLineNumberInput.value;
+        if (!filepath || lineNumber < 1) {
+            previewInput.textContent = 'Please select a file and a valid line number.';
+            triggerPreview('');
+            return;
+        }
+        try {
+            const response = await fetch(`/api/sample-line?filepath=${encodeURIComponent(filepath)}&line_number=${lineNumber}`);
+            if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch line.');
+            const data = await response.json();
+            await triggerPreview(data.line_content);
+        } catch (error) {
+            previewInput.textContent = `Error: ${error.message}`;
+            triggerPreview('');
+        }
+    };
+
     const addRegexRow = () => {
         const row = regexTableBody.insertRow();
         row.innerHTML = `
@@ -227,27 +200,85 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
-    // --- Event Listener Registration ---
+    // --- Analysis Tab Logic ---
+    const runAnalysis = async (analysisType) => {
+        const inputFile = analysisFileSelect.value;
+        if (!inputFile) {
+            showStatus('Please select an input file for analysis.', true);
+            return;
+        }
 
-    // Listen for any change or input on the form to save and update preview
-    form.addEventListener('input', (e) => {
-        // We debounce to avoid hammering the server on every keystroke/change
-        debounce('save', saveConfig, 750);
-        debounce('preview', triggerPreview, 750);
+        showStatus(`Starting ${analysisType} analysis... This may take a moment.`, false, 0);
+        analysisResultsDiv.style.display = 'none';
+        analysisButtons.forEach(b => b.disabled = true);
+
+        try {
+            const response = await fetch(`/api/analysis/${analysisType}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ input_file: inputFile })
+            });
+
+            if (!response.ok) throw new Error((await response.json()).error || 'Analysis failed.');
+
+            const result = await response.json();
+            analysisStatusMessage.textContent = `Successfully generated report for ${inputFile}.`;
+            downloadLink.href = result.download_url;
+            downloadLink.textContent = `Download ${result.download_url.split('/').pop()}`;
+            analysisResultsDiv.style.display = 'block';
+            showStatus('Analysis complete!', false);
+
+        } catch (error) {
+            showStatus(`Error during analysis: ${error.message}`, true);
+        } finally {
+            analysisButtons.forEach(b => b.disabled = false);
+        }
+    };
+
+    // --- General Setup ---
+    const loadSampleFiles = async () => {
+        try {
+            const response = await fetch('/api/sample-files');
+            if (!response.ok) throw new Error('Could not load sample files.');
+            const data = await response.json();
+            const options = data.files.map(file => `<option value="${file}">${file}</option>`).join('');
+            sampleFileSelect.innerHTML = `<option value="">Select for preview...</option>${options}`;
+            analysisFileSelect.innerHTML = `<option value="">Select for analysis...</option>${options}`;
+        } catch (error) {
+            showStatus(error.message, true);
+        }
+    };
+
+    // --- Event Listener Registration ---
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => switchTab(button.dataset.tab));
     });
 
-    // Specific handler for deleting regex rows
+    configForm.addEventListener('input', (e) => {
+        if (e.target.id === 'sample-file-select' || e.target.id === 'sample-line-number') return;
+        debounce('save', saveConfig, 750);
+        debounce('preview', updatePreviewFromLine, 750);
+    });
+
+    sampleFileSelect.addEventListener('change', updatePreviewFromLine);
+    sampleLineNumberInput.addEventListener('input', () => debounce('line_preview', updatePreviewFromLine, 500));
+
     regexTableBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('delete-regex-btn')) {
             e.target.closest('tr').remove();
-            // Trigger a save and preview immediately after deletion
             saveConfig();
-            triggerPreview();
+            updatePreviewFromLine();
         }
+    });
+
+    analysisButtons.forEach(button => {
+        button.addEventListener('click', () => runAnalysis(button.dataset.analysisType));
     });
 
     addRegexBtn.addEventListener('click', addRegexRow);
 
     // --- Initial Load ---
     loadConfig();
+    loadSampleFiles();
+    updatePreviewFromLine();
 });
