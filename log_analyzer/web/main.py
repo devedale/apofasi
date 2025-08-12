@@ -11,6 +11,7 @@ from typing import List, Dict, Any
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from log_analyzer.services.config_service import ConfigService
+from log_analyzer.parsing.interfaces import ParsedRecord
 # We need to import the Presidio classes directly for the preview
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry, Pattern, PatternRecognizer
 from presidio_anonymizer import AnonymizerEngine
