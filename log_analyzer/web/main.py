@@ -26,10 +26,13 @@ app.mount("/static", StaticFiles(directory="log_analyzer/web/static"), name="sta
 templates = Jinja2Templates(directory="log_analyzer/web/templates")
 
 # --- Pydantic Models for API requests ---
+from typing import Optional
+
 class AdHocRecognizer(BaseModel):
     name: str
     regex: str
     score: float
+    strategy: Optional[str] = 'replace'
 
 class PreviewRequest(BaseModel):
     sample_text: str
@@ -50,23 +53,67 @@ async def read_root(request: Request):
 
 @app.get("/api/config", response_class=JSONResponse)
 async def get_config():
-    """Returns the current Presidio configuration."""
+    """
+    Returns the current Presidio configuration, augmented with details
+    about the recognizers for the UI.
+    """
     config_service = ConfigService()
     config = config_service.load_config()
     presidio_config = config.get("presidio", {})
 
-    # Ensure nested structures exist for the frontend, which expects them.
-    # This prevents errors in the UI if the config file is minimal.
-    if "analyzer" not in presidio_config:
-        presidio_config["analyzer"] = {}
-    if "ad_hoc_recognizers" not in presidio_config["analyzer"]:
-        presidio_config["analyzer"]["ad_hoc_recognizers"] = []
-    if "entities" not in presidio_config["analyzer"]:
-        presidio_config["analyzer"]["entities"] = {}
-    if "anonymizer" not in presidio_config:
-        presidio_config["anonymizer"] = {}
-    if "strategies" not in presidio_config["anonymizer"]:
-        presidio_config["anonymizer"]["strategies"] = {}
+    # Ensure nested structures exist before proceeding
+    if "analyzer" not in presidio_config: presidio_config["analyzer"] = {}
+    if "entities" not in presidio_config["analyzer"]: presidio_config["analyzer"]["entities"] = {}
+    if "anonymizer" not in presidio_config: presidio_config["anonymizer"] = {}
+    if "strategies" not in presidio_config["anonymizer"]: presidio_config["anonymizer"]["strategies"] = {}
+
+    try:
+        # --- Augment entity info with regex and score data ---
+        registry = RecognizerRegistry()
+        registry.load_predefined_recognizers(languages=["en"])
+        default_recognizers = registry.get_recognizers()
+
+        entity_details = {}
+        for rec in default_recognizers:
+            # For now, we only handle single-entity recognizers
+            if not hasattr(rec, 'supported_entity'): continue
+
+            entity_name = rec.supported_entity
+            detail = {
+                "regex": "N/A (NLP or other logic)",
+                "score": rec.default_score,
+                "is_regex_based": False
+            }
+            if isinstance(rec, PatternRecognizer):
+                detail["regex"] = "\n".join(p.regex for p in rec.patterns)
+                detail["is_regex_based"] = True
+
+            entity_details[entity_name] = detail
+
+        # Build the final, detailed entities object for the frontend
+        detailed_entities_for_frontend = {}
+        entities_map = presidio_config.get("analyzer", {}).get("entities", {})
+        strategies_map = presidio_config.get("anonymizer", {}).get("strategies", {})
+
+        for entity_name, enabled in entities_map.items():
+            base_detail = entity_details.get(entity_name, {
+                "regex": "N/A", "score": 0.0, "is_regex_based": False
+            })
+            detailed_entities_for_frontend[entity_name] = {
+                "enabled": enabled,
+                "strategy": strategies_map.get(entity_name, "replace"),
+                "regex": base_detail["regex"],
+                "score": base_detail["score"],
+                "is_regex_based": base_detail["is_regex_based"]
+            }
+
+        presidio_config["analyzer"]["entities"] = detailed_entities_for_frontend
+
+    except Exception as e:
+        # If anything goes wrong during inspection, log it and return the basic config
+        # This prevents the UI from crashing.
+        print(f"Could not inspect Presidio recognizers: {e}")
+        # We don't return the error, we just fall back to the basic config
 
     return presidio_config
 
@@ -175,6 +222,10 @@ async def preview_anonymization(preview_request: PreviewRequest):
         anonymizers_config = {
             entity: OperatorConfig(strategy) for entity, strategy in strategies.items()
         }
+        # Also add strategies for the ad-hoc recognizers
+        for rec_conf in ad_hoc_recognizers:
+            if rec_conf.get("name") and rec_conf.get("strategy"):
+                anonymizers_config[rec_conf["name"]] = OperatorConfig(rec_conf["strategy"])
 
         # 6. Analyze and anonymize the sample text
         analyzer_results = analyzer.analyze(text=sample_text, language='en')
@@ -195,6 +246,7 @@ from log_analyzer.services.log_processing_service import LogProcessingService
 import json
 import csv
 from datetime import datetime
+from pathlib import Path
 
 # Mount the outputs directory to serve generated files
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
@@ -245,34 +297,37 @@ def format_as_json_report(records: List[ParsedRecord], output_path: str):
 @app.post("/api/analysis/{analysis_type}")
 async def run_analysis(analysis_type: str, request: AnalysisRequest):
     """Runs a specific analysis type on an input file."""
-    config_service = ConfigService()
-    config = config_service.load_config()
-    processing_service = LogProcessingService(config)
+    try:
+        config_service = ConfigService()
+        config = config_service.load_config()
+        processing_service = LogProcessingService(config)
 
-    input_path = os.path.join("examples", request.input_file)
-    if not os.path.exists(input_path):
-        return JSONResponse(status_code=404, content={"error": "Input file not found."})
+        input_path = os.path.join("examples", request.input_file)
+        if not os.path.exists(input_path):
+            return JSONResponse(status_code=404, content={"error": "Input file not found."})
 
-    # Generate a unique output filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
+        # Generate a unique output filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
 
-    # Process the file to get the records
-    records = processing_service.process_files([input_path])
+        # Process the file to get the records
+        records = processing_service.process_files([input_path])
 
-    if analysis_type == "anonymize":
-        output_filename += ".log"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_anonymized_text(records, output_path)
-    elif analysis_type == "logppt":
-        output_filename += ".csv"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_logppt(records, output_path)
-    elif analysis_type == "json_report":
-        output_filename += ".json"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_json_report(records, output_path)
-    else:
-        return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
+        if analysis_type == "anonymize":
+            output_filename += ".log"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_anonymized_text(records, output_path)
+        elif analysis_type == "logppt":
+            output_filename += ".csv"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_logppt(records, output_path)
+        elif analysis_type == "json_report":
+            output_filename += ".json"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_json_report(records, output_path)
+        else:
+            return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
 
-    return {"download_url": f"/outputs/{output_filename}"}
+        return {"download_url": f"/outputs/{output_filename}"}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during analysis: {str(e)}"})

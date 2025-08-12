@@ -63,29 +63,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
             presidioEnabledCheckbox.checked = config.enabled || false;
             presidioConfidenceInput.value = config.analyzer?.analysis?.confidence_threshold || 0.7;
-            populateEntitiesTable(config.analyzer?.entities || {}, config.anonymizer?.strategies || {});
+            populateEntitiesTable(config.analyzer?.entities || {});
             populateRegexTable(config.analyzer?.ad_hoc_recognizers || []);
         } catch (error) {
             showStatus(error.message, true);
         }
     };
 
-    const populateEntitiesTable = (entities, strategies) => {
-        entitiesTableBody.innerHTML = ''; // Clear existing rows
-        const allEntityNames = Object.keys(entities);
-
-        allEntityNames.sort().forEach(name => {
+    const populateEntitiesTable = (entities) => {
+        entitiesTableBody.innerHTML = '';
+        Object.keys(entities).sort().forEach(name => {
+            const entity = entities[name];
             const row = entitiesTableBody.insertRow();
+            row.dataset.entityName = name;
+            row.dataset.entityRegex = entity.regex;
+            row.dataset.entityScore = entity.score;
             row.innerHTML = `
                 <td>${name}</td>
-                <td><input type="checkbox" data-entity-name="${name}" ${entities[name] ? 'checked' : ''}></td>
+                <td><input type="checkbox" data-entity-name="${name}" ${entity.enabled ? 'checked' : ''}></td>
                 <td>
                     <select data-entity-name="${name}">
-                        <option value="replace" ${strategies[name] === 'replace' ? 'selected' : ''}>Replace</option>
-                        <option value="mask" ${strategies[name] === 'mask' ? 'selected' : ''}>Mask</option>
-                        <option value="hash" ${strategies[name] === 'hash' ? 'selected' : ''}>Hash</option>
-                        <option value="keep" ${strategies[name] === 'keep' ? 'selected' : ''}>Keep</option>
+                        <option value="replace" ${entity.strategy === 'replace' ? 'selected' : ''}>Replace</option>
+                        <option value="mask" ${entity.strategy === 'mask' ? 'selected' : ''}>Mask</option>
+                        <option value="hash" ${entity.strategy === 'hash' ? 'selected' : ''}>Hash</option>
+                        <option value="keep" ${entity.strategy === 'keep' ? 'selected' : ''}>Keep</option>
                     </select>
+                </td>
+                <td><pre class="regex-display">${entity.regex}</pre></td>
+                <td><input type="number" class="score-input" value="${entity.score.toFixed(2)}" readonly></td>
+                <td>
+                    <button type="button" class="copy-to-custom-btn" ${!entity.is_regex_based ? 'disabled' : ''}>Copy to Custom</button>
                 </td>
             `;
         });
@@ -96,47 +103,52 @@ document.addEventListener('DOMContentLoaded', () => {
         recognizers.forEach((rec, index) => {
             const row = regexTableBody.insertRow();
             row.dataset.index = index;
+            const strategy = rec.strategy || 'replace'; // Default to 'replace'
             row.innerHTML = `
                 <td><input type="text" value="${rec.name}" placeholder="Recognizer Name"></td>
                 <td><input type="text" value="${rec.regex}" placeholder="Regex Pattern"></td>
-                <td><input type="number" value="${rec.score}" step="0.1" min="0" max="1"></td>
+                <td><input type="number" value="${rec.score || 0.85}" step="0.1" min="0" max="1"></td>
+                <td>
+                    <select>
+                        <option value="replace" ${strategy === 'replace' ? 'selected' : ''}>Replace</option>
+                        <option value="mask" ${strategy === 'mask' ? 'selected' : ''}>Mask</option>
+                        <option value="hash" ${strategy === 'hash' ? 'selected' : ''}>Hash</option>
+                        <option value="keep" ${strategy === 'keep' ? 'selected' : ''}>Keep</option>
+                    </select>
+                </td>
                 <td><button type="button" class="delete-regex-btn">Delete</button></td>
             `;
         });
     };
 
     const buildConfigFromUI = () => {
-        const newConfig = {
-            ...initialConfig,
-            enabled: presidioEnabledCheckbox.checked,
-            analyzer: {
-                ...initialConfig.analyzer,
-                analysis: {
-                    ...(initialConfig.analyzer?.analysis || {}),
-                    confidence_threshold: parseFloat(presidioConfidenceInput.value)
-                },
-                entities: {},
-                ad_hoc_recognizers: []
-            },
-            anonymizer: {
-                ...initialConfig.anonymizer,
-                strategies: {}
-            }
-        };
+        // Create a deep copy to avoid modifying initialConfig, but only for the levels we will change.
+        const newConfig = JSON.parse(JSON.stringify(initialConfig));
 
+        newConfig.enabled = presidioEnabledCheckbox.checked;
+        newConfig.analyzer.analysis.confidence_threshold = parseFloat(presidioConfidenceInput.value);
+
+        // Rebuild the simple entities and strategies maps for saving.
+        const newEntities = {};
+        const newStrategies = {};
         entitiesTableBody.querySelectorAll('tr').forEach(row => {
-            const name = row.cells[0].textContent;
+            const name = row.dataset.entityName;
             const enabled = row.querySelector('input[type="checkbox"]').checked;
             const strategy = row.querySelector('select').value;
-            newConfig.analyzer.entities[name] = enabled;
-            newConfig.anonymizer.strategies[name] = strategy;
+            newEntities[name] = enabled;
+            newStrategies[name] = strategy;
         });
+        newConfig.analyzer.entities = newEntities;
+        newConfig.anonymizer.strategies = newStrategies;
 
+        // Rebuild ad-hoc recognizers from the UI
+        newConfig.analyzer.ad_hoc_recognizers = [];
         regexTableBody.querySelectorAll('tr').forEach(row => {
             newConfig.analyzer.ad_hoc_recognizers.push({
                 name: row.cells[0].querySelector('input').value,
                 regex: row.cells[1].querySelector('input').value,
-                score: parseFloat(row.cells[2].querySelector('input').value) || 0.85
+                score: parseFloat(row.cells[2].querySelector('input').value) || 0.85,
+                strategy: row.cells[3].querySelector('select').value
             });
         });
 
@@ -200,12 +212,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const addRegexRow = () => {
+    const addRegexRow = (data = {}) => {
         const row = regexTableBody.insertRow();
+        const name = data.name || '';
+        const regex = data.regex || '';
+        const score = data.score || 0.85;
+        const strategy = data.strategy || 'replace';
+
         row.innerHTML = `
-            <td><input type="text" placeholder="Recognizer Name"></td>
-            <td><input type="text" placeholder="Regex Pattern"></td>
-            <td><input type="number" value="0.85" step="0.05" min="0" max="1"></td>
+            <td><input type="text" value="${name}" placeholder="Recognizer Name"></td>
+            <td><input type="text" value="${regex}" placeholder="Regex Pattern"></td>
+            <td><input type="number" value="${score}" step="0.05" min="0" max="1"></td>
+            <td>
+                <select>
+                    <option value="replace" ${strategy === 'replace' ? 'selected' : ''}>Replace</option>
+                    <option value="mask" ${strategy === 'mask' ? 'selected' : ''}>Mask</option>
+                    <option value="hash" ${strategy === 'hash' ? 'selected' : ''}>Hash</option>
+                    <option value="keep" ${strategy === 'keep' ? 'selected' : ''}>Keep</option>
+                </select>
+            </td>
             <td><button type="button" class="delete-regex-btn">Delete</button></td>
         `;
     };
@@ -272,6 +297,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sampleFileSelect.addEventListener('change', updatePreviewFromLine);
     sampleLineNumberInput.addEventListener('input', () => debounce('line_preview', updatePreviewFromLine, 500));
+
+    entitiesTableBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('copy-to-custom-btn')) {
+            const row = e.target.closest('tr');
+            const entityData = {
+                name: row.dataset.entityName,
+                regex: row.dataset.entityRegex,
+                score: parseFloat(row.dataset.entityScore),
+                strategy: row.querySelector('select').value
+            };
+            addRegexRow(entityData);
+            showStatus(`Copied '${entityData.name}' to Custom Recognizers. You can now edit it below.`, false, 4000);
+        }
+    });
 
     regexTableBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('delete-regex-btn')) {
