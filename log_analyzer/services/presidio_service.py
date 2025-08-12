@@ -2,9 +2,9 @@ from typing import Dict, Any, List
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import SpacyRecognizer
 from presidio_anonymizer import AnonymizerEngine
-from presidio_anonymizer.entities import AnonymizerRequest, AnonymizerResult, OperatorConfig
+from presidio_anonymizer.entities import OperatorConfig
 from presidio_analyzer.recognizer_result import RecognizerResult
-from presidio_analyzer.ad_hoc_recognizer import AdHocRecognizer
+from presidio_analyzer import PatternRecognizer
 
 
 from ..parsing.interfaces import ParsedRecord
@@ -28,9 +28,10 @@ class PresidioService:
         ad_hoc_recognizers = self.config.get('analyzer', {}).get('ad_hoc_recognizers', [])
         for rec_conf in ad_hoc_recognizers:
             registry.add_recognizer(
-                AdHocRecognizer(
+                PatternRecognizer(
                     supported_entity=rec_conf["name"],
                     patterns=[rec_conf["regex"]],
+                    name=f"custom_{rec_conf['name']}_recognizer"
                 )
             )
 
@@ -92,10 +93,10 @@ class PresidioService:
             }
 
             # Anonymize the text based on the analysis and configured strategies
-            anonymized_result: AnonymizerResult = self.anonymizer.anonymize(
+            anonymized_result = self.anonymizer.anonymize(
                 text=record.original_content,
                 analyzer_results=analyzer_results,
-                anonymizers=anonymizers_config
+                operators=anonymizers_config
             )
 
             # Update the record with the results
