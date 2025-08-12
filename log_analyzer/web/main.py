@@ -84,22 +84,54 @@ async def read_root(request: Request):
 
 @app.get("/api/debug-info", response_class=JSONResponse)
 async def get_debug_info():
-    debug_data = {}
-    config_service = ConfigService()
-    debug_data['raw_config'] = config_service.load_config()
+    """
+    Returns a collection of raw data for debugging the frontend and config issues.
+    This version is designed to be bulletproof and report errors at each stage.
+    """
+    debug_data = {
+        "raw_config": None,
+        "raw_config_error": None,
+        "recognizer_inspection_status": "Not Run",
+        "inspected_recognizers": None,
+        "recognizer_inspection_error": None,
+    }
+
+    # 1. Get the raw config from the YAML file
     try:
+        config_service = ConfigService()
+        debug_data['raw_config'] = config_service.load_config()
+    except Exception as e:
+        debug_data['raw_config_error'] = f"Failed to load YAML: {str(e)}"
+        return debug_data # Stop here if config fails to load
+
+    # 2. Try to inspect the Presidio recognizers
+    try:
+        debug_data['recognizer_inspection_status'] = "Running..."
         language = debug_data.get('raw_config', {}).get("presidio", {}).get("analyzer", {}).get("language", "en")
+
         registry = RecognizerRegistry()
         registry.load_predefined_recognizers(languages=[language])
         default_recognizers = registry.get_recognizers(language=language)
+
         recognizer_info = []
         for rec in default_recognizers:
-            info = {"name": rec.name, "supported_entity": rec.supported_entity, "default_score": getattr(rec, 'default_score', 'N/A'), "is_pattern_recognizer": isinstance(rec, PatternRecognizer)}
-            if isinstance(rec, PatternRecognizer): info["patterns"] = [p.regex for p in rec.patterns]
+            info = {
+                "name": rec.name,
+                "supported_entity": getattr(rec, 'supported_entity', 'N/A'),
+                "default_score": getattr(rec, 'default_score', 'N/A'),
+                "is_pattern_recognizer": isinstance(rec, PatternRecognizer)
+            }
+            if isinstance(rec, PatternRecognizer):
+                info["patterns"] = [p.regex for p in rec.patterns]
             recognizer_info.append(info)
+
         debug_data['inspected_recognizers'] = recognizer_info
+        debug_data['recognizer_inspection_status'] = "Success"
     except Exception as e:
-        debug_data['recognizer_inspection_error'] = str(e)
+        import traceback
+        debug_data['recognizer_inspection_status'] = "FAILED"
+        debug_data['recognizer_inspection_error'] = traceback.format_exc()
+
     return debug_data
 
 @app.get("/api/config", response_class=JSONResponse)
