@@ -36,7 +36,7 @@ class Worker(QObject):
                 self.progress.emit("Generating reports...")
                 reporting_service = ReportingService(self.output_path)
                 reporting_service.generate_json_report(processed_records)
-                reporting_service.generate_logppt_report(processed_records)
+                reporting_service.generate_logppt_reports(processed_records)
                 self.progress.emit(f"Reports saved to {self.output_path}")
 
             # Emit the results back to the main thread for display

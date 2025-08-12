@@ -4,6 +4,8 @@ from typing import Dict, Any, Optional
 from .interfaces import AbstractParser
 from .json_parser import JSONParser
 from .csv_parser import CSVParser
+from .cef_parser import CEFParser
+from .key_value_parser import KeyValueParser
 from .regex_parser import RegexParser
 
 def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
@@ -52,7 +54,30 @@ def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
             current.set_next(csv_parser)
         current = csv_parser
 
-    # 3. Regex Parsers
+    # 3. CEF Parser
+    cef_config = config.get('parsers', {}).get('cef', {})
+    if cef_config.get('enabled', True):
+        cef_parser = CEFParser()
+        if not head:
+            head = cef_parser
+        if current:
+            current.set_next(cef_parser)
+        current = cef_parser
+
+    # 4. Key-Value Parser
+    kv_config = config.get('parsers', {}).get('key_value', {})
+    if kv_config.get('enabled', True):
+        kv_parser = KeyValueParser(
+            delimiter=kv_config.get('delimiter', '='),
+            min_pairs=kv_config.get('min_pairs', 3)
+        )
+        if not head:
+            head = kv_parser
+        if current:
+            current.set_next(kv_parser)
+        current = kv_parser
+
+    # 5. Regex Parsers
     # We can add multiple regex parsers from the config.
     regex_configs = config.get('centralized_regex', {}).get('parsing', {})
     for name, pattern_str in regex_configs.items():

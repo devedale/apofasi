@@ -78,7 +78,10 @@ class LogProcessingService:
                     parsed_record = self.parser_chain.handle(log_entry)
 
                     if parsed_record:
-                        # Run Presidio for PII detection and anonymization
+                        # Handle the 'always_anonymize' feature for parsed fields
+                        self._handle_always_anonymize(parsed_record)
+
+                        # Run Presidio for PII detection and anonymization on the raw string
                         anonymized_record = self.presidio_service.anonymize_record(parsed_record)
                         all_records.append(anonymized_record)
                 pbar_files.update(1)
@@ -108,3 +111,45 @@ class LogProcessingService:
                 record.drain3_original = original_results[i]
             if i < len(anonymized_results):
                 record.drain3_anonymized = anonymized_results[i]
+
+    def _handle_always_anonymize(self, record: ParsedRecord):
+        """
+        Anonymizes specific fields within parsed_data based on the 'always_anonymize'
+        list in the config. This uses Presidio to get semantic placeholders.
+
+        This creates a separate `parsed_data_anonymized` dictionary, leaving
+        the original `parsed_data` intact.
+
+        Args:
+            record: The ParsedRecord object to process.
+        """
+        always_anonymize_fields = self.config.get('drain3', {}).get('anonymization', {}).get('always_anonymize', [])
+
+        # Start with a copy of the original parsed data.
+        anonymized_data = record.parsed_data.copy()
+
+        if not always_anonymize_fields:
+            record.parsed_data_anonymized = anonymized_data
+            return
+
+        for field_name, value in anonymized_data.items():
+            if field_name in always_anonymize_fields and isinstance(value, str) and value:
+                # Use Presidio to analyze and anonymize the specific field value
+                try:
+                    analyzer_results = self.presidio_service.analyzer.analyze(text=value, language='en')
+
+                    if analyzer_results:
+                        # If entities are found, anonymize them semantically
+                        anonymized_result = self.presidio_service.anonymizer.anonymize(
+                            text=value,
+                            analyzer_results=analyzer_results
+                        )
+                        anonymized_data[field_name] = anonymized_result.text
+                    else:
+                        # Fallback for values not recognized by Presidio
+                        anonymized_data[field_name] = f"<{field_name.upper()}>"
+                except Exception:
+                    # In case of any error during value-specific anonymization, fallback
+                    anonymized_data[field_name] = f"<{field_name.upper()}>"
+
+        record.parsed_data_anonymized = anonymized_data

@@ -1,8 +1,11 @@
 from typing import Dict, Any, List
-
-from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
+from presidio_analyzer.predefined_recognizers import SpacyRecognizer
 from presidio_anonymizer import AnonymizerEngine
-from presidio_anonymizer.entities import AnonymizerRequest, AnonymizerResult
+from presidio_anonymizer.entities import AnonymizerRequest, AnonymizerResult, OperatorConfig
+from presidio_analyzer.recognizer_result import RecognizerResult
+from presidio_analyzer.ad_hoc_recognizer import AdHocRecognizer
+
 
 from ..parsing.interfaces import ParsedRecord
 
@@ -13,18 +16,32 @@ class PresidioService:
     """
     def __init__(self, config: Dict[str, Any]):
         """
-        Initializes the PresidioService.
-
-        Args:
-            config: The application configuration, which should contain a
-                    'presidio' section.
+        Initializes the PresidioService, dynamically configuring the engines
+        based on the provided configuration.
         """
         self.config = config.get('presidio', {})
 
-        # 1. Create and configure the AnalyzerEngine
-        self.analyzer = AnalyzerEngine()
+        # --- Create and configure the AnalyzerEngine ---
+        registry = RecognizerRegistry()
 
-        # 2. Create and configure the AnonymizerEngine
+        # 1. Add ad-hoc regex recognizers from config
+        ad_hoc_recognizers = self.config.get('analyzer', {}).get('ad_hoc_recognizers', [])
+        for rec_conf in ad_hoc_recognizers:
+            registry.add_recognizer(
+                AdHocRecognizer(
+                    supported_entity=rec_conf["name"],
+                    patterns=[rec_conf["regex"]],
+                )
+            )
+
+        # 2. Add default recognizers
+        registry.load_predefined_recognizers()
+
+        # TODO: Add logic to load multiple spacy models based on config
+
+        self.analyzer = AnalyzerEngine(registry=registry)
+
+        # --- Create and configure the AnonymizerEngine ---
         self.anonymizer = AnonymizerEngine()
 
     def analyze(self, text: str, language: str = 'en') -> List[Dict[str, Any]]:
@@ -67,10 +84,18 @@ class PresidioService:
                 language=self.config.get('analyzer', {}).get('languages', ['en'])[0]
             )
 
-            # Anonymize the text based on the analysis
+            # Build the anonymizers dictionary from the config
+            conf_strategies = self.config.get('anonymizer', {}).get('strategies', {})
+            anonymizers_config = {
+                entity: OperatorConfig(operator_name, conf_strategies.get(entity, {}))
+                for entity, operator_name in conf_strategies.items()
+            }
+
+            # Anonymize the text based on the analysis and configured strategies
             anonymized_result: AnonymizerResult = self.anonymizer.anonymize(
                 text=record.original_content,
-                analyzer_results=analyzer_results
+                analyzer_results=analyzer_results,
+                anonymizers=anonymizers_config
             )
 
             # Update the record with the results
