@@ -1,12 +1,17 @@
+import sys
+import os
 from typing import List, Dict, Any
 from pathlib import Path
 from tqdm import tqdm
 
+# Ensure the project root is in the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from log_analyzer.parsing.interfaces import LogEntry, ParsedRecord
-from ..parsing.parser_factory import create_parser_chain
-from .log_reader import LogReader
-from .presidio_service import PresidioService
-from .drain3_service import Drain3Service
+from log_analyzer.parsing.parser_factory import create_parser_chain
+from log_analyzer.services.log_reader import LogReader
+from log_analyzer.services.presidio_service import PresidioService
+from log_analyzer.services.drain3_service import Drain3Service
 
 class LogProcessingService:
     """

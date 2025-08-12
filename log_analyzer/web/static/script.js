@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const configForm = document.getElementById('config-form');
     const presidioEnabledCheckbox = document.getElementById('presidio-enabled');
     const presidioConfidenceInput = document.getElementById('presidio-confidence');
+    const presidioLanguageSelect = document.getElementById('presidio-language');
     const entitiesTableBody = document.getElementById('entities-table').querySelector('tbody');
     const regexTableBody = document.getElementById('regex-table').querySelector('tbody');
     const addRegexBtn = document.getElementById('add-regex-btn');
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             presidioEnabledCheckbox.checked = config.enabled || false;
             presidioConfidenceInput.value = config.analyzer?.analysis?.confidence_threshold || 0.7;
+            presidioLanguageSelect.value = config.analyzer?.language || 'en';
             populateEntitiesTable(config.analyzer?.entities || {});
             populateRegexTable(config.analyzer?.ad_hoc_recognizers || []);
         } catch (error) {
@@ -126,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newConfig = JSON.parse(JSON.stringify(initialConfig));
 
         newConfig.enabled = presidioEnabledCheckbox.checked;
+        newConfig.analyzer.language = presidioLanguageSelect.value;
         newConfig.analyzer.analysis.confidence_threshold = parseFloat(presidioConfidenceInput.value);
 
         // Rebuild the simple entities and strategies maps for saving.

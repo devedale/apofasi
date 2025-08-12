@@ -55,66 +55,60 @@ async def read_root(request: Request):
 async def get_config():
     """
     Returns the current Presidio configuration, augmented with details
-    about the recognizers for the UI.
+    about the recognizers for the UI. This version is more robust.
     """
     config_service = ConfigService()
     config = config_service.load_config()
     presidio_config = config.get("presidio", {})
 
-    # Ensure nested structures exist before proceeding
-    if "analyzer" not in presidio_config: presidio_config["analyzer"] = {}
-    if "entities" not in presidio_config["analyzer"]: presidio_config["analyzer"]["entities"] = {}
-    if "anonymizer" not in presidio_config: presidio_config["anonymizer"] = {}
-    if "strategies" not in presidio_config["anonymizer"]: presidio_config["anonymizer"]["strategies"] = {}
+    # Load user's saved settings for quick lookup
+    user_entities = presidio_config.get("analyzer", {}).get("entities", {})
+    user_strategies = presidio_config.get("anonymizer", {}).get("strategies", {})
+
+    # This will be the new, detailed map of entities for the UI
+    detailed_entities_for_frontend = {}
 
     try:
-        # --- Augment entity info with regex and score data ---
+        language = presidio_config.get("analyzer", {}).get("language", "en")
         registry = RecognizerRegistry()
-        registry.load_predefined_recognizers(languages=["en"])
-        default_recognizers = registry.get_recognizers()
+        registry.load_predefined_recognizers(languages=[language])
+        default_recognizers = registry.get_recognizers(language=language)
 
-        entity_details = {}
         for rec in default_recognizers:
-            # For now, we only handle single-entity recognizers
-            if not hasattr(rec, 'supported_entity'): continue
+            if not hasattr(rec, 'supported_entity'):
+                continue
 
             entity_name = rec.supported_entity
+
+            # Get saved state or use defaults
+            # If an entity is not in the user's config, it's considered disabled by default for clarity in the UI
+            is_enabled = user_entities.get(entity_name, False)
+            strategy = user_strategies.get(entity_name, "replace")
+
             score = getattr(rec, 'default_score', 0.0)
-            detail = {
-                "regex": "N/A (NLP or other logic)",
+
+            detailed_entities_for_frontend[entity_name] = {
+                "enabled": is_enabled,
+                "strategy": strategy,
                 "score": score if isinstance(score, (int, float)) else 0.0,
+                "regex": "N/A (NLP or other logic)",
                 "is_regex_based": False
             }
+
             if isinstance(rec, PatternRecognizer):
-                detail["regex"] = "\n".join(p.regex for p in rec.patterns)
-                detail["is_regex_based"] = True
-
-            entity_details[entity_name] = detail
-
-        # Build the final, detailed entities object for the frontend
-        detailed_entities_for_frontend = {}
-        entities_map = presidio_config.get("analyzer", {}).get("entities", {})
-        strategies_map = presidio_config.get("anonymizer", {}).get("strategies", {})
-
-        for entity_name, enabled in entities_map.items():
-            base_detail = entity_details.get(entity_name, {
-                "regex": "N/A", "score": 0.0, "is_regex_based": False
-            })
-            detailed_entities_for_frontend[entity_name] = {
-                "enabled": enabled,
-                "strategy": strategies_map.get(entity_name, "replace"),
-                "regex": base_detail["regex"],
-                "score": base_detail["score"],
-                "is_regex_based": base_detail["is_regex_based"]
-            }
-
-        presidio_config["analyzer"]["entities"] = detailed_entities_for_frontend
+                detailed_entities_for_frontend[entity_name]["regex"] = "\n".join(p.regex for p in rec.patterns)
+                detailed_entities_for_frontend[entity_name]["is_regex_based"] = True
 
     except Exception as e:
-        # If anything goes wrong during inspection, log it and return the basic config
-        # This prevents the UI from crashing.
-        print(f"Could not inspect Presidio recognizers: {e}")
-        # We don't return the error, we just fall back to the basic config
+        # If inspection fails, we can't build the detailed list.
+        # It's better to return an error than an empty or incomplete list.
+        print(f"CRITICAL: Could not inspect Presidio recognizers to build UI. Error: {e}")
+        # Returning the raw config so at least something might render, but this indicates a problem.
+        return presidio_config
+
+    # Replace the simple entity map in the config with our new detailed one
+    if "analyzer" not in presidio_config: presidio_config["analyzer"] = {}
+    presidio_config["analyzer"]["entities"] = detailed_entities_for_frontend
 
     return presidio_config
 
@@ -186,13 +180,15 @@ async def preview_anonymization(preview_request: PreviewRequest):
         return JSONResponse(content={"anonymized_text": ""})
 
     try:
+        language = config.get("analyzer", {}).get("language", "en")
+
         # 1. Create and configure the RecognizerRegistry
         registry = RecognizerRegistry()
-        registry.load_predefined_recognizers(languages=["en"])
+        registry.load_predefined_recognizers(languages=[language])
 
         # 2. Disable recognizers based on the provided config
         enabled_entities = {k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v}
-        all_recognizers = registry.get_recognizers()
+        all_recognizers = registry.get_recognizers(language=language)
         recognizers_to_remove = [
             rec.name for rec in all_recognizers if rec.supported_entity not in enabled_entities
         ]
@@ -229,7 +225,7 @@ async def preview_anonymization(preview_request: PreviewRequest):
                 anonymizers_config[rec_conf["name"]] = OperatorConfig(rec_conf["strategy"])
 
         # 6. Analyze and anonymize the sample text
-        analyzer_results = analyzer.analyze(text=sample_text, language='en')
+        analyzer_results = analyzer.analyze(text=sample_text, language=language)
         anonymized_result = anonymizer.anonymize(
             text=sample_text,
             analyzer_results=analyzer_results,
