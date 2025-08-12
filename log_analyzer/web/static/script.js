@@ -329,6 +329,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addRegexBtn.addEventListener('click', addRegexRow);
 
+    // --- Debug Tab Logic ---
+    const refreshDebugBtn = document.getElementById('refresh-debug-info');
+    const debugOutput = document.getElementById('debug-output').querySelector('code');
+
+    const loadDebugInfo = async () => {
+        debugOutput.textContent = 'Loading...';
+        try {
+            const response = await fetch('/api/debug-info');
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Failed to load debug info: ${errText}`);
+            }
+            const data = await response.json();
+            debugOutput.textContent = JSON.stringify(data, null, 2); // Pretty print the JSON
+        } catch (error) {
+            debugOutput.textContent = `Error: ${error.message}`;
+        }
+    };
+
+    refreshDebugBtn.addEventListener('click', loadDebugInfo);
+
+
     // --- Initial Load ---
     loadConfig();
     loadSampleFiles();

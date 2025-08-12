@@ -46,6 +46,41 @@ class ConfigUpdateRequest(BaseModel):
 
 # --- API Endpoints ---
 
+@app.get("/api/debug-info", response_class=JSONResponse)
+async def get_debug_info():
+    """
+    Returns a collection of raw data for debugging the frontend and config issues.
+    """
+    debug_data = {}
+
+    # 1. Get the raw config from the YAML file
+    config_service = ConfigService()
+    debug_data['raw_config'] = config_service.load_config()
+
+    # 2. Try to inspect the Presidio recognizers
+    try:
+        language = debug_data.get('raw_config', {}).get("presidio", {}).get("analyzer", {}).get("language", "en")
+        registry = RecognizerRegistry()
+        registry.load_predefined_recognizers(languages=[language])
+        default_recognizers = registry.get_recognizers(language=language)
+
+        recognizer_info = []
+        for rec in default_recognizers:
+            info = {
+                "name": rec.name,
+                "supported_entity": rec.supported_entity,
+                "default_score": getattr(rec, 'default_score', 'N/A'),
+                "is_pattern_recognizer": isinstance(rec, PatternRecognizer)
+            }
+            if isinstance(rec, PatternRecognizer):
+                info["patterns"] = [p.regex for p in rec.patterns]
+            recognizer_info.append(info)
+        debug_data['inspected_recognizers'] = recognizer_info
+    except Exception as e:
+        debug_data['recognizer_inspection_error'] = str(e)
+
+    return debug_data
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """Serves the main HTML page."""

@@ -13,6 +13,7 @@
         <div class="tab-bar">
             <button class="tab-button active" data-tab="analysis-tab">Analysis</button>
             <button class="tab-button" data-tab="config-tab">Configuration</button>
+            <button class="tab-button" data-tab="debug-tab">Debug</button>
         </div>
 
         <div id="status-banner" class="status-banner" style="display: none;"></div>
@@ -42,6 +43,14 @@
         <div id="config-tab" class="tab-content">
             <form id="config-form">
                 <!-- Core Settings Section -->
+
+        <!-- Debug Tab Content -->
+        <div id="debug-tab" class="tab-content">
+            <h2>Debug Information</h2>
+            <p>This tab contains raw diagnostic data. Please copy and paste the content below when reporting an issue.</p>
+            <button id="refresh-debug-info">Refresh Debug Info</button>
+            <pre id="debug-output"><code>Click the button to load debug information.</code></pre>
+        </div>
                 <fieldset>
                     <legend>Core Settings</legend>
                     <div class="form-group">
