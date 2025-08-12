@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import SpacyRecognizer
-from presidio_anonymizer import AnonymizerEngine, AnonymizerRequest
+from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import AnonymizerResult, OperatorConfig
 from presidio_analyzer.recognizer_result import RecognizerResult
 from presidio_analyzer.ad_hoc_recognizer import AdHocRecognizer
