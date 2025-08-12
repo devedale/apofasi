@@ -65,95 +65,63 @@ document.addEventListener('DOMContentLoaded', () => {
             presidioEnabledCheckbox.checked = config.enabled || false;
             presidioConfidenceInput.value = config.analyzer?.analysis?.confidence_threshold || 0.7;
             presidioLanguageSelect.value = config.analyzer?.language || 'en';
-            populateEntitiesTable(config.analyzer?.entities || {});
+            populateEntitiesTable(config.analyzer?.entities || {}, config.anonymizer?.strategies || {});
             populateRegexTable(config.analyzer?.ad_hoc_recognizers || []);
         } catch (error) {
             showStatus(error.message, true);
         }
     };
 
-    const populateEntitiesTable = (entities) => {
+    const populateEntitiesTable = (entities, strategies) => {
         entitiesTableBody.innerHTML = '';
         Object.keys(entities).sort().forEach(name => {
-            const entity = entities[name];
             const row = entitiesTableBody.insertRow();
-            row.dataset.entityName = name;
-            row.dataset.entityRegex = entity.regex;
-            row.dataset.entityScore = entity.score;
             row.innerHTML = `
                 <td>${name}</td>
-                <td><input type="checkbox" data-entity-name="${name}" ${entity.enabled ? 'checked' : ''}></td>
+                <td><input type="checkbox" data-entity-name="${name}" ${entities[name] ? 'checked' : ''}></td>
                 <td>
                     <select data-entity-name="${name}">
-                        <option value="replace" ${entity.strategy === 'replace' ? 'selected' : ''}>Replace</option>
-                        <option value="mask" ${entity.strategy === 'mask' ? 'selected' : ''}>Mask</option>
-                        <option value="hash" ${entity.strategy === 'hash' ? 'selected' : ''}>Hash</option>
-                        <option value="keep" ${entity.strategy === 'keep' ? 'selected' : ''}>Keep</option>
+                        <option value="replace" ${strategies[name] === 'replace' ? 'selected' : ''}>Replace</option>
+                        <option value="mask" ${strategies[name] === 'mask' ? 'selected' : ''}>Mask</option>
+                        <option value="hash" ${strategies[name] === 'hash' ? 'selected' : ''}>Hash</option>
+                        <option value="keep" ${strategies[name] === 'keep' ? 'selected' : ''}>Keep</option>
                     </select>
-                </td>
-                <td><pre class="regex-display">${entity.regex}</pre></td>
-                <td><input type="number" class="score-input" value="${(typeof entity.score === 'number' ? entity.score.toFixed(2) : '0.00')}" readonly></td>
-                <td>
-                    <button type="button" class="copy-to-custom-btn" ${!entity.is_regex_based ? 'disabled' : ''}>Copy to Custom</button>
                 </td>
             `;
         });
     };
 
     const populateRegexTable = (recognizers) => {
+        // This function will be updated later
         regexTableBody.innerHTML = '';
-        recognizers.forEach((rec, index) => {
-            const row = regexTableBody.insertRow();
-            row.dataset.index = index;
-            const strategy = rec.strategy || 'replace'; // Default to 'replace'
-            row.innerHTML = `
-                <td><input type="text" value="${rec.name}" placeholder="Recognizer Name"></td>
-                <td><input type="text" value="${rec.regex}" placeholder="Regex Pattern"></td>
-                <td><input type="number" value="${rec.score || 0.85}" step="0.1" min="0" max="1"></td>
-                <td>
-                    <select>
-                        <option value="replace" ${strategy === 'replace' ? 'selected' : ''}>Replace</option>
-                        <option value="mask" ${strategy === 'mask' ? 'selected' : ''}>Mask</option>
-                        <option value="hash" ${strategy === 'hash' ? 'selected' : ''}>Hash</option>
-                        <option value="keep" ${strategy === 'keep' ? 'selected' : ''}>Keep</option>
-                    </select>
-                </td>
-                <td><button type="button" class="delete-regex-btn">Delete</button></td>
-            `;
-        });
     };
 
     const buildConfigFromUI = () => {
-        // Create a deep copy to avoid modifying initialConfig, but only for the levels we will change.
-        const newConfig = JSON.parse(JSON.stringify(initialConfig));
-
+        const newConfig = { ...initialConfig };
         newConfig.enabled = presidioEnabledCheckbox.checked;
+
+        if (!newConfig.analyzer) newConfig.analyzer = {};
         newConfig.analyzer.language = presidioLanguageSelect.value;
+        if (!newConfig.analyzer.analysis) newConfig.analyzer.analysis = {};
         newConfig.analyzer.analysis.confidence_threshold = parseFloat(presidioConfidenceInput.value);
 
-        // Rebuild the simple entities and strategies maps for saving.
         const newEntities = {};
         const newStrategies = {};
         entitiesTableBody.querySelectorAll('tr').forEach(row => {
-            const name = row.dataset.entityName;
+            const name = row.cells[0].textContent;
             const enabled = row.querySelector('input[type="checkbox"]').checked;
             const strategy = row.querySelector('select').value;
             newEntities[name] = enabled;
             newStrategies[name] = strategy;
         });
         newConfig.analyzer.entities = newEntities;
+
+        if (!newConfig.anonymizer) newConfig.anonymizer = {};
         newConfig.anonymizer.strategies = newStrategies;
 
-        // Rebuild ad-hoc recognizers from the UI
-        newConfig.analyzer.ad_hoc_recognizers = [];
-        regexTableBody.querySelectorAll('tr').forEach(row => {
-            newConfig.analyzer.ad_hoc_recognizers.push({
-                name: row.cells[0].querySelector('input').value,
-                regex: row.cells[1].querySelector('input').value,
-                score: parseFloat(row.cells[2].querySelector('input').value) || 0.85,
-                strategy: row.cells[3].querySelector('select').value
-            });
-        });
+        const newAdHocRecognizers = [];
+        // Logic for reading regex table will be added later
+        newConfig.analyzer.ad_hoc_recognizers = newAdHocRecognizers;
 
         return { presidio: newConfig };
     };
