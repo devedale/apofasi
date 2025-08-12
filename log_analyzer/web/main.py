@@ -12,8 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 from log_analyzer.services.config_service import ConfigService
 # We need to import the Presidio classes directly for the preview
-from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
-from presidio_analyzer.ad_hoc_recognizer import AdHocRecognizer as PresidioAdHocRecognizer
+from presidio_analyzer import AnalyzerEngine, RecognizerRegistry, Pattern, PatternRecognizer
 from presidio_anonymizer import AnonymizerEngine
 
 # --- FastAPI App Initialization ---
@@ -99,12 +98,15 @@ async def preview_anonymization(preview_request: PreviewRequest):
         # 2. Add the unsaved ad-hoc recognizers from the request
         for rec in preview_request.recognizers:
             if rec.name and rec.regex:
-                ad_hoc_recognizer = PresidioAdHocRecognizer(
+                # Create a Pattern for the regex
+                pattern = Pattern(name=f"Custom '{rec.name}'", regex=rec.regex, score=rec.score)
+
+                # Create a PatternRecognizer
+                recognizer = PatternRecognizer(
                     supported_entity=rec.name,
-                    patterns=[rec.regex],
-                    name=f"Custom '{rec.name}'"
+                    patterns=[pattern]
                 )
-                registry.add_recognizer(ad_hoc_recognizer)
+                registry.add_recognizer(recognizer)
 
         analyzer = AnalyzerEngine(registry=registry)
         anonymizer = AnonymizerEngine()
