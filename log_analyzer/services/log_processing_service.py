@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from pathlib import Path
 from tqdm import tqdm
 
-from ..parsing.interfaces import LogEntry, ParsedRecord
+from log_analyzer.parsing.interfaces import LogEntry, ParsedRecord
 from ..parsing.parser_factory import create_parser_chain
 from .log_reader import LogReader
 from .presidio_service import PresidioService

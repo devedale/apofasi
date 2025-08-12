@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </td>
                 <td><pre class="regex-display">${entity.regex}</pre></td>
-                <td><input type="number" class="score-input" value="${entity.score.toFixed(2)}" readonly></td>
+                <td><input type="number" class="score-input" value="${(typeof entity.score === 'number' ? entity.score.toFixed(2) : '0.00')}" readonly></td>
                 <td>
                     <button type="button" class="copy-to-custom-btn" ${!entity.is_regex_based ? 'disabled' : ''}>Copy to Custom</button>
                 </td>

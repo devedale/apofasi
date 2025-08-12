@@ -79,9 +79,10 @@ async def get_config():
             if not hasattr(rec, 'supported_entity'): continue
 
             entity_name = rec.supported_entity
+            score = getattr(rec, 'default_score', 0.0)
             detail = {
                 "regex": "N/A (NLP or other logic)",
-                "score": rec.default_score,
+                "score": score if isinstance(score, (int, float)) else 0.0,
                 "is_regex_based": False
             }
             if isinstance(rec, PatternRecognizer):
