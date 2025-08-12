@@ -63,30 +63,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             presidioEnabledCheckbox.checked = config.enabled || false;
             presidioConfidenceInput.value = config.analyzer?.analysis?.confidence_threshold || 0.7;
-            populateEntitiesTable(config.analyzer?.entities || {});
+            populateEntitiesTable(config.analyzer?.entities || {}, config.anonymizer?.strategies || {});
             populateRegexTable(config.analyzer?.ad_hoc_recognizers || []);
         } catch (error) {
             showStatus(error.message, true);
         }
     };
 
-    const populateEntitiesTable = (entities) => {
-        entitiesTableBody.innerHTML = '';
-        Object.keys(entities).sort().forEach(name => {
-            const entity = entities[name];
+    const populateEntitiesTable = (entities, strategies) => {
+        entitiesTableBody.innerHTML = ''; // Clear existing rows
+        const allEntityNames = Object.keys(entities);
+
+        allEntityNames.sort().forEach(name => {
             const row = entitiesTableBody.insertRow();
             row.innerHTML = `
                 <td>${name}</td>
-                <td><input type="checkbox" data-entity-name="${name}" ${entity.enabled ? 'checked' : ''}></td>
+                <td><input type="checkbox" data-entity-name="${name}" ${entities[name] ? 'checked' : ''}></td>
                 <td>
                     <select data-entity-name="${name}">
-                        <option value="replace" ${entity.strategy === 'replace' ? 'selected' : ''}>Replace</option>
-                        <option value="mask" ${entity.strategy === 'mask' ? 'selected' : ''}>Mask</option>
-                        <option value="hash" ${entity.strategy === 'hash' ? 'selected' : ''}>Hash</option>
-                        <option value="keep" ${entity.strategy === 'keep' ? 'selected' : ''}>Keep</option>
+                        <option value="replace" ${strategies[name] === 'replace' ? 'selected' : ''}>Replace</option>
+                        <option value="mask" ${strategies[name] === 'mask' ? 'selected' : ''}>Mask</option>
+                        <option value="hash" ${strategies[name] === 'hash' ? 'selected' : ''}>Hash</option>
+                        <option value="keep" ${strategies[name] === 'keep' ? 'selected' : ''}>Keep</option>
                     </select>
                 </td>
-                <td><div class="regex-display-wrapper"><pre class="regex-display">${entity.regex}</pre></div></td>
             `;
         });
     };
@@ -106,13 +106,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const buildConfigFromUI = () => {
-        const newConfig = { ...initialConfig, enabled: presidioEnabledCheckbox.checked };
-        newConfig.analyzer = { ...initialConfig.analyzer };
-        newConfig.anonymizer = { ...initialConfig.anonymizer };
-        newConfig.analyzer.analysis = { ...(initialConfig.analyzer?.analysis || {}), confidence_threshold: parseFloat(presidioConfidenceInput.value) };
-        newConfig.analyzer.entities = {};
-        newConfig.anonymizer.strategies = {};
-        newConfig.analyzer.ad_hoc_recognizers = [];
+        const newConfig = {
+            ...initialConfig,
+            enabled: presidioEnabledCheckbox.checked,
+            analyzer: {
+                ...initialConfig.analyzer,
+                analysis: {
+                    ...(initialConfig.analyzer?.analysis || {}),
+                    confidence_threshold: parseFloat(presidioConfidenceInput.value)
+                },
+                entities: {},
+                ad_hoc_recognizers: []
+            },
+            anonymizer: {
+                ...initialConfig.anonymizer,
+                strategies: {}
+            }
+        };
 
         entitiesTableBody.querySelectorAll('tr').forEach(row => {
             const name = row.cells[0].textContent;

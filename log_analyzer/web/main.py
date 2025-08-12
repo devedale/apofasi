@@ -50,47 +50,23 @@ async def read_root(request: Request):
 
 @app.get("/api/config", response_class=JSONResponse)
 async def get_config():
-    """
-    Returns the current Presidio configuration, augmented with details
-    about the recognizers for the UI.
-    """
+    """Returns the current Presidio configuration."""
     config_service = ConfigService()
     config = config_service.load_config()
     presidio_config = config.get("presidio", {})
 
-    # --- Augment entity info with regex data ---
-    # 1. Load default recognizers to inspect them
-    registry = RecognizerRegistry()
-    registry.load_predefined_recognizers(languages=["en"])
-    default_recognizers = registry.get_recognizers()
-
-    # 2. Create a map of entity -> regex for pattern-based recognizers
-    entity_to_regex = {}
-    for rec in default_recognizers:
-        if isinstance(rec, PatternRecognizer):
-            # For simplicity, we'll join multiple patterns with a newline
-            regex_str = "\n".join(p.regex for p in rec.patterns)
-            entity_to_regex[rec.supported_entity] = regex_str
-
-    # 3. Build the detailed entities object for the frontend
-    detailed_entities = {}
-
-    # Ensure nested structures exist
-    analyzer_config = presidio_config.get("analyzer", {})
-    anonymizer_config = presidio_config.get("anonymizer", {})
-    entities_map = analyzer_config.get("entities", {})
-    strategies_map = anonymizer_config.get("strategies", {})
-
-    for entity, enabled in entities_map.items():
-        detailed_entities[entity] = {
-            "enabled": enabled,
-            "strategy": strategies_map.get(entity, "replace"),
-            "regex": entity_to_regex.get(entity, "N/A (Uses NLP or other logic)"),
-            "is_regex_based": entity in entity_to_regex
-        }
-
-    # Update the config object that will be returned
-    presidio_config["analyzer"]["entities"] = detailed_entities
+    # Ensure nested structures exist for the frontend, which expects them.
+    # This prevents errors in the UI if the config file is minimal.
+    if "analyzer" not in presidio_config:
+        presidio_config["analyzer"] = {}
+    if "ad_hoc_recognizers" not in presidio_config["analyzer"]:
+        presidio_config["analyzer"]["ad_hoc_recognizers"] = []
+    if "entities" not in presidio_config["analyzer"]:
+        presidio_config["analyzer"]["entities"] = {}
+    if "anonymizer" not in presidio_config:
+        presidio_config["anonymizer"] = {}
+    if "strategies" not in presidio_config["anonymizer"]:
+        presidio_config["anonymizer"]["strategies"] = {}
 
     return presidio_config
 

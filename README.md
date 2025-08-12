@@ -1,5 +1,5 @@
 # Unified Log Analyzer & Anonymizer
- 
+
 This project provides a unified, configuration-driven system for parsing, anonymizing, and preprocessing log files. It integrates Microsoft Presidio for AI-powered PII detection and Drain3 for log template mining, with a user-friendly Qt interface. The entire application is containerized with Docker for easy setup and deployment.
 
 ## ✨ Features
