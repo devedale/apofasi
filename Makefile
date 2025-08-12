@@ -20,30 +20,30 @@ help:
 
 setup:
 	@echo "--- Pulling Docker images and building services... ---"
-	docker-compose -f $(COMPOSE_FILE) build
-	docker-compose -f $(COMPOSE_FILE) pull
+	docker compose -f $(COMPOSE_FILE) build
+	docker compose -f $(COMPOSE_FILE) pull
 
 run:
 	@echo "--- Starting services in detached mode... ---"
-	docker-compose -f $(COMPOSE_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) up -d
 
 run-ui:
 	@echo "--- Starting the Log Analyzer UI inside the container... ---"
 	@echo "Note: Make sure you have run 'xhost +local:docker' on your host machine."
-	docker-compose -f $(COMPOSE_FILE) exec $(SERVICE_NAME) python3 run_ui.py
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE_NAME) python3 run_ui.py
 
 stop:
 	@echo "--- Stopping services... ---"
-	docker-compose -f $(COMPOSE_FILE) down
+	docker compose -f $(COMPOSE_FILE) down
 
 logs:
 	@echo "--- Following logs (Ctrl+C to exit)... ---"
-	docker-compose -f $(COMPOSE_FILE) logs -f
+	docker compose -f $(COMPOSE_FILE) logs -f
 
 shell:
 	@echo "--- Opening shell in $(SERVICE_NAME) container... ---"
-	docker-compose -f $(COMPOSE_FILE) exec $(SERVICE_NAME) /bin/bash
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE_NAME) /bin/bash
 
 clean:
 	@echo "--- Removing containers, networks, and volumes... ---"
-	docker-compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans

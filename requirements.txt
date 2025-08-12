@@ -14,5 +14,8 @@ presidio-anonymizer
 # Spacy is a dependency for Presidio's NLP models
 spacy
 
-# PyQt6 for the desktop UI
-PyQt6
+# FastAPI for the web UI
+fastapi
+uvicorn[standard]
+python-multipart
+Jinja2
