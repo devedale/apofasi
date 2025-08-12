@@ -4,6 +4,22 @@ FROM python:3.10-slim
 # Set the working directory in the container
 WORKDIR /app
 
+# Install system dependencies for PyQt6
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libegl1-mesa \
+    libxkbcommon-x11-0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xfixes0 \
+    libxcb-xinerama0 \
+    libfontconfig1 \
+    libdbus-1-3 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy the requirements file into the container at /app
 # We will create this file in a later step
 COPY requirements.txt .
