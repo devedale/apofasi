@@ -2,9 +2,9 @@ from typing import Dict, Any, List
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import SpacyRecognizer
 from presidio_anonymizer import AnonymizerEngine
-from presidio_anonymizer.entities import AnonymizerResult, OperatorConfig
+# OperatorConfig is now imported directly from the top-level package
+from presidio_anonymizer import OperatorConfig
 from presidio_analyzer.recognizer_result import RecognizerResult
-from presidio_analyzer.ad_hoc_recognizer import AdHocRecognizer
 
 
 from ..parsing.interfaces import ParsedRecord
@@ -24,17 +24,7 @@ class PresidioService:
         # --- Create and configure the AnalyzerEngine ---
         registry = RecognizerRegistry()
 
-        # 1. Add ad-hoc regex recognizers from config
-        ad_hoc_recognizers = self.config.get('analyzer', {}).get('ad_hoc_recognizers', [])
-        for rec_conf in ad_hoc_recognizers:
-            registry.add_recognizer(
-                AdHocRecognizer(
-                    supported_entity=rec_conf["name"],
-                    patterns=[rec_conf["regex"]],
-                )
-            )
-
-        # 2. Add default recognizers
+        # Add default recognizers
         registry.load_predefined_recognizers()
 
         # TODO: Add logic to load multiple spacy models based on config
@@ -92,7 +82,7 @@ class PresidioService:
             }
 
             # Anonymize the text based on the analysis and configured strategies
-            anonymized_result: AnonymizerResult = self.anonymizer.anonymize(
+            anonymized_result = self.anonymizer.anonymize(
                 text=record.original_content,
                 analyzer_results=analyzer_results,
                 anonymizers=anonymizers_config

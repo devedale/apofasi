@@ -176,7 +176,7 @@ async def preview_anonymization(preview_request: PreviewRequest):
     """
     Performs a live preview of anonymization using the full, unsaved UI configuration.
     """
-    from presidio_anonymizer.entities import OperatorConfig
+    from presidio_anonymizer import OperatorConfig
 
     config = preview_request.presidio_config
     sample_text = preview_request.sample_text
