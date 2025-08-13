@@ -104,25 +104,31 @@ async def get_config():
         default_recognizers = analyzer.get_recognizers(language=language)
 
         for rec in default_recognizers:
-            entity_name = getattr(rec, 'supported_entity', None)
-            if not entity_name:
-                continue
+            # Handle recognizers with single or multiple supported entities
+            entities = getattr(rec, 'supported_entities', [])
+            if not entities:
+                single_entity = getattr(rec, 'supported_entity', None)
+                if single_entity:
+                    entities = [single_entity]
+                else:
+                    continue # Skip recognizers with no supported entities
 
-            is_enabled = user_entities.get(entity_name, True) # Default to enabled
-            strategy = user_strategies.get(entity_name, "replace")
-            score = getattr(rec, 'default_score', 0.0)
+            for entity_name in entities:
+                is_enabled = user_entities.get(entity_name, True) # Default to enabled
+                strategy = user_strategies.get(entity_name, "replace")
+                score = getattr(rec, 'default_score', 0.0)
 
-            detailed_entities[entity_name] = {
-                "enabled": is_enabled,
-                "strategy": strategy,
-                "score": score if isinstance(score, (int, float)) else 0.0,
-                "regex": "N/A (NLP or other logic)",
-                "is_regex_based": False
-            }
+                detailed_entities[entity_name] = {
+                    "enabled": is_enabled,
+                    "strategy": strategy,
+                    "score": score if isinstance(score, (int, float)) else 0.0,
+                    "regex": "N/A (NLP or other logic)",
+                    "is_regex_based": False
+                }
 
-            if isinstance(rec, PatternRecognizer):
-                detailed_entities[entity_name]["regex"] = "\\n".join(p.regex for p in rec.patterns)
-                detailed_entities[entity_name]["is_regex_based"] = True
+                if isinstance(rec, PatternRecognizer):
+                    detailed_entities[entity_name]["regex"] = "\\n".join(p.regex for p in rec.patterns)
+                    detailed_entities[entity_name]["is_regex_based"] = True
 
     except Exception as e:
         import traceback
@@ -173,44 +179,50 @@ async def preview_anonymization(preview_request: PreviewRequest):
     config = preview_request.presidio_config
     sample_text = preview_request.sample_text
     if not sample_text: return JSONResponse(content={"anonymized_text": ""})
+
     try:
         language = config.get("analyzer", {}).get("language", "en")
-
-        # Create a new analyzer engine for the preview
         analyzer = AnalyzerEngine(supported_languages=[language])
+        anonymizer = AnonymizerEngine()
 
-        # Get the default recognizers and remove the ones disabled by the user
-        enabled_entities = {k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v}
-        default_recognizers = analyzer.get_recognizers(language=language)
-        recognizers_to_remove = [rec for rec in default_recognizers if getattr(rec, 'supported_entity', None) not in enabled_entities]
-        # Note: The above logic is still flawed if multiple recognizers support the same entity.
-        # A better approach would be to remove by name, but this requires more refactoring.
-        # For now, we focus on fixing the crash.
-        if recognizers_to_remove:
-            analyzer.remove_recognizer(recognizers_to_remove)
-
-        # Add the ad-hoc recognizers from the UI
+        # Add ad-hoc recognizers to the analyzer's registry for this request
         ad_hoc_recognizers = config.get('analyzer', {}).get('ad_hoc_recognizers', [])
         for rec_conf in ad_hoc_recognizers:
             if rec_conf.get("name") and rec_conf.get("regex"):
-                pattern = Pattern(name=f"Custom '{rec_conf['name']}'", regex=rec_conf['regex'], score=rec_conf['score'])
-                recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
-                analyzer.add_recognizer(recognizer)
+                pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
+                ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
+                analyzer.registry.add_recognizer(ad_hoc_recognizer)
 
-        # If no recognizers are active at all, return the original text.
-        if not analyzer.get_recognizers(language=language):
-            return JSONResponse(content={"anonymized_text": f"[PREVIEW] No entities enabled or defined. Original text: {sample_text}"})
-        anonymizer = AnonymizerEngine()
+        # Get the list of entities to run from the UI config
+        enabled_entities = [k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v]
+        # Also include any custom entities
+        for rec in ad_hoc_recognizers:
+            if rec.get("name") and rec.get("name") not in enabled_entities:
+                enabled_entities.append(rec.get("name"))
+
+        if not enabled_entities:
+            return JSONResponse(content={"anonymized_text": "[PREVIEW] No entities are enabled."})
+
+        # Analyze the text for the specific entities
+        analyzer_results = analyzer.analyze(text=sample_text, language=language, entities=enabled_entities)
+
+        # Build the operators config for the anonymizer, including ad-hoc strategies
         strategies = config.get('anonymizer', {}).get('strategies', {})
-        anonymizers_config = {entity: OperatorConfig(strategy) for entity, strategy in strategies.items()}
+        operators = {entity: OperatorConfig(strategy) for entity, strategy in strategies.items()}
         for rec_conf in ad_hoc_recognizers:
             if rec_conf.get("name") and rec_conf.get("strategy"):
-                anonymizers_config[rec_conf["name"]] = OperatorConfig(rec_conf["strategy"])
-        analyzer_results = analyzer.analyze(text=sample_text, language=language)
-        anonymized_result = anonymizer.anonymize(text=sample_text, analyzer_results=analyzer_results, anonymizers=anonymizers_config)
+                operators[rec_conf["name"]] = OperatorConfig(rec_conf["strategy"])
+
+        anonymized_result = anonymizer.anonymize(
+            text=sample_text,
+            analyzer_results=analyzer_results,
+            operators=operators
+        )
+
         return JSONResponse(content={"anonymized_text": anonymized_result.text})
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"An error occurred during preview: {str(e)}"})
+        import traceback
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during preview: {traceback.format_exc()}"})
 
 @app.post("/api/analysis/{analysis_type}")
 async def run_analysis(analysis_type: str, request: AnalysisRequest):
@@ -238,8 +250,8 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
                 if presidio_config.get('enabled', False):
                     analyzer_results = presidio_analyzer.analyze(text=parsed_record.original_content, language=language)
                     conf_strategies = presidio_config.get('anonymizer', {}).get('strategies', {})
-                    anonymizers_config = {entity: OperatorConfig(op) for entity, op in conf_strategies.items()}
-                    anonymized_result = presidio_anonymizer.anonymize(text=parsed_record.original_content, analyzer_results=analyzer_results, anonymizers=anonymizers_config)
+                    operators = {entity: OperatorConfig(op) for entity, op in conf_strategies.items()}
+                    anonymized_result = presidio_anonymizer.anonymize(text=parsed_record.original_content, analyzer_results=analyzer_results, operators=operators)
                     parsed_record.presidio_anonymized = anonymized_result.text
                     parsed_record.presidio_metadata = [res.to_dict() for res in analyzer_results]
                 else:
