@@ -137,11 +137,7 @@ async def get_config():
             # Handle recognizers with single or multiple supported entities
             entities = getattr(rec, 'supported_entities', [])
             if not entities:
-                single_entity = getattr(rec, 'supported_entity', None)
-                if single_entity:
-                    entities = [single_entity]
-                else:
-                    continue # Skip recognizers with no supported entities
+                continue # Skip recognizers with no supported entities
 
             for entity_name in entities:
                 is_enabled = user_entities.get(entity_name, True) # Default to enabled
@@ -212,16 +208,25 @@ async def preview_anonymization(preview_request: PreviewRequest):
 
     try:
         language = config.get("analyzer", {}).get("language", "en")
-        analyzer = AnalyzerEngine(supported_languages=[language])
-        anonymizer = AnonymizerEngine()
 
-        # Add ad-hoc recognizers to the analyzer's registry for this request
+        # Create a new registry and analyzer for each request to keep it stateless
+        registry = RecognizerRegistry()
+        registry.load_predefined_recognizers(languages=[language])
+
+        # Add ad-hoc recognizers to the new registry
         ad_hoc_recognizers = config.get('analyzer', {}).get('ad_hoc_recognizers', [])
         for rec_conf in ad_hoc_recognizers:
             if rec_conf.get("name") and rec_conf.get("regex"):
-                pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
-                ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
-                analyzer.registry.add_recognizer(ad_hoc_recognizer)
+                try:
+                    pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
+                    ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
+                    registry.add_recognizer(ad_hoc_recognizer)
+                except Exception as e:
+                    # Log error if a custom regex fails to compile, but don't crash
+                    print(f"Failed to add ad-hoc recognizer '{rec_conf.get('name')}': {e}")
+
+        analyzer = AnalyzerEngine(registry=registry, supported_languages=[language])
+        anonymizer = AnonymizerEngine()
 
         # Get the list of entities to run from the UI config
         enabled_entities = [k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v]

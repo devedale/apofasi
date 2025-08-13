@@ -1,7 +1,8 @@
 import re
 from typing import Dict, Any, Optional
 
-from .interfaces import AbstractParser, LogEntry, ParsedRecord
+from log_analyzer.log_entry import LogEntry
+from .interfaces import AbstractParser, ParsedRecord
 from .json_parser import JSONParser
 from .csv_parser import CSVParser
 from .cef_parser import CEFParser
