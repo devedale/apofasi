@@ -104,9 +104,10 @@ async def get_config():
         default_recognizers = analyzer.get_recognizers(language=language)
 
         for rec in default_recognizers:
-            if not hasattr(rec, 'supported_entity'): continue
+            entity_name = getattr(rec, 'supported_entity', None)
+            if not entity_name:
+                continue
 
-            entity_name = rec.supported_entity
             is_enabled = user_entities.get(entity_name, True) # Default to enabled
             strategy = user_strategies.get(entity_name, "replace")
             score = getattr(rec, 'default_score', 0.0)
@@ -181,8 +182,12 @@ async def preview_anonymization(preview_request: PreviewRequest):
         # Get the default recognizers and remove the ones disabled by the user
         enabled_entities = {k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v}
         default_recognizers = analyzer.get_recognizers(language=language)
-        recognizers_to_remove = [rec for rec in default_recognizers if rec.supported_entity not in enabled_entities]
-        analyzer.remove_recognizer(recognizers_to_remove)
+        recognizers_to_remove = [rec for rec in default_recognizers if getattr(rec, 'supported_entity', None) not in enabled_entities]
+        # Note: The above logic is still flawed if multiple recognizers support the same entity.
+        # A better approach would be to remove by name, but this requires more refactoring.
+        # For now, we focus on fixing the crash.
+        if recognizers_to_remove:
+            analyzer.remove_recognizer(recognizers_to_remove)
 
         # Add the ad-hoc recognizers from the UI
         ad_hoc_recognizers = config.get('analyzer', {}).get('ad_hoc_recognizers', [])
