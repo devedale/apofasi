@@ -48,6 +48,36 @@ class AnalysisRequest(BaseModel):
     input_file: str
 
 # --- Formatting Helper Functions ---
+def _build_operators(config: Dict[str, Any]) -> Dict[str, OperatorConfig]:
+    """Helper to build the operators dictionary for the AnonymizerEngine."""
+    anonymizer_config = config.get("anonymizer", {})
+    strategies = anonymizer_config.get("strategies", {})
+    strategy_configs = anonymizer_config.get("strategy_config", {})
+
+    operators = {}
+    for entity_name, strategy_name in strategies.items():
+        if strategy_name in strategy_configs:
+            # If a detailed configuration exists for this strategy, use it
+            params = strategy_configs[strategy_name]
+            operators[entity_name] = OperatorConfig(strategy_name, params)
+        else:
+            # Otherwise, use the operator with its default parameters
+            operators[entity_name] = OperatorConfig(strategy_name)
+
+    # Also handle ad-hoc recognizers, which might have their own strategy defined
+    ad_hoc_recognizers = config.get('analyzer', {}).get('ad_hoc_recognizers', [])
+    for rec_conf in ad_hoc_recognizers:
+        strategy_name = rec_conf.get("strategy")
+        entity_name = rec_conf.get("name")
+        if entity_name and strategy_name:
+             if strategy_name in strategy_configs:
+                params = strategy_configs[strategy_name]
+                operators[entity_name] = OperatorConfig(strategy_name, params)
+             else:
+                operators[entity_name] = OperatorConfig(strategy_name)
+
+    return operators
+
 def format_as_anonymized_text(records: List[ParsedRecord], output_path: str):
     with open(output_path, "w", encoding="utf-8") as f:
         for record in records:
@@ -206,12 +236,8 @@ async def preview_anonymization(preview_request: PreviewRequest):
         # Analyze the text for the specific entities
         analyzer_results = analyzer.analyze(text=sample_text, language=language, entities=enabled_entities)
 
-        # Build the operators config for the anonymizer, including ad-hoc strategies
-        strategies = config.get('anonymizer', {}).get('strategies', {})
-        operators = {entity: OperatorConfig(strategy) for entity, strategy in strategies.items()}
-        for rec_conf in ad_hoc_recognizers:
-            if rec_conf.get("name") and rec_conf.get("strategy"):
-                operators[rec_conf["name"]] = OperatorConfig(rec_conf["strategy"])
+        # Build the operators config using the new helper function
+        operators = _build_operators(config)
 
         anonymized_result = anonymizer.anonymize(
             text=sample_text,
@@ -249,8 +275,7 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             if parsed_record:
                 if presidio_config.get('enabled', False):
                     analyzer_results = presidio_analyzer.analyze(text=parsed_record.original_content, language=language)
-                    conf_strategies = presidio_config.get('anonymizer', {}).get('strategies', {})
-                    operators = {entity: OperatorConfig(op) for entity, op in conf_strategies.items()}
+                    operators = _build_operators(presidio_config)
                     anonymized_result = presidio_anonymizer.anonymize(text=parsed_record.original_content, analyzer_results=analyzer_results, operators=operators)
                     parsed_record.presidio_anonymized = anonymized_result.text
                     parsed_record.presidio_metadata = [res.to_dict() for res in analyzer_results]

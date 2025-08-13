@@ -13,8 +13,9 @@ COPY requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download the Spacy model for Presidio
+# Download Spacy models for Presidio (English and Italian)
 RUN python -m spacy download en_core_web_lg
+RUN python -m spacy download it_core_news_lg
 
 # Copy the rest of the application code into the container at /app
 COPY . .
