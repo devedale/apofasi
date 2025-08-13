@@ -155,6 +155,7 @@ button:hover {
 .table-container {
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: auto;
     border: 1px solid #ddd;
 }
 
