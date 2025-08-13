@@ -217,8 +217,33 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error((await response.json()).error || 'Analysis failed.');
             const result = await response.json();
             analysisStatusMessage.textContent = `Successfully generated report for ${inputFile}.`;
-            downloadLink.href = result.download_url;
-            downloadLink.textContent = `Download ${result.download_url.split('/').pop()}`;
+            
+            // Handle different response formats based on analysis type
+            if (analysisType === 'logppt') {
+                // LogPPT returns both original and anonymized URLs
+                if (result.original_download_url && result.anonymized_download_url) {
+                    downloadLink.href = result.original_download_url;
+                    downloadLink.textContent = `Download Original Report`;
+                    
+                    // Create second download link for anonymized report
+                    const anonymizedLink = document.createElement('a');
+                    anonymizedLink.href = result.anonymized_download_url;
+                    anonymizedLink.textContent = `Download Anonymized Report`;
+                    anonymizedLink.className = 'download-link';
+                    anonymizedLink.download = '';
+                    
+                    // Replace the single download link with both
+                    downloadLink.parentNode.innerHTML = '';
+                    downloadLink.parentNode.appendChild(downloadLink);
+                    downloadLink.parentNode.appendChild(document.createTextNode(' | '));
+                    downloadLink.parentNode.appendChild(anonymizedLink);
+                }
+            } else {
+                // Other analysis types return single download_url
+                downloadLink.href = result.download_url;
+                downloadLink.textContent = `Download ${result.download_url.split('/').pop()}`;
+            }
+            
             analysisResultsDiv.style.display = 'block';
             showStatus('Analysis complete!', false);
         } catch (error) {

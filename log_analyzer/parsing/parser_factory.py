@@ -46,7 +46,8 @@ def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
     if csv_config.get('enabled', True):
         csv_parser = CSVParser(
             delimiter=csv_config.get('delimiter', ','),
-            header=csv_config.get('header', None)
+            header=csv_config.get('header', None),
+            config=config  # Pass full config for header detection
         )
         if not head:
             head = csv_parser

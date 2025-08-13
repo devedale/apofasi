@@ -58,7 +58,24 @@ def _build_operators(config: Dict[str, Any]) -> Dict[str, OperatorConfig]:
     for entity_name, strategy_name in strategies.items():
         if strategy_name in strategy_configs:
             # If a detailed configuration exists for this strategy, use it
-            params = strategy_configs[strategy_name]
+            params = strategy_configs[strategy_name].copy()  # Copy to avoid modifying original
+            
+            # Fix parameter mapping for mask strategy
+            if strategy_name == "mask":
+                # Map mask_char to masking_char
+                if "mask_char" in params:
+                    params["masking_char"] = params.pop("mask_char")
+                
+                # Add missing required parameters for mask operator
+                if "chars_to_mask" not in params:
+                    params["chars_to_mask"] = 0  # Default: mask all characters
+                
+                if "masking_char" not in params:
+                    params["masking_char"] = "*"  # Default masking character
+                
+                if "from_end" not in params:
+                    params["from_end"] = False  # Default: mask from beginning
+            
             operators[entity_name] = OperatorConfig(strategy_name, params)
         else:
             # Otherwise, use the operator with its default parameters
@@ -71,7 +88,24 @@ def _build_operators(config: Dict[str, Any]) -> Dict[str, OperatorConfig]:
         entity_name = rec_conf.get("name")
         if entity_name and strategy_name:
              if strategy_name in strategy_configs:
-                params = strategy_configs[strategy_name]
+                params = strategy_configs[strategy_name].copy()  # Copy to avoid modifying original
+                
+                # Fix parameter mapping for mask strategy
+                if strategy_name == "mask":
+                    # Map mask_char to masking_char
+                    if "mask_char" in params:
+                        params["masking_char"] = params.pop("mask_char")
+                    
+                    # Add missing required parameters for mask operator
+                    if "chars_to_mask" not in params:
+                        params["chars_to_mask"] = 0  # Default: mask all characters
+                    
+                    if "masking_char" not in params:
+                        params["masking_char"] = "*"  # Default masking character
+                    
+                    if "from_end" not in params:
+                        params["from_end"] = False  # Default: mask from beginning
+                
                 operators[entity_name] = OperatorConfig(strategy_name, params)
              else:
                 operators[entity_name] = OperatorConfig(strategy_name)
@@ -83,19 +117,44 @@ def format_as_anonymized_text(records: List[ParsedRecord], output_path: str):
         for record in records:
             f.write(f"{record.presidio_anonymized or ''}\n")
 
-def format_as_logppt(records: List[ParsedRecord], output_path: str):
+def format_as_logppt(records: List[ParsedRecord], output_path: str, version: str = "anonymized"):
+    """
+    Generate LogPPT CSV report for either original or anonymized data.
+    
+    Args:
+        records: List of parsed records
+        output_path: Output file path
+        version: "original" or "anonymized" to determine which data to use
+    """
     if not records: return
+    
     all_keys = set()
     for record in records:
         if record.parsed_data: all_keys.update(record.parsed_data.keys())
     sorted_keys = sorted(list(all_keys))
     headers = ["LineId", "Timestamp"] + sorted_keys + ["Content", "EventId", "Template"]
+    
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
+        
         for record in records:
-            drain_result = record.drain3_anonymized or {}
-            row = {"LineId": record.line_number, "Timestamp": record.timestamp, "Content": record.unparsed_content, "EventId": drain_result.get("cluster_id", "N/A"), "Template": drain_result.get("template_mined", "N/A")}
+            # Choose drain3 results based on version
+            if version == "original":
+                drain_result = record.drain3_original or {}
+                content = record.original_content
+            else:  # anonymized
+                drain_result = record.drain3_anonymized or {}
+                content = record.presidio_anonymized or record.original_content
+            
+            # Extract timestamp from parsed data, fallback to "N/A" if not found
+            timestamp = record.parsed_data.get("timestamp", "N/A")
+            # Format EventId as "E{cluster_id}" with fallback to "N/A"
+            event_id = f"E{drain_result.get('cluster_id', 'N/A')}" if drain_result.get('cluster_id') is not None else "N/A"
+            # Get template from drain3 result, fallback to "N/A"
+            template = drain_result.get('template', 'N/A')
+            
+            row = {"LineId": record.line_number, "Timestamp": timestamp, "Content": content, "EventId": event_id, "Template": template}
             for key in sorted_keys:
                 row[key] = record.parsed_data.get(key, "")
             writer.writerow(row)
@@ -302,9 +361,23 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             output_path = os.path.join("outputs", output_filename)
             format_as_anonymized_text(all_records, output_path)
         elif analysis_type == "logppt":
-            output_filename = f"{output_filename_base}.csv"
-            output_path = os.path.join("outputs", output_filename)
-            format_as_logppt(all_records, output_path)
+            # Generate both original and anonymized LogPPT reports
+            # Original data report
+            original_filename = f"{output_filename_base}_original.csv"
+            original_path = os.path.join("outputs", original_filename)
+            format_as_logppt(all_records, original_path, "original")
+            
+            # Anonymized data report
+            anonymized_filename = f"{output_filename_base}_anonymized.csv"
+            anonymized_path = os.path.join("outputs", anonymized_filename)
+            format_as_logppt(all_records, anonymized_path, "anonymized")
+            
+            # Return both download URLs
+            return {
+                "original_download_url": f"/outputs/{original_filename}",
+                "anonymized_download_url": f"/outputs/{anonymized_filename}",
+                "message": "Both original and anonymized LogPPT reports generated successfully"
+            }
         elif analysis_type == "json_report":
             output_filename = f"{output_filename_base}.json"
             output_path = os.path.join("outputs", output_filename)
