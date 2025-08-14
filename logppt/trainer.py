@@ -2,7 +2,7 @@ import logging
 import math
 import torch
 from tqdm import tqdm
-from transformers.optimization import Adafactor, AdamW, get_scheduler
+from transformers.optimization import Adafactor, get_scheduler
 
 from typing import Any, Optional
 
