@@ -19,3 +19,7 @@ fastapi
 uvicorn[standard]
 python-multipart
 Jinja2
+
+# Testing Framework
+pytest
+pytest-mock
