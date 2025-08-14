@@ -1,51 +1,71 @@
-# Clean Parser
+# Unified Log Analyzer & Anonymizer
 
-Parser di log robusto con clustering Drain3, anonimizzazione e parsing multi-strategy.
+This project provides a unified, configuration-driven system for parsing, anonymizing, and preprocessing log files. It integrates Microsoft Presidio for AI-powered PII detection and Drain3 for log template mining, with a user-friendly Qt interface. The entire application is containerized with Docker for easy setup and deployment.
 
-## Formati Supportati
+## ✨ Features
 
-### Parser Principale (MultiStrategyParser)
-- **CSV**: File CSV con header rilevamento automatico
-- **JSON**: Log in formato JSON
-- **Syslog**: Log di sistema standard
-- **Fortinet**: Log specifici Fortinet
-- **Apache**: Log di accesso Apache
-- **TXT**: File di testo generici
-- **LOG**: File di log standard
+- **Unified Processing Pipeline:** A cohesive 3-phase pipeline handles parsing, anonymization, and template mining.
+- **AI-Powered Anonymization:** Uses Microsoft Presidio to detect and anonymize a wide range of personally identifiable information (PII).
+- **Advanced Template Mining:** Employs Drain3 to discover log templates from both original and anonymized log messages.
+- **Extensible Parsing:** A "Chain of Responsibility" pattern allows for easily adding new parsers for different log formats (JSON, CSV, Regex, etc.).
+- **Centralized Configuration:** A single `config.yaml` file controls all aspects of the application, from regex patterns to Presidio and Drain3 settings.
+- **Containerized Environment:** The entire application and its dependencies (including AI models via Ollama) are managed by Docker Compose for a consistent and easy-to-manage setup.
+- **Desktop UI:** A Qt-based graphical user interface allows for easy interaction, configuration, and execution of the processing pipeline.
 
-### Parsing Strategie
-1. **Structured Parsing**: Tentativo di parsing strutturato (CSV, JSON)
-2. **Pattern-based Parsing**: Estrazione `key=value` con regex
-3. **Adaptive Parser**: Fallback per log non strutturati
+## 🏗️ Architecture
 
-### Caratteristiche Core
-- **Dual Mining Drain3**: Clustering separato per log originali e anonimizzati
-- **Anonimizzazione**: Mascheramento di IP, MAC, email, ecc.
-- **Regex Centralizzato**: Gestione unificata di tutti i pattern
-- **Normalizzazione Timestamp**: Conversione automatica formati data/ora
+The application is built with a clean, service-oriented architecture, located in the `log_analyzer/` directory.
 
-## Utilizzo
+- **`log_analyzer/parsing`**: Contains the extensible parsing framework using the Chain of Responsibility pattern.
+- **`log_analyzer/services`**: Contains the core business logic, including the main `LogProcessingService`, and wrappers for Presidio, Drain3, and configuration management.
+- **`log_analyzer/ui`**: Contains the Qt-based user interface components.
+- **`docker-compose.yml`**: Orchestrates the main application (`log-processor`), an AI model service (`ollama`), and the UI (`log-ui`).
+- **`Makefile`**: Provides simple commands for managing the application lifecycle.
+
+##  prerequisites
+
+- **Docker** and **Docker Compose**
+- For Linux/macOS with a graphical interface: An **X Server**.
+- For Windows: **WSL2** (Windows Subsystem for Linux) and an X Server like **VcXsrv** or **GWSL**.
+
+## 🚀 Getting Started
+
+Instructions for running the application in a containerized environment with a graphical user interface.
+
+### Step 1: Allow Display Connection (Host Machine)
+
+Before you start, you need to give Docker permission to connect to your computer's graphical display. Open a terminal on your host machine and run this command. You typically only need to do this once per session.
 
 ```bash
-python3 cli_parser.py parse <input_file> <output_dir>
+xhost +local:docker
 ```
 
-## Configurazione
+### Step 2: Build and Run the Application Environment
 
-Il progetto utilizza una configurazione centralizzata in `config/config.yaml` che include:
+Navigate to the project directory and use the `Makefile` to build and run the Docker containers.
 
-- **Regex Patterns**: Tutti i pattern regex per anonimizzazione, parsing e cleaning
-- **Drain3 Configuration**: Parametri per il template mining
-- **File Formats**: Configurazione per i formati di file supportati
-- **Parser Configuration**: Configurazione dettagliata per tutti i parser
-- **Timestamp Normalization**: Pattern per la normalizzazione delle date
-- **Output & Logging**: Configurazione per output e logging
+```bash
+# This builds the containers and downloads required AI models.
+make setup
 
-### Struttura della Configurazione
-
-```
-config/
-└── config.yaml             # Configurazione centralizzata unificata
+# This starts the backend services (like Ollama) in the background.
+make run
 ```
 
-**Nota**: Tutta la configurazione è ora centralizzata in `config.yaml` per evitare duplicazioni e garantire coerenza.
+### Step 3: Launch the User Interface
+
+You can now launch the UI with this command. It will execute the application *inside* the container but display the window on your desktop.
+
+```bash
+make run-ui
+```
+
+## Makefile Commands
+
+- `make setup`: Builds all Docker images.
+- `make run`: Starts the backend services in detached mode.
+- `make run-ui`: Starts the Qt GUI application.
+- `make stop`: Stops all running services.
+- `make logs`: Tails the logs of all running services.
+- `make shell`: Opens a shell inside the main `log-processor` container for debugging.
+- `make clean`: Stops and removes all containers, networks, and volumes associated with the project.

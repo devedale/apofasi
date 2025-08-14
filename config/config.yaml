@@ -12,81 +12,81 @@ centralized_regex:
   # Configurazione per il servizio regex centralizzato
   # Abilita la generazione di template anonimizzati coerenti
   generate_anonymized_templates: true
-  
+
   # Abilita il logging dettagliato per debug
   verbose_logging: false
-  
+
   # Categorie di pattern
   categories:
     - "parsing"
     - "anonymization"
     - "detection"
-  
+
   # Pattern regex per anonimizzazione
   anonymization:
     # IP addresses
     ip_address: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b"
     ipv6_address: "\\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\b"
-    
+
     # MAC addresses
     mac_address: "\\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\\b"
-    
+
     # Email addresses
     email: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
-    
+
     # URLs
     url: "https?://[^\\s<>\"{}|\\^`\\[\\]\\\\]+"
-    
+
     # File paths
     file_path: "(?:/[^\\s<>\"{}|\\^`\\[\\]\\\\]+)+"
-    
+
     # Timestamps e date (UNIFICATI - un solo scopo)
     timestamp: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?"
     date: "\\d{4}-\\d{2}-\\d{2}"
     time: "\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?"
-    
+
     # Numbers and IDs (UNIFICATI - un solo scopo)
     uuid: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
     hex_id: "0x[0-9a-fA-F]+"
-    
+
     # REGOLE PRECISE per ID specifici (non tutti i numeri grandi)
     system_id: "\\b(?:id|seq|pid|tid|uid|gid|sid|rid|aid|bid|cid|did|eid|fid|gid|hid|iid|jid|kid|lid|mid|nid|oid|pid|qid|rid|sid|tid|uid|vid|wid|xid|yid|zid)\\s*=\\s*\\d{5,}\\b"
-    
+
     # Timestamp Unix (non tutti i numeri grandi)
     unix_timestamp: "\\b\\d{10,19}\\b"
-    
+
     # Hash numerici (non tutti i numeri grandi)
     numeric_hash: "\\b\\d{32,64}\\b"
-    
+
     # Hostnames and domains
     hostname: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
     domain: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
-    
+
     # Credit cards
     credit_card: "\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b"
-    
+
     # Device IDs
     device_id: "\\b[A-Z]{2,}[A-Z0-9]{8,}\\b"
     device_name: "\\b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\\b"
     fortinet_device: "\\bFGT[A-Z0-9]{12,}\\b"
-    
+
     # Phone numbers
     phone: "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b"
-    
+
     # SSN
     ssn: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
-    
+
     # Version numbers
     version: "\\b(?:v?)?\\d+\\.\\d+(?:\\.\\d+)?(?:-[a-zA-Z0-9]+)?\\b"
-    
+
     # Pattern per anonimizzazione aggiuntivi (UNIFICATI)
     hash_string: "\\b(?:hash|sha1|sha256|md5|checksum|fingerprint|digest)\\s*[:=]\\s*[a-fA-F0-9]{32,64}\\b"
     user_identifier: "\\b(?:user_id|userid|uid|user|username)\\s*[:=]\\s*\\d{6,}\\b"
-    
+
     # PATTERN INTELLIGENTI PER PORTE
     port_number: ":(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
     hostname_port: "([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-    
+
     # Porte comuni per servizi specifici
     http_port: ":80\\b"
     https_port: ":443\\b"
@@ -106,23 +106,23 @@ centralized_regex:
     kibana_port: ":5601\\b"
     grafana_port: ":3000\\b"
     prometheus_port: ":9090\\b"
-    
+
     # 🆕 PLACEHOLDER GENERICI per template (UNIFICATI - un solo scopo)
     # Stringhe generiche tra virgolette (non già anonimizzate)
     # generic_string: "\"([^\"]*)\""  # ❌ RIMOSSO: causa anonimizzazione eccessiva
-    
+
     # Numeri generici (non già anonimizzati)
     #generic_number: "\\b(?<!<)(?<!>)\\d+(?!>)\\b"
-    
+
     # Date generiche (non già anonimizzate)
     #generic_date: "\\b(?<!<)(?<!>)\\d{4}-\\d{2}-\\d{2}(?!>)\\b"
-    
+
     # Time generici (non già anonimizzati)
     #generic_time: "\\b(?<!<)(?<!>)\\d{2}:\\d{2}:\\d{2}(?!>)\\b"
-    
+
     # Timestamp generici (non già anonimizzati)
     generic_timestamp: "\\b(?<!<)(?<!>)\\d{4}-\\d{2}-\\d{2}[T\\s]\\d{2}:\\d{2}:\\d{2}(?!>)\\b"
-    
+
     # 🆕 PLACEHOLDER SPECIFICI per sostituzione (UNIFICATI)
     # Questi sono i placeholder che vengono usati per sostituire i pattern rilevati
     placeholder_ip: "<IP>"
@@ -143,20 +143,20 @@ centralized_regex:
     placeholder_hash: "<HASH>"
     placeholder_uuid: "<UUID>"
     placeholder_num: "<NUM>"
-  
+
   # Pattern regex per parsing
   parsing:
     apache_clf: "^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<timestamp>[^\\]]+)\\] \"(?P<request>[^\"]*)\" (?P<status>\\d+) (?P<bytes>\\S+)"
     apache_combined: "^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<timestamp>[^\\]]+)\\] \"(?P<request>[^\"]*)\" (?P<status>\\d+) (?P<bytes>\\S+) \"(?P<referer>[^\"]*)\" \"(?P<user_agent>[^\"]*)\""
     syslog: "^(?P<timestamp>\\w{3}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<hostname>\\S+)\\s+(?P<process>\\S+)\\[(?P<pid>\\d+)\\]:\\s+(?P<message>.*)$"
     fortinet: "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<device_id>\\S+)\\s+(?P<type>\\S+)\\s+(?P<subtype>\\S+)\\s+(?P<level>\\S+)\\s+(?P<message>.*)$"
-  
+
   # Pattern regex per cleaning
   cleaning:
     csv_header_clean: "[^a-zA-Z0-9_]"
     multiple_underscore: "_+"
     timestamp_clean: "(\\d{2}-\\d{2}),(\\d{2}:\\d{2}:\\d{2}\\.\\d+)"
-  
+
   # Pattern regex per detection
   detection:
     ip_address: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
@@ -178,14 +178,14 @@ centralized_regex:
     device_id: "\\b[A-Z]{2,}[A-Z0-9]{8,}\\b"
     device_name: "\\b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\\b"
     fortinet_device: "\\bFGT[A-Z0-9]{12,}\\b"
-    
+
     # 🆕 PATTERN DI DETECTION PER PORTE
     # Porta singola nel range valido 1-65535
     port_number: ":(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-    
+
     # Pattern composto HOSTNAME:PORT
     hostname_port: "([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-    
+
     # Porte comuni per servizi specifici
     http_port: ":80\\b"
     https_port: ":443\\b"
@@ -205,7 +205,7 @@ centralized_regex:
     kibana_port: ":5601\\b"
     grafana_port: ":3000\\b"
     prometheus_port: ":9090\\b"
-  
+
   # Configurazione regex
   regex_config:
     application_order: "priority"
@@ -222,7 +222,7 @@ csv_recognition:
     loghub:
       indicators:
         - "LineId"
-        - "EventId" 
+        - "EventId"
         - "EventTemplate"
         - "Content"
         - "Component"
@@ -230,7 +230,7 @@ csv_recognition:
         - "Time"
         - "Timestamp"
       min_matches: 3
-    
+
     # Cybersecurity indicators
     cybersecurity:
       indicators:
@@ -245,7 +245,7 @@ csv_recognition:
         - "Threat Intelligence"
         - "Response Action"
       min_matches: 5
-    
+
     # Intrusion data indicators
     intrusion_data:
       indicators:
@@ -266,7 +266,7 @@ file_formats:
   # Configurazione per i formati di file supportati e priorità dei parser
   # Abilita il logging dettagliato per i parser
   verbose_parser_logging: true
-  
+
   # Formati supportati
   supported_csv: "Comma-separated values files"
   supported_json: "JSON structured log files"
@@ -276,7 +276,7 @@ file_formats:
   supported_txt: "Plain text log files"
   supported_log: "Generic log files"
   supported_elog: "Fortinet event logs"
-  
+
   # Priorità dei parser (numeri più bassi = priorità più alta)
   priority_csv: 1
   priority_json: 2
@@ -286,7 +286,7 @@ file_formats:
   priority_txt: 6
   priority_log: 7
   priority_elog: 8
-  
+
   # Parser specifici per formato
   parser_csv: "MultiStrategyParser"
   parser_json: "MultiStrategyParser"
@@ -305,13 +305,13 @@ parsers:
     auto_detect_delimiter: true
     supported_delimiters: [",", ";", "\t", "|"]
     encoding_detection: true
-    
+
   # Parser JSON
   json:
     enabled: true
     support_jsonl: true
     max_depth: 10
-    
+
   # Parser Syslog
   syslog:
     enabled: true
@@ -321,17 +321,17 @@ parsers:
       - "Cisco"
       - "Linux"
       - "FacilitySeverity"
-    
+
   # Parser CEF
   cef:
     enabled: true
     parse_extensions: true
-    
+
   # Parser Fortinet
   fortinet:
     enabled: true
     key_value_separator: "="
-    
+
   # Parser Apache
   apache:
     enabled: true
@@ -345,32 +345,32 @@ drain3:
   # IMPORTANTE: max_clusters: 999999 = limite praticamente infinito sui cluster
   # IMPORTANTE: max_children: 999999 = limite praticamente infinito sui figli
   # Questo permette al drain di processare file di qualsiasi dimensione senza limiti pratici
-  
+
   # Parametri per il miner originale (SENZA LIMITI PRATICI)
   original:
     depth: 4
     max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
     max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
     similarity_threshold: 0.4
-  
+
   # Parametri per il miner anonimizzato (SENZA LIMITI PRATICI)
   anonymized:
     depth: 4
     max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
     max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
     similarity_threshold: 0.4
-  
+
   # Parametri comuni (fallback) - SENZA LIMITI PRATICI
   depth: 4
   max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
   max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
   similarity_threshold: 0.4
-  
+
   # Configurazione per anonimizzazione
   anonymization:
     enabled: true
     preserve_structure: true
-    
+
     # Campi da anonimizzare sempre
     always_anonymize:
       - "ip_address"
@@ -395,7 +395,7 @@ drain3:
       - "source_file"
       #- "tz"
       - "vd"
-    
+
     # Metodi di anonimizzazione
     methods:
       hash:
@@ -405,14 +405,14 @@ drain3:
           - "user_id"
           - "session_id"
           - "device_id"
-      
+
       mask:
         pattern: "***"
         fields:
           - "credit_card"
           - "ssn"
           - "phone"
-      
+
       # ✅ RIMOSSA SEZIONE REPLACE DUPLICATA
       # Tutti i placeholder sono ora definiti nella sezione anonymization sopra
       # replace:
@@ -446,15 +446,15 @@ field_detection:
 presidio:
   # Abilita/disabilita Presidio
   enabled: true
-  
+
   # Modalità di anonimizzazione: "classic" (regex esistente) o "presidio" (AI-powered)
   anonymization_mode: "hybrid"  # "classic", "presidio", "hybrid"
-  
+
   # Configurazione Analyzer - Rilevamento entità PII
   analyzer:
     # Lingue supportate per l'analisi
     languages: ["en", "it"]
-    
+
     # Entità PII da rilevare per datamining
     entities:
       # Informazioni personali
@@ -464,161 +464,161 @@ presidio:
       PHONE_NUMBER: true     # Numeri di telefono
       CREDIT_CARD: true      # Carte di credito
       IBAN_CODE: true        # Codici IBAN
-      
+
       # Informazioni geografiche
       LOCATION: true         # Luoghi, città, paesi
       ADDRESS: true          # Indirizzi completi
       CITY: true             # Città
       COUNTRY: true          # Paesi
       ZIP_CODE: true         # Codici postali
-      
+
       # Informazioni digitali
       IP_ADDRESS: true       # Indirizzi IP
       DOMAIN_NAME: true      # Nomi di dominio
       URL: true              # URL completi
       MAC_ADDRESS: true      # Indirizzi MAC
-      
+
       # Informazioni temporali
       DATE_TIME: true        # Date e orari
       DATE: true             # Solo date
       TIME: true             # Solo orari
-      
+
       # Informazioni aziendali
       ORGANIZATION: true     # Nomi di organizzazioni
       COMPANY: true          # Nomi di aziende
       JOB_TITLE: true        # Titoli di lavoro
-      
+
       # Informazioni tecniche
       ID: true               # ID generici
       KEY: true              # Chiavi (API, database, etc.)
       HASH: true             # Hash (MD5, SHA, etc.)
       UUID: true             # UUID/GUID
-      
+
       # Informazioni finanziarie
       CURRENCY: true         # Valute
       BANK_ACCOUNT: true     # Conti bancari
       CREDIT_SCORE: true     # Punteggi di credito
-      
+
       # Informazioni mediche
       MEDICAL_RECORD: true   # Record medici
       DIAGNOSIS: true        # Diagnosi
       MEDICATION: true       # Farmaci
-      
+
       # Informazioni legali
       CASE_NUMBER: true      # Numeri di caso
       COURT: true            # Tribunali
       LAW_FIRM: true         # Studi legali
-      
+
       # Informazioni di sicurezza
       PASSWORD: true         # Password
       SECRET_KEY: true       # Chiavi segrete
       ACCESS_TOKEN: true     # Token di accesso
-      
+
       # Informazioni di rete
       HOSTNAME: true         # Nomi host
       PORT: true             # Porte
       PROTOCOL: true         # Protocolli (HTTP, HTTPS, etc.)
-      
+
       # Informazioni di sistema
       PROCESS_ID: true       # ID di processo
       THREAD_ID: true        # ID di thread
       SESSION_ID: true       # ID di sessione
-      
+
       # Informazioni di log
       LOG_LEVEL: true        # Livelli di log (INFO, ERROR, etc.)
       LOG_SOURCE: true       # Sorgenti di log
       LOG_TYPE: true         # Tipi di log
-      
+
       # Informazioni di configurazione
       CONFIG_KEY: true       # Chiavi di configurazione
       ENV_VAR: true          # Variabili d'ambiente
       SETTING: true          # Impostazioni
-    
+
     # Configurazione analisi
     analysis:
       # Soglia di confidenza per il rilevamento (0.0 - 1.0)
       confidence_threshold: 0.7
-      
+
       # Abilita analisi contestuale
       contextual_analysis: true
-      
+
       # Abilita analisi semantica
       semantic_analysis: true
-      
+
       # Abilita analisi pattern-based
       pattern_analysis: true
-      
+
       # Abilita analisi rule-based
       rule_analysis: true
-      
+
       # Abilita analisi ML-based
       ml_analysis: true
-      
+
       # Abilita analisi regex-based
       regex_analysis: true
-      
+
       # Abilita analisi fuzzy
       fuzzy_analysis: true
-      
+
       # Abilita analisi cross-field
       cross_field_analysis: true
-      
+
       # Abilita analisi temporale
       temporal_analysis: true
-      
+
       # Abilita analisi geografica
       geographic_analysis: true
-      
+
       # Abilita analisi finanziaria
       financial_analysis: true
-      
+
       # Abilita analisi medica
       medical_analysis: true
-      
+
       # Abilita analisi legale
       legal_analysis: true
-      
+
       # Abilita analisi di sicurezza
       security_analysis: true
-      
+
       # Abilita analisi di rete
       network_analysis: true
-      
+
       # Abilita analisi di sistema
       system_analysis: true
-      
+
       # Abilita analisi di log
       log_analysis: true
-      
+
       # Abilita analisi di configurazione
       config_analysis: true
-    
+
     # Configurazione performance
     performance:
       # Abilita caching dei risultati
       enable_caching: true
-      
+
       # Dimensione cache (MB)
       cache_size_mb: 100
-      
+
       # TTL cache (secondi)
       cache_ttl_seconds: 3600
-      
+
       # Abilita parallel processing
       enable_parallel: true
-      
+
       # Numero di worker per parallel processing
       num_workers: 4
-      
+
       # Timeout per analisi (secondi)
       analysis_timeout: 30
-      
+
       # Abilita batch processing
       enable_batch: true
-      
+
       # Dimensione batch
       batch_size: 1000
-  
+
   # Configurazione Anonymizer - Anonimizzazione entità rilevate
   anonymizer:
     # Strategie di anonimizzazione per tipo di entità
@@ -630,76 +630,76 @@ presidio:
       PHONE_NUMBER: "mask"        # Maschera il numero
       CREDIT_CARD: "mask"         # Maschera la carta
       IBAN_CODE: "mask"           # Maschera l'IBAN
-      
+
       # Informazioni geografiche
       LOCATION: "replace"         # Sostituisci con <LOCATION>
       ADDRESS: "replace"          # Sostituisci con <ADDRESS>
       CITY: "replace"             # Sostituisci con <CITY>
       COUNTRY: "replace"          # Sostituisci con <COUNTRY>
       ZIP_CODE: "mask"            # Maschera il codice
-      
+
       # Informazioni digitali
       IP_ADDRESS: "replace"       # Sostituisci con <IP>
       DOMAIN_NAME: "replace"      # Sostituisci con <DOMAIN>
       URL: "replace"              # Sostituisci con <URL>
       MAC_ADDRESS: "mask"         # Maschera l'indirizzo
-      
+
       # Informazioni temporali
       DATE_TIME: "replace"        # Sostituisci con <DATETIME>
       DATE: "replace"             # Sostituisci con <DATE>
       TIME: "replace"             # Sostituisci con <TIME>
-      
+
       # Informazioni aziendali
       ORGANIZATION: "replace"     # Sostituisci con <ORG>
       COMPANY: "replace"          # Sostituisci con <COMPANY>
       JOB_TITLE: "replace"        # Sostituisci con <JOB>
-      
+
       # Informazioni tecniche
       ID: "hash"                  # Hash dell'ID
       KEY: "hash"                 # Hash della chiave
       HASH: "keep"                # Mantieni l'hash
       UUID: "hash"                # Hash dell'UUID
-      
+
       # Informazioni finanziarie
       CURRENCY: "keep"            # Mantieni la valuta
       BANK_ACCOUNT: "mask"        # Maschera il conto
       CREDIT_SCORE: "mask"        # Maschera il punteggio
-      
+
       # Informazioni mediche
       MEDICAL_RECORD: "hash"      # Hash del record
       DIAGNOSIS: "replace"        # Sostituisci con <DIAGNOSIS>
       MEDICATION: "replace"       # Sostituisci con <MED>
-      
+
       # Informazioni legali
       CASE_NUMBER: "hash"         # Hash del numero
       COURT: "replace"            # Sostituisci con <COURT>
       LAW_FIRM: "replace"         # Sostituisci con <LAW_FIRM>
-      
+
       # Informazioni di sicurezza
       PASSWORD: "hash"            # Hash della password
       SECRET_KEY: "hash"          # Hash della chiave
       ACCESS_TOKEN: "hash"        # Hash del token
-      
+
       # Informazioni di rete
       HOSTNAME: "replace"          # Sostituisci con <HOSTNAME>
       PORT: "keep"                 # Mantieni la porta
       PROTOCOL: "keep"             # Mantieni il protocollo
-      
+
       # Informazioni di sistema
       PROCESS_ID: "hash"           # Hash dell'ID
       THREAD_ID: "hash"            # Hash dell'ID
       SESSION_ID: "hash"           # Hash dell'ID
-      
+
       # Informazioni di log
       LOG_LEVEL: "keep"            # Mantieni il livello
       LOG_SOURCE: "replace"        # Sostituisci con <SOURCE>
       LOG_TYPE: "keep"             # Mantieni il tipo
-      
+
       # Informazioni di configurazione
       CONFIG_KEY: "replace"        # Sostituisci con <CONFIG_KEY>
       ENV_VAR: "replace"           # Sostituisci con <ENV_VAR>
       SETTING: "keep"               # Mantieni l'impostazione
-    
+
     # Configurazione strategie
     strategy_config:
       # Strategia "replace" - sostituisce con placeholder
@@ -745,31 +745,31 @@ presidio:
           LOG_SOURCE: "<LOG_SOURCE>"
           CONFIG_KEY: "<CONFIG_KEY>"
           ENV_VAR: "<ENV_VAR>"
-      
+
       # Strategia "hash" - crea hash dell'entità
       hash:
         algorithm: "sha256"        # Algoritmo di hashing
         salt: "presidio_salt_2025" # Salt per l'hash
         include_entity_type: true  # Include tipo entità nell'hash
         truncate_length: 16        # Lunghezza hash troncato
-      
+
       # Strategia "mask" - maschera parte dell'entità
       mask:
         mask_char: "*"             # Carattere per mascherare
         mask_ratio: 0.7            # Percentuale da mascherare (0.0 - 1.0)
         preserve_format: true      # Mantieni formato originale
         preserve_length: true      # Mantieni lunghezza originale
-      
+
       # Strategia "keep" - mantieni l'entità originale
       keep:
         log_decision: true         # Logga la decisione di mantenere
         reason: "business_required" # Motivo per mantenere
-  
+
   # Configurazione Datamining - Estrazione informazioni per analisi
   datamining:
     # Abilita estrazione per datamining
     enabled: true
-    
+
     # Tipi di informazioni da estrarre per analisi
     extract_for_analysis:
       # Pattern di comportamento
@@ -778,32 +778,32 @@ presidio:
       geographic_patterns: true    # Pattern geografici
       network_patterns: true       # Pattern di rete
       security_patterns: true      # Pattern di sicurezza
-      
+
       # Metriche e statistiche
       metrics: true                # Metriche generali
       statistics: true             # Statistiche dettagliate
       trends: true                 # Tendenze temporali
       anomalies: true              # Anomalie rilevate
       correlations: true            # Correlazioni tra entità
-      
+
       # Informazioni di business
       business_insights: true      # Insight di business
       risk_indicators: true        # Indicatori di rischio
       compliance_metrics: true     # Metriche di compliance
       performance_metrics: true    # Metriche di performance
-      
+
       # Informazioni tecniche
       technical_insights: true     # Insight tecnici
       system_health: true          # Salute del sistema
       capacity_metrics: true       # Metriche di capacità
       error_patterns: true         # Pattern di errore
-      
+
       # Informazioni di sicurezza
       security_insights: true      # Insight di sicurezza
       threat_indicators: true      # Indicatori di minaccia
       vulnerability_metrics: true  # Metriche di vulnerabilità
       incident_patterns: true      # Pattern di incidente
-    
+
     # Configurazione output per datamining
     output:
       # Formati di output
@@ -812,31 +812,31 @@ presidio:
         - "csv"                    # Output CSV per analisi
         - "parquet"                # Output Parquet per big data
         - "avro"                   # Output Avro per streaming
-      
+
       # Livello di dettaglio
       detail_level: "full"         # "minimal", "standard", "full"
-      
+
       # Abilita metadati per tracciabilità
       include_metadata: true
-      
+
       # Abilita confidence scores
       include_confidence: true
-      
+
       # Abilita contesto per entità
       include_context: true
-      
+
       # Abilita relazioni tra entità
       include_relationships: true
-      
+
       # Abilita timeline per entità
       include_timeline: true
-      
+
       # Abilita geolocalizzazione
       include_geolocation: true
-      
+
       # Abilita classificazione rischio
       include_risk_classification: true
-      
+
       # Abilita score di sensibilità
       include_sensitivity_score: true
       field_type: "port"
@@ -944,16 +944,16 @@ output:
   pretty_print: true
   include_metadata: true
   include_statistics: true
-  
+
   # Organizzazione output
   organization:
     by_parser: true
     by_file: true
     combined: true
-    
+
   # Directory output
   directory: "outputs"
-  
+
   # Naming convention
   naming:
     pattern: "{parser}_{timestamp}.json"
@@ -964,7 +964,7 @@ logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file: "clean_parser.log"
-  console: true 
+  console: true
 
 # Configurazione per il parser universale adattivo
 parser:
