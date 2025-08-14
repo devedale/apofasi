@@ -184,7 +184,7 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
         log_entry = LogEntry(line_number=line_num, content=line_content, source_file=input_path)
         parsed_record = parser_chain.handle(log_entry)
 
-        if parsed_,record:
+        if parsed_record:
             parsed_record.presidio_anonymized = presidio_service.anonymize_text(
                 parsed_record.original_content,
                 language=config.get('presidio', {}).get('analyzer', {}).get('languages', ['en'])[0]
