@@ -127,10 +127,21 @@
         <!-- Model Management Tab Content -->
         <div id="model-management-tab" class="tab-content">
             <h2>Model Management</h2>
+            <div class="info-box">
+                <h3>📥 Download Models for LogPPT</h3>
+                <p>Before running LogPPT, you need to download a pre-trained model from Hugging Face Hub. 
+                Recommended models for log parsing include:</p>
+                <ul>
+                    <li><strong>roberta-base</strong> - Good general-purpose model for log parsing</li>
+                    <li><strong>microsoft/codebert-base</strong> - Specialized for code and log analysis</li>
+                    <li><strong>distilroberta-base</strong> - Faster, lighter version of RoBERTa</li>
+                </ul>
+                <p><strong>Note:</strong> The first time you download a model, it may take several minutes depending on your internet connection.</p>
+            </div>
             <div class="form-group">
                 <label for="model-name-input">Hugging Face Model Name</label>
                 <input type="text" id="model-name-input" placeholder="e.g., roberta-base">
-                <button id="download-model-btn">Download</button>
+                <button id="download-model-btn">Download Model</button>
             </div>
             <h3>Downloaded Models</h3>
             <table id="downloaded-models-table">
@@ -149,47 +160,96 @@
 
         <!-- LogPPT Tab Content -->
         <div id="logppt-tab" class="tab-content">
-            <h2>LogPPT Integration</h2>
-            <div class="form-group">
-                <label for="logppt-file-upload">Upload Structured Log File (CSV)</label>
-                <input type="file" id="logppt-file-upload" accept=".csv">
-            </div>
-            <fieldset>
-                <legend>LogPPT Configuration</legend>
-                <div class="form-group">
-                    <label for="logppt-shots">Number of Shots (for sampling)</label>
-                    <input type="text" id="logppt-shots" value="8, 16, 32">
+            <div class="logppt-container">
+                <!-- Left side: Configuration -->
+                <div class="logppt-config">
+                    <h2>LogPPT Integration</h2>
+                    <div class="info-box">
+                        <h3>🚀 LogPPT Pipeline</h3>
+                        <p>LogPPT (Log Parsing with Prompt Tuning) analyzes your log files to extract event templates and identify variable parameters.</p>
+                        <p><strong>Prerequisites:</strong></p>
+                        <ul>
+                            <li>✅ Download a model from the "Model Management" tab above</li>
+                            <li>✅ Upload a CSV file with your log data</li>
+                            <li>✅ Ensure your CSV has a 'Content' column or configure content formatting</li>
+                        </ul>
+                        <p><strong>Process:</strong> The pipeline will sample your data, fine-tune the model, and generate parsed templates.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logppt-file-upload">Upload Structured Log File (CSV)</label>
+                        <input type="file" id="logppt-file-upload" accept=".csv">
+                    </div>
+                    
+                    <fieldset>
+                        <legend>LogPPT Configuration</legend>
+                        <div class="form-group">
+                            <label for="logppt-shots">Number of Shots (for sampling)</label>
+                            <input type="text" id="logppt-shots" value="8, 16">
+                            <p class="help-text">Number of samples to generate for each shot size. For small datasets, use smaller values (1-5). For large datasets, you can use larger values (8, 16, 32).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt-model-select">Select Model</label>
+                            <select id="logppt-model-select">
+                                <option value="">-- Select a downloaded model --</option>
+                                <!-- Downloaded models will be populated here -->
+                            </select>
+                            <p class="help-text">Choose a model you've downloaded from the Model Management tab.</p>
+                        </div>
+                         <div class="form-group">
+                            <label for="logppt-max-train-steps">Max Train Steps</label>
+                            <input type="number" id="logppt-max-train-steps" value="1000">
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Advanced Configuration</legend>
+                        <div class="form-group">
+                            <label for="logppt-content-config">Content Field Configuration</label>
+                            <textarea id="logppt-content-config" rows="3" placeholder="e.g., {column1} - {column2}"></textarea>
+                            <p class="help-text">Define how to construct the 'Content' field for LogPPT using the columns from your data. Use curly braces to denote column names, e.g., {message} or {field1} {field2}.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt-columns-order">Column Order</label>
+                            <input type="text" id="logppt-columns-order" placeholder="e.g., timestamp, level, message">
+                            <p class="help-text">Specify the columns to include in the output and their order, separated by commas.</p>
+                        </div>
+                    </fieldset>
+                    
+                    <button id="run-logppt-integration-btn">Run LogPPT Process</button>
+                    
+                    <!-- Progress Bar -->
+                    <div id="logppt-progress" style="display: none;">
+                        <h3>Pipeline Progress</h3>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="progress-text" id="progress-text">0%</div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="step" id="step-preprocessing">📋 Preprocessing</div>
+                            <div class="step" id="step-sampling">🔄 Sampling</div>
+                            <div class="step" id="step-training">🎯 Training</div>
+                            <div class="step" id="step-parsing">📊 Parsing</div>
+                        </div>
+                    </div>
+                    
+                    <div id="logppt-results" style="display: none;">
+                        <h3>LogPPT Results</h3>
+                        <div id="logppt-evaluation-results"></div>
+                        <a id="logppt-download-parsed-link" href="#" target="_blank">Download Parsed Log</a>
+                        <a id="logppt-download-templates-link" href="#" target="_blank">Download Templates</a>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="logppt-model-select">Select Model</label>
-                    <select id="logppt-model-select">
-                        <!-- Downloaded models will be populated here -->
-                    </select>
+                
+                <!-- Right side: Task Output (always visible) -->
+                <div class="logppt-output">
+                    <h3>Task Output</h3>
+                    <div id="log-output-container">
+                        <pre id="log-output">Ready to run LogPPT pipeline...</pre>
+                    </div>
                 </div>
-                 <div class="form-group">
-                    <label for="logppt-max-train-steps">Max Train Steps</label>
-                    <input type="number" id="logppt-max-train-steps" value="1000">
-                </div>
-            </fieldset>
-            <fieldset>
-                <legend>Advanced Configuration</legend>
-                <div class="form-group">
-                    <label for="logppt-content-config">Content Field Configuration</label>
-                    <textarea id="logppt-content-config" rows="3" placeholder="e.g., {column1} - {column2}"></textarea>
-                    <p class="help-text">Define how to construct the 'Content' field for LogPPT using the columns from your data. Use curly braces to denote column names, e.g., {message} or {field1} {field2}.</p>
-                </div>
-                <div class="form-group">
-                    <label for="logppt-columns-order">Column Order</label>
-                    <input type="text" id="logppt-columns-order" placeholder="e.g., timestamp, level, message">
-                    <p class="help-text">Specify the columns to include in the output and their order, separated by commas.</p>
-                </div>
-            </fieldset>
-            <button id="run-logppt-integration-btn">Run LogPPT Process</button>
-            <div id="logppt-results" style="display: none;">
-                <h3>LogPPT Results</h3>
-                <div id="logppt-evaluation-results"></div>
-                <a id="logppt-download-parsed-link" href="#" target="_blank">Download Parsed Log</a>
-                <a id="logppt-download-templates-link" href="#" target="_blank">Download Templates</a>
             </div>
         </div>
     </div>

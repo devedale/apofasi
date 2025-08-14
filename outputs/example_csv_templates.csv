@@ -1,0 +1,6 @@
+EventTemplate,Occurrence
+Out of memory,1
+Failed password for user admin,1
+200 GET /api/users,1
+connection timeout,1
+CPU usage: 85%,1

@@ -564,6 +564,36 @@ async def run_logppt(
                 )
                 task_log_manager.log(task_id, f"PIPELINE_COMPLETE::{json.dumps(results)}")
             except Exception as e:
+                import traceback
+                import sys
+                
+                # Logging dettagliato dell'errore
+                error_msg = f"ERRORE CRITICO nella pipeline LogPPT: {str(e)}"
+                task_log_manager.log(task_id, "="*80)
+                task_log_manager.log(task_id, error_msg)
+                task_log_manager.log(task_id, f"Tipo errore: {type(e).__name__}")
+                task_log_manager.log(task_id, f"Modulo: {e.__class__.__module__}")
+                
+                # Stack trace completo
+                full_traceback = traceback.format_exc()
+                task_log_manager.log(task_id, "STACK TRACE COMPLETO:")
+                for line in full_traceback.split('\n'):
+                    if line.strip():
+                        task_log_manager.log(task_id, line)
+                
+                # Informazioni aggiuntive per il debug
+                task_log_manager.log(task_id, f"Python version: {sys.version}")
+                task_log_manager.log(task_id, f"Working directory: {Path.cwd()}")
+                
+                # Informazioni sui parametri della chiamata
+                task_log_manager.log(task_id, f"Parametri chiamata:")
+                task_log_manager.log(task_id, f"  - model_name: {model_name}")
+                task_log_manager.log(task_id, f"  - shots: {shot_list}")
+                task_log_manager.log(task_id, f"  - max_train_steps: {max_train_steps}")
+                task_log_manager.log(task_id, f"  - dataset_name: {dataset_name}")
+                task_log_manager.log(task_id, f"  - file_path: {file_path}")
+                
+                task_log_manager.log(task_id, "="*80)
                 task_log_manager.log(task_id, f"ERROR::{str(e)}")
             finally:
                 task_log_manager.finish_task(task_id)

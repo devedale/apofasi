@@ -128,7 +128,8 @@ def adaptive_random_sampling(logs, labels=None, shot=8):
 
 
 class Vocab:
-    def __init__(self, stopwords=["<*>"]):
+    def __init__(self, log_func=print, stopwords=["<*>"]):
+        self.log_func = log_func
         stopwords = [
             "a",
             "an",
@@ -146,22 +147,33 @@ class Vocab:
         #print(self.__filter_stopwords(['LDAP', 'Built', 'with']))
 
     def build(self, sequences):
-        print("Build vocab with examples: ", len(sequences))
-        for sequence in sequences:
-            sequence = self.__filter_stopwords(sequence)
-            #print(sequence)
-            self.update(sequence)
+        self.log_func(f"Build vocab with examples: {len(sequences)}")
+        for i, sequence in enumerate(sequences):
+            if i % 1000 == 0:  # Log progress every 1000 sequences
+                self.log_func(f"Building vocabulary: processing sequence {i}/{len(sequences)}...")
+            try:
+                sequence = self.__filter_stopwords(sequence)
+                #print(sequence)
+                self.update(sequence)
+            except Exception as e:
+                self.log_func(f"ERROR: Failed to process sequence {i}: {str(e)}")
+                raise e
+        self.log_func("Vocabulary building completed successfully")
 
     def update(self, sequence):
         sequence = self.__filter_stopwords(sequence)
         self.token_counter.update(sequence)
 
     def topk_tokens(self, sequence, topk=3):
-        sequence = self.__filter_stopwords(sequence)
-        token_count = [(token, self.token_counter[token]) for token in set(sequence)]
-        topk_tuples = heapq.nlargest(topk, token_count, key=lambda x: x[1])
-        topk_keys = tuple([t[0] for t in topk_tuples])
-        return topk_keys
+        try:
+            sequence = self.__filter_stopwords(sequence)
+            token_count = [(token, self.token_counter[token]) for token in set(sequence)]
+            topk_tuples = heapq.nlargest(topk, token_count, key=lambda x: x[1])
+            topk_keys = tuple([t[0] for t in topk_tuples])
+            return topk_keys
+        except Exception as e:
+            self.log_func(f"ERROR: topk_tokens failed for sequence: {str(e)}")
+            raise e
 
     def __len__(self):
         return len(self.token_counter)
@@ -174,131 +186,345 @@ class Vocab:
         ]
 
 
-def clean(s):
-    log_format = re.sub(r'[0-9A-Za-z, ]+', '', s)
-    unique_chars = list(set(log_format))
-    sorted_string = ''.join(sorted(unique_chars))
-    s = re.sub(':|\(|\)|=|,|"|\{|\}|@|$|\[|\]|\||;|\.?!', ' ', s)
-    s = " ".join([word for word in s.strip().split() if not bool(re.search(r'\d', word))])
-    # trantab = str.maketrans(dict.fromkeys(list(string.punctuation)))
-    return s, sorted_string
+def clean(s, log_func=print):
+    """
+    Clean and normalize log entry for processing.
+    
+    Args:
+        s: Raw log string
+        log_func: Function to use for logging
+        
+    Returns:
+        tuple: (cleaned_text, log_format)
+    """
+    try:
+        if not isinstance(s, str) or len(s.strip()) == 0:
+            log_func(f"Warning: Empty or invalid log entry: {repr(s)}")
+            return "", ""
+        
+        # Extract log format (special characters)
+        log_format = re.sub(r'[0-9A-Za-z, ]+', '', s)
+        unique_chars = list(set(log_format))
+        sorted_string = ''.join(sorted(unique_chars))
+        
+        # Clean the text content
+        cleaned = re.sub(':|\(|\)|=|,|"|\{|\}|@|$|\[|\]|\||;|\.?!', ' ', s)
+        cleaned = " ".join([word for word in cleaned.strip().split() if not bool(re.search(r'\d', word))])
+        
+        if len(cleaned.split()) == 0:
+            log_func(f"Warning: Log entry resulted in empty text after cleaning: {repr(s)}")
+            return "", sorted_string
+            
+        return cleaned, sorted_string
+        
+    except Exception as e:
+        log_func(f"ERROR: Clean function failed for string '{str(s)[:100]}...': {str(e)}")
+        raise e
 
 
-def hierarchical_clustering(contents):
-    vocab = Vocab()
-    vocab.build([v[0].split() for v in contents.values()])
+def hierarchical_clustering(contents, log_func=print):
+    """
+    Perform hierarchical clustering on log entries.
+    
+    Args:
+        contents: Dictionary of {index: (cleaned_text, log_format)}
+        log_func: Function to use for logging
+        
+    Returns:
+        Dictionary containing hierarchical cluster information
+    """
+    if not contents:
+        raise ValueError("No contents provided for clustering")
+    
+    log_func(f"Building vocabulary from {len(contents)} log entries...")
+    vocab = Vocab(log_func)
+    
+    # Prepare sequences for vocabulary building
+    sequences = []
+    for idx, (text, _) in contents.items():
+        if text and len(text.split()) > 0:
+            sequences.append(text.split())
+    
+    if not sequences:
+        raise ValueError("No valid sequences found for vocabulary building")
+    
+    vocab.build(sequences)
+    log_func(f"Vocabulary built with {len(vocab)} unique tokens")
 
     # hierarchical clustering
+    log_func("Starting hierarchical clustering...")
     hierarchical_clusters = {}
-    for k, v in contents.items():
-        frequent_token = tuple(sorted(vocab.topk_tokens(v[0].split(), 3)))
-        log_format = v[1]
-        if frequent_token not in hierarchical_clusters:
-            hierarchical_clusters[frequent_token] = {"size": 1, "cluster": {log_format: [k]}}
-        else:
-            hierarchical_clusters[frequent_token]["size"] = hierarchical_clusters[frequent_token]["size"] + 1
-            if log_format not in hierarchical_clusters[frequent_token]["cluster"]:
-                hierarchical_clusters[frequent_token]["cluster"][log_format] = [k]
+    
+    log_func("Processing each log entry...")
+    processed_count = 0
+    for i, (k, v) in enumerate(contents.items()):
+        if i % 1000 == 0:  # Log progress every 1000 entries
+            log_func(f"Processing entry {i}/{len(contents)}...")
+        
+        try:
+            text, log_format = v
+            if not text or len(text.split()) == 0:
+                continue
+                
+            frequent_token = tuple(sorted(vocab.topk_tokens(text.split(), 3)))
+            if not frequent_token:
+                continue
+                
+            if frequent_token not in hierarchical_clusters:
+                hierarchical_clusters[frequent_token] = {"size": 1, "cluster": {log_format: [k]}}
             else:
-                hierarchical_clusters[frequent_token]["cluster"][log_format].append(k)
-    print("Number of coarse-grained clusters: ", len(hierarchical_clusters.keys()))
+                hierarchical_clusters[frequent_token]["size"] = hierarchical_clusters[frequent_token]["size"] + 1
+                if log_format not in hierarchical_clusters[frequent_token]["cluster"]:
+                    hierarchical_clusters[frequent_token]["cluster"][log_format] = [k]
+                else:
+                    hierarchical_clusters[frequent_token]["cluster"][log_format].append(k)
+            
+            processed_count += 1
+            
+        except Exception as e:
+            log_func(f"Warning: Failed to process entry {k}: {str(e)}")
+            continue
+    
+    log_func(f"Successfully processed {processed_count} entries")
+    log_func(f"Number of coarse-grained clusters: {len(hierarchical_clusters.keys())}")
+    
     total_fine_clusters = 0
     for k, v in hierarchical_clusters.items():
         total_fine_clusters += len(hierarchical_clusters[k]["cluster"])
-    print("Number of fine-grained clusters: ", total_fine_clusters)
+    
+    log_func(f"Number of fine-grained clusters: {total_fine_clusters}")
+    
+    if len(hierarchical_clusters) == 0:
+        raise ValueError("No clusters created. Check if your log entries are too similar or empty after cleaning.")
+    
+    # Check if all logs are identical (only one cluster)
+    if len(hierarchical_clusters) == 1:
+        log_func("Warning: All log entries appear to be identical. This may cause issues with sampling.")
+        # Check if we have enough variety in the single cluster
+        first_cluster = list(hierarchical_clusters.values())[0]
+        if len(first_cluster["cluster"]) == 1:
+            log_func("Warning: Only one fine-grained cluster found. Consider using a smaller shot size or checking data variety.")
+    
+    log_func("Hierarchical clustering completed successfully")
     return hierarchical_clusters
 
 
-def hierarchical_distribute(hierarchical_clusters, shot, logs=[], labels=[]):
+def hierarchical_distribute(hierarchical_clusters, shot, logs=[], labels=[], log_func=print):
+    """
+    Distribute samples across hierarchical clusters.
+    
+    Args:
+        hierarchical_clusters: Clusters from hierarchical clustering
+        shot: Number of samples to generate
+        logs: Original log entries
+        labels: Original labels
+        log_func: Function to use for logging
+        
+    Returns:
+        List of (log, label) samples
+    """
+    if not hierarchical_clusters:
+        raise ValueError("No hierarchical clusters provided")
+    
+    if shot <= 0:
+        raise ValueError(f"Invalid shot number: {shot}")
+    
+    log_func(f"Starting hierarchical distribution for {shot} shots...")
     candidate_samples = []
-    coarse_clusters = hierarchical_clusters.keys()
-    coarse_clusters = shuffle(list(coarse_clusters))
+    
+    coarse_clusters = list(hierarchical_clusters.keys())
+    if not coarse_clusters:
+        raise ValueError("No coarse clusters available")
+    
+    coarse_clusters = shuffle(coarse_clusters)
     corase_size = len(coarse_clusters)
+    log_func(f"Processing {corase_size} coarse clusters...")
+    
+    # Calculate quotas for each coarse cluster
     coarse_quotas = [0] * corase_size
-    while shot > 0:
+    remaining_shots = shot
+    
+    while remaining_shots > 0:
         round_quota = 0
         for coarse_id, coarse_key in enumerate(coarse_clusters):
-            if coarse_quotas[coarse_id] == hierarchical_clusters[coarse_key]["size"]:
+            if coarse_quotas[coarse_id] >= hierarchical_clusters[coarse_key]["size"]:
                 continue
-            coarse_quota = min(int(shot // corase_size) + (coarse_id < shot % corase_size), hierarchical_clusters[coarse_key]["size"] - coarse_quotas[coarse_id])
+                
+            # Calculate quota for this cluster
+            base_quota = remaining_shots // corase_size
+            extra_quota = 1 if coarse_id < remaining_shots % corase_size else 0
+            available_quota = hierarchical_clusters[coarse_key]["size"] - coarse_quotas[coarse_id]
+            
+            coarse_quota = min(base_quota + extra_quota, available_quota)
             if coarse_quota == 0:
                 coarse_quota = 1
+                
             coarse_quotas[coarse_id] += coarse_quota
             round_quota += coarse_quota
-            if round_quota == shot:
+            
+            if round_quota >= remaining_shots:
                 break
-        shot -= round_quota
+                
+        remaining_shots -= round_quota
+    
+    log_func(f"Coarse quotas calculated: {coarse_quotas}")
+    
+    # Generate samples from each cluster
     for coarse_id, coarse_key in enumerate(coarse_clusters):
-        # coarse_quota = min(int(shot // corase_size) + (coarse_id < shot % corase_size), hierarchical_clusters[coarse_key]["size"])
-        # if coarse_quota == 0:
-        #     break
         coarse_quota = coarse_quotas[coarse_id]
-        fine_clusters = hierarchical_clusters[coarse_key]["cluster"].keys()
+        if coarse_quota == 0:
+            continue
+            
+        log_func(f"Processing coarse cluster {coarse_id + 1}/{corase_size} with quota {coarse_quota}")
+        
+        fine_clusters = list(hierarchical_clusters[coarse_key]["cluster"].keys())
         fine_clusters = sorted(fine_clusters, key=lambda x: len(hierarchical_clusters[coarse_key]["cluster"][x]), reverse=True)
         fine_size = len(fine_clusters)
+        
+        if fine_size == 0:
+            log_func(f"Warning: No fine clusters in coarse cluster {coarse_id + 1}")
+            continue
+            
+        # Calculate quotas for fine clusters
         fine_quotas = [0] * fine_size
-        while coarse_quota > 0:
+        remaining_fine_quota = coarse_quota
+        
+        while remaining_fine_quota > 0:
             round_quota = 0
             for fine_id, fine_key in enumerate(fine_clusters):
-                if fine_quotas[fine_id] == len(hierarchical_clusters[coarse_key]["cluster"][fine_key]):
+                if fine_quotas[fine_id] >= len(hierarchical_clusters[coarse_key]["cluster"][fine_key]):
                     continue
-                fine_quota = min(int(coarse_quota // fine_size) + (fine_id < coarse_quota % fine_size), len(hierarchical_clusters[coarse_key]["cluster"][fine_key]) - fine_quotas[fine_id])
+                    
+                # Calculate quota for this fine cluster
+                base_quota = remaining_fine_quota // fine_size
+                extra_quota = 1 if fine_id < remaining_fine_quota % fine_size else 0
+                available_quota = len(hierarchical_clusters[coarse_key]["cluster"][fine_key]) - fine_quotas[fine_id]
+                
+                fine_quota = min(base_quota + extra_quota, available_quota)
                 if fine_quota == 0:
                     fine_quota = 1
+                    
                 fine_quotas[fine_id] += fine_quota
                 round_quota += fine_quota
-                if round_quota == coarse_quota:
+                
+                if round_quota >= remaining_fine_quota:
                     break
-            coarse_quota -= round_quota
+                    
+            remaining_fine_quota -= round_quota
 
-        print("Fine quotas: ", fine_quotas)
-        # assert sum(fine_quotas) == shot, "Quota mismatch"
+        log_func(f"Fine quotas for cluster {coarse_id + 1}: {fine_quotas}")
 
+        # Generate samples from fine clusters
         for fine_id, fine_key in enumerate(fine_clusters):
-            # fine_quota = int(coarse_quota // fine_size) + (fine_id < coarse_quota % fine_size)
             fine_quota = fine_quotas[fine_id]
             if fine_quota == 0:
                 break
 
             cluster_ids = hierarchical_clusters[coarse_key]["cluster"][fine_key]
-            cluster_logs = [logs[i] for i in cluster_ids]
-            cluster_labels = [labels[i] for i in cluster_ids]
+            if not cluster_ids:
+                continue
+                
+            cluster_logs = [logs[i] for i in cluster_ids if i < len(logs)]
+            cluster_labels = [labels[i] for i in cluster_ids if i < len(labels)]
+            
+            if len(cluster_logs) == 0:
+                log_func(f"Warning: No valid logs in fine cluster {fine_id + 1}")
+                continue
 
-            assert fine_quota <= len(cluster_logs), "Quota mismatch"
-            # samples = adaptive_random_sampling(cluster_logs, cluster_labels, fine_quota)
-            # randomly sample from the cluster
+            if fine_quota > len(cluster_logs):
+                log_func(f"Warning: Requested {fine_quota} samples but only {len(cluster_logs)} available")
+                fine_quota = len(cluster_logs)
+
+            # Randomly sample from the cluster
             samples = random.sample(list(zip(cluster_logs, cluster_labels)), fine_quota)
             candidate_samples.extend(samples)
+            log_func(f"Added {fine_quota} samples from fine cluster {fine_id + 1}")
 
+    log_func(f"Hierarchical distribution completed. Total samples: {len(candidate_samples)}")
+    
+    if len(candidate_samples) == 0:
+        raise ValueError("No samples generated. Check cluster configuration and quotas.")
+    
     return candidate_samples
 
 
-def sampling(logs, labels=None, shots=[8]):
-    # only keep unique logs with the corresponding labels
-    logs, labels = zip(*list(set(zip(logs, labels))))
+def sampling(logs, labels=None, shots=[8], log_func=print):
+    """
+    Hierarchical sampling function with detailed logging.
+    
+    Args:
+        logs: List of log entries
+        labels: List of corresponding labels
+        shots: List of shot numbers to sample
+        log_func: Function to use for logging (default: print)
+    """
+    log_func(f"Starting hierarchical clustering for {len(logs)} log entries...")
+    
+    # Process all logs (no deduplication - each log entry is unique)
     contents = {}
     for i, x in enumerate(logs):
-        x, fx = clean(x)
-        if len(x.split()) > 0:
-            contents[i] = (x, fx)
-    # content = {i: clean(x) if len(x.split()) > 1 for i, x in enumerate(labelled_logs['Content'].tolist())}
+        try:
+            x_clean, fx = clean(x, log_func)
+            if len(x_clean.split()) > 0:
+                contents[i] = (x_clean, fx)
+        except Exception as e:
+            log_func(f"Warning: Failed to clean log entry {i}: {str(e)}")
+            # Skip this entry but continue
+            continue
+    
+    log_func(f"Successfully processed {len(contents)} log entries...")
+    
+    if len(contents) == 0:
+        raise ValueError("No valid log entries found after cleaning. Check your data format.")
+    
+    log_func(f"Starting hierarchical clustering for {len(contents)} log entries...")
     begin_time = time.time()
-    hierarchical_clusters = hierarchical_clustering(contents)
-    end_time = time.time()
-    clustering_time = end_time - begin_time
-    print("hierarchical clustering time: ", clustering_time)
-    sample_candidates = {}
-    for idx, shot in enumerate(shots):
-        begin_time = time.time()
-        samples = hierarchical_distribute(deepcopy(hierarchical_clusters), shot, logs, labels)
-        # if labels is not None:
-        #     samples = [(logs[i], labels[i]) for i in sampled_ids]
-        # else:
-        #     samples = [(logs[i], logs[i]) for i in sampled_ids]
-        sample_candidates[shot] = samples
+    
+    try:
+        hierarchical_clusters = hierarchical_clustering(contents, log_func)
         end_time = time.time()
-        print(f"{shot}-shot sampling time: ", (end_time - begin_time))
+        clustering_time = end_time - begin_time
+        log_func(f"Hierarchical clustering completed in {clustering_time:.4f} seconds")
+    except Exception as e:
+        log_func(f"ERROR: Hierarchical clustering failed: {str(e)}")
+        raise e
+    
+    sample_candidates = {}
+    total_shots = len(shots)
+    
+    for idx, shot in enumerate(shots):
+        log_func(f"Starting {shot}-shot sampling ({idx + 1}/{total_shots})...")
+        
+        # Validate shot size vs available data
+        total_available_samples = sum(len(cluster["cluster"]) for cluster in hierarchical_clusters.values())
+        if shot > total_available_samples:
+            log_func(f"Warning: Requested {shot} samples but only {total_available_samples} fine-grained clusters available.")
+            
+            # Suggest appropriate shot sizes
+            suggested_shots = []
+            for suggested_shot in [1, 2, 3, 4, 5, 8, 16, 32]:
+                if suggested_shot <= total_available_samples:
+                    suggested_shots.append(suggested_shot)
+            
+            if suggested_shots:
+                suggested_str = ", ".join(map(str, suggested_shots))
+                log_func(f"Suggested shot sizes for this dataset: {suggested_str}")
+            
+            log_func(f"Reducing shot size from {shot} to {total_available_samples}")
+            shot = total_available_samples
+        
+        begin_time = time.time()
+        try:
+            samples = hierarchical_distribute(deepcopy(hierarchical_clusters), shot, logs, labels, log_func)
+            sample_candidates[shot] = samples
+            end_time = time.time()
+            log_func(f"{shot}-shot sampling completed in {end_time - begin_time:.4f} seconds")
+            log_func(f"Generated {len(samples)} samples for {shot}-shot")
+        except Exception as e:
+            log_func(f"ERROR: {shot}-shot sampling failed: {str(e)}")
+            raise e
 
+    log_func("All sampling completed successfully!")
     return sample_candidates
 
 

@@ -128,8 +128,17 @@ class Trainer:
 
 
     def train(self):
+        import sys
+        import traceback
+        
+        print("[TRAINER DEBUG] ===============================")
+        print("[TRAINER DEBUG] ENTERED TRAIN() METHOD")
+        print("[TRAINER DEBUG] ===============================")
+        sys.stdout.flush()
+        
         total_batch_size = self.args.per_device_train_batch_size * self.args.gradient_accumulation_steps
 
+        print("[TRAINER DEBUG] About to log training info")
         self.logger.info("***** Running training *****")
         self.logger.info(f"  Num examples = {self.no_train_samples}")
         self.logger.info(f"  Num Epochs = {self.args.num_train_epochs}")
@@ -145,17 +154,40 @@ class Trainer:
         progress_bar = tqdm(range(self.args.max_train_steps))
         completed_steps = 0
 
+        print("[TRAINER DEBUG] Moving model to device and setting to train mode")
         self.model.to(self.device)
 
         self.model.train()
 
+        print(f"[TRAINER DEBUG] Starting training loop for {self.args.num_train_epochs} epochs")
         for _ in range(self.args.num_train_epochs):
             total_loss = []
             for step, batch in enumerate(self.train_loader):
-                # batch.pop('ori_labels', 'not found ner_labels')
+                print(f"[TRAINER DEBUG] Processing batch {step}")
+                print(f"[TRAINER DEBUG] Batch keys: {batch.keys()}")
+                print(f"[TRAINER DEBUG] Batch shapes: {[(k, v.shape) for k, v in batch.items()]}")
+                
+                # Move batch to device
                 batch = {k: v.to(self.device) for k, v in batch.items()}
-                loss = self.model(batch)
-                # loss = output['loss']
+                
+                print(f"[TRAINER DEBUG] About to call model forward...")
+                try:
+                    # Call model with batch (like the original LogPPT)
+                    loss = self.model(batch)
+                    print(f"[TRAINER DEBUG] Model forward completed, loss: {loss}")
+                except Exception as model_error:
+                    print(f"[TRAINER DEBUG] ERROR in model forward: {str(model_error)}")
+                    print(f"[TRAINER DEBUG] Error type: {type(model_error)}")
+                    print(f"[TRAINER DEBUG] Batch attention_mask shape: {batch['attention_mask'].shape}")
+                    print(f"[TRAINER DEBUG] Batch attention_mask: {batch['attention_mask']}")
+                    if 'ori_labels' in batch:
+                        print(f"[TRAINER DEBUG] Batch ori_labels shape: {batch['ori_labels'].shape}")
+                        print(f"[TRAINER DEBUG] Batch ori_labels: {batch['ori_labels']}")
+                    raise model_error
+                
+                # Loss should be a scalar tensor
+                if not isinstance(loss, torch.Tensor):
+                    raise ValueError(f"Expected tensor loss, got {type(loss)}")
 
                 total_loss.append(float(loss))
                 loss = loss / self.args.gradient_accumulation_steps
@@ -176,6 +208,7 @@ class Trainer:
         progress_bar.close()
         if self.args.do_eval:
             self.logger.info("Evaluation Loss: {0}".format(self.evaluate()))
+        print("[TRAINER DEBUG] Training completed successfully")
         return self.model
 
     def evaluate(self):
@@ -191,7 +224,12 @@ class Trainer:
             batch = {k: v.to(self.device) for k, v in batch.items()}
             with torch.no_grad():
                 outputs = self.model(batch)
-                total_loss += float(outputs.loss)
+                # Handle both tensor output and object with .loss attribute
+                if hasattr(outputs, 'loss'):
+                    total_loss += float(outputs.loss)
+                else:
+                    # outputs is directly a tensor (our case)
+                    total_loss += float(outputs)
 
         return total_loss / len(self.eval_loader)
 

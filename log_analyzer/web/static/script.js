@@ -319,19 +319,51 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/models');
             if (!response.ok) throw new Error('Could not load downloaded models.');
             const data = await response.json();
-            const modelOptions = data.models.map(model => `<option value="${model.name}">${model.name}</option>`).join('');
+            
+            if (data.models.length === 0) {
+                // No models downloaded
+                downloadedModelsList.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666; padding: 20px;">
+                            No models downloaded yet. Download a model from above to use LogPPT.
+                        </td>
+                    </tr>
+                `;
+                
+                logpptModelSelect.innerHTML = `
+                    <option value="">-- No models available --</option>
+                    <option value="" disabled>Please download a model first</option>
+                `;
+            } else {
+                // Models available
+                const modelOptions = data.models.map(model => `<option value="${model.name}">${model.name}</option>`).join('');
 
-            downloadedModelsList.innerHTML = data.models.map(model => `
-                <tr>
-                    <td>${model.name}</td>
-                    <td>${model.size_mb}</td>
-                    <td><button class="delete-model-btn" data-model-name="${model.name}">Delete</button></td>
-                </tr>
-            `).join('');
+                downloadedModelsList.innerHTML = data.models.map(model => `
+                    <tr>
+                        <td>${model.name}</td>
+                        <td>${model.size_mb}</td>
+                        <td><button class="delete-model-btn" data-model-name="${model.name}">Delete</button></td>
+                    </tr>
+                `).join('');
 
-            logpptModelSelect.innerHTML = modelOptions;
+                logpptModelSelect.innerHTML = `
+                    <option value="">-- Select a downloaded model --</option>
+                    ${modelOptions}
+                `;
+            }
         } catch (error) {
             showStatus(error.message, true);
+            // Set default state on error
+            downloadedModelsList.innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #666; padding: 20px;">
+                        Error loading models. Please refresh the page.
+                    </td>
+                </tr>
+            `;
+            logpptModelSelect.innerHTML = `
+                <option value="">-- Error loading models --</option>
+            `;
         }
     };
 
@@ -363,33 +395,110 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const streamLogs = (taskId) => {
-        openLogModal();
+        // Clear previous output and show progress bar
+        document.getElementById('log-output').textContent = 'Starting LogPPT pipeline...\n';
+        document.getElementById('logppt-progress').style.display = 'block';
+        
+        // Reset progress
+        updateProgress(0, 'Starting pipeline...');
+        resetSteps();
+        
         const eventSource = new EventSource(`/api/stream-logs/${taskId}`);
 
         eventSource.onmessage = (event) => {
             if (event.data.startsWith("PIPELINE_COMPLETE::")) {
                 const results = JSON.parse(event.data.substring("PIPELINE_COMPLETE::".length));
-                logOutput.textContent += "\n\nPipeline complete!\n";
+                document.getElementById('log-output').textContent += "\n\nPipeline complete!\n";
                 logpptEvaluationResults.innerHTML = `<pre>${JSON.stringify(results.evaluation, null, 2)}</pre>`;
                 logpptDownloadParsedLink.href = results.parsed_log_url;
                 logpptDownloadTemplatesLink.href = results.templates_url;
                 logpptResults.style.display = 'block';
+                
+                // Complete progress
+                updateProgress(100, 'Pipeline completed successfully!');
+                completeAllSteps();
+                
                 eventSource.close();
             } else if (event.data.startsWith("ERROR::")) {
                 const errorMsg = event.data.substring("ERROR::".length);
-                logOutput.textContent += `\n\nERROR: ${errorMsg}\n`;
+                document.getElementById('log-output').textContent += `\n\nERROR: ${errorMsg}\n`;
                 showStatus(`Error during LogPPT process: ${errorMsg}`, true);
+                
+                // Show error in progress
+                updateProgress(0, `Error: ${errorMsg}`);
+                showStepError();
+                
                 eventSource.close();
             } else {
-                logOutput.textContent += event.data + '\n';
-                logOutput.scrollTop = logOutput.scrollHeight;
+                document.getElementById('log-output').textContent += event.data + '\n';
+                
+                // Auto-scroll to bottom
+                const container = document.getElementById('log-output-container');
+                container.scrollTop = container.scrollHeight;
+                
+                // Update progress based on log messages
+                updateProgressFromLog(event.data);
             }
         };
 
         eventSource.onerror = () => {
-            logOutput.textContent += '\n\nConnection to log stream lost.';
+            document.getElementById('log-output').textContent += '\n\nConnection to log stream lost.';
             eventSource.close();
         };
+    };
+    
+    const updateProgress = (percentage, text) => {
+        document.getElementById('progress-fill').style.width = percentage + '%';
+        document.getElementById('progress-text').textContent = text;
+    };
+    
+    const resetSteps = () => {
+        document.querySelectorAll('.step').forEach(step => {
+            step.className = 'step';
+        });
+    };
+    
+    const completeAllSteps = () => {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.add('completed');
+        });
+    };
+    
+    const showStepError = () => {
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.add('error');
+        });
+    };
+    
+    const updateProgressFromLog = (logMessage) => {
+        // Update progress based on log messages
+        if (logMessage.includes('Preprocessing complete')) {
+            updateProgress(25, 'Preprocessing completed');
+            document.getElementById('step-preprocessing').classList.add('completed');
+            document.getElementById('step-sampling').classList.add('active');
+        } else if (logMessage.includes('Starting sampling')) {
+            updateProgress(30, 'Starting sampling...');
+            document.getElementById('step-sampling').classList.add('active');
+        } else if (logMessage.includes('Sampling completed successfully')) {
+            updateProgress(60, 'Sampling completed');
+            document.getElementById('step-sampling').classList.add('completed');
+            document.getElementById('step-training').classList.add('active');
+        } else if (logMessage.includes('Model training complete')) {
+            updateProgress(80, 'Training completed');
+            document.getElementById('step-training').classList.add('completed');
+            document.getElementById('step-parsing').classList.add('active');
+        } else if (logMessage.includes('Log parsing complete')) {
+            updateProgress(90, 'Parsing completed');
+            document.getElementById('step-parsing').classList.add('completed');
+        } else if (logMessage.includes('Starting hierarchical clustering')) {
+            updateProgress(35, 'Building clusters...');
+        } else if (logMessage.includes('Hierarchical clustering completed')) {
+            updateProgress(45, 'Clustering completed');
+        } else if (logMessage.includes('Starting 8-shot sampling')) {
+            updateProgress(50, 'Processing 8-shot sampling...');
+        } else if (logMessage.includes('Starting 16-shot sampling')) {
+            updateProgress(55, 'Processing 16-shot sampling...');
+        }
     };
 
     const downloadModel = async () => {
@@ -425,9 +534,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const selectedModel = logpptModelSelect.value;
+        if (!selectedModel) {
+            showStatus('Please select a model from the dropdown. Download a model from the Model Management tab if none are available.', true);
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('model_name', logpptModelSelect.value);
+        formData.append('model_name', selectedModel);
         formData.append('shots', logpptShots.value);
         formData.append('max_train_steps', logpptMaxTrainSteps.value);
         formData.append('content_config', logpptContentConfig.value);
@@ -435,6 +550,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         runLogpptIntegrationBtn.disabled = true;
         logpptResults.style.display = 'none';
+        
+        // Hide progress bar for new run
+        document.getElementById('logppt-progress').style.display = 'none';
 
         try {
             const response = await fetch('/api/logppt/run', {
@@ -452,6 +570,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             showStatus(`Error during LogPPT process: ${error.message}`, true);
+            
+            // Show helpful suggestions for common errors
+            if (error.message.includes('Data size') && error.message.includes('smaller than requested shots')) {
+                const suggestions = error.message.match(/Suggested shot sizes: ([^.]*)/);
+                if (suggestions) {
+                    showStatus(`Try using smaller shot sizes: ${suggestions[1]}`, false, 5000);
+                }
+            }
         } finally {
             runLogpptIntegrationBtn.disabled = false;
         }

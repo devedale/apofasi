@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -m spacy download en_core_web_sm
 RUN python -m spacy download it_core_news_lg
 
+# Download roberta-base model for LogPPT
+RUN python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='roberta-base', local_dir='/app/models/roberta-base', local_dir_use_symlinks=False)"
+
 # Copy the rest of the application code into the container at /app
 COPY . .
 

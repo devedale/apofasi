@@ -62,7 +62,12 @@ def get_initial_label_words(model, loader, val_label=1):
         batch = {k: v.to(device) for k, v in batch.items()}
         outputs = model(input_ids=batch['input_ids'],
                         attention_mask=batch['attention_mask'])
-        logits = torch.topk(outputs.logits.log_softmax(dim=-1), k=5).indices
+        # Handle both tuple and object outputs
+        if hasattr(outputs, 'logits'):
+            logits = torch.topk(outputs.logits.log_softmax(dim=-1), k=5).indices
+        else:
+            # Fallback for tuple outputs (logits is first element)
+            logits = torch.topk(outputs[0].log_softmax(dim=-1), k=5).indices
         for i in range(label.shape[0]):
             for j in range(len(label[i])):
                 if label[i][j] != val_label:
