@@ -3,13 +3,17 @@ import os
 import json
 import csv
 import glob
+import shutil
+import asyncio
+import uuid
+from queue import Queue, Empty
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from threading import Thread
 
 from fastapi import FastAPI, Request, UploadFile, File, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -54,8 +58,58 @@ class AnalysisRequest(BaseModel):
 class ModelDownloadRequest(BaseModel):
     model_name: str
 
+# --- Real-time Logging for Backend Tasks ---
+class TaskLogManager:
+    def __init__(self):
+        self.tasks = {}
+
+    def start_task(self):
+        task_id = str(uuid.uuid4())
+        self.tasks[task_id] = Queue()
+        return task_id
+
+    def log(self, task_id, message):
+        if task_id in self.tasks:
+            self.tasks[task_id].put(message)
+
+    def finish_task(self, task_id):
+        if task_id in self.tasks:
+            self.tasks[task_id].put(None) # Sentinel value to indicate end of stream
+
+    def get_log_stream(self, task_id):
+        if task_id not in self.tasks:
+            return
+
+        queue = self.tasks[task_id]
+        while True:
+            try:
+                message = queue.get_nowait()
+                if message is None:
+                    break
+                yield f"data: {message}\n\n"
+            except Empty:
+                yield "" # Keep connection alive
+                asyncio.sleep(0.1)
+
+task_log_manager = TaskLogManager()
+
+@app.get("/api/stream-logs/{task_id}")
+async def stream_logs(task_id: str):
+    return StreamingResponse(task_log_manager.get_log_stream(task_id), media_type="text/event-stream")
+
+
 # --- Model Management ---
 MODELS_PATH = Path("models")
+
+def get_dir_size(path='.'):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+    return total_size
 
 @app.get("/api/models", response_class=JSONResponse)
 async def get_models():
@@ -65,33 +119,62 @@ async def get_models():
     try:
         if not MODELS_PATH.exists():
             return {"models": []}
-        models = [d.name for d in MODELS_PATH.iterdir() if d.is_dir()]
-        return {"models": sorted(models)}
+
+        models_info = []
+        for model_dir in MODELS_PATH.iterdir():
+            if model_dir.is_dir():
+                size_bytes = get_dir_size(model_dir)
+                size_mb = round(size_bytes / (1024 * 1024), 2)
+                models_info.append({"name": model_dir.name, "size_mb": size_mb})
+
+        return {"models": sorted(models_info, key=lambda x: x['name'])}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.delete("/api/models/{model_name}", response_class=JSONResponse)
+async def delete_model(model_name: str):
+    """
+    Deletes a model from the local 'models' directory.
+    """
+    try:
+        model_path = MODELS_PATH / model_name
+        if not model_path.exists() or not model_path.is_dir():
+            return JSONResponse(status_code=404, content={"error": "Model not found."})
+
+        shutil.rmtree(model_path)
+        return {"message": f"Model '{model_name}' deleted successfully."}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during model deletion: {str(e)}"})
 
 @app.post("/api/models/download", response_class=JSONResponse)
 async def download_model(request: ModelDownloadRequest):
     """
-    Downloads a model from Hugging Face Hub to the local 'models' directory.
+    Downloads a model from Hugging Face Hub to the local 'models' directory
+    and streams the output.
     """
     try:
         model_name = request.model_name
         if not model_name or not isinstance(model_name, str) or ' ' in model_name:
              return JSONResponse(status_code=400, content={"error": "Invalid model name provided."})
 
-        def do_download():
-            print(f"Starting download for model: {model_name}")
-            try:
-                snapshot_download(repo_id=model_name, local_dir=MODELS_PATH / model_name, local_dir_use_symlinks=False)
-                print(f"Finished downloading {model_name}")
-            except Exception as e:
-                print(f"An unexpected error occurred in the download thread for {model_name}: {e}")
+        task_id = task_log_manager.start_task()
 
-        thread = Thread(target=do_download)
+        def do_download(task_id):
+            task_log_manager.log(task_id, f"Starting download for model: {model_name}")
+            try:
+                # This is a blocking call, so real-time output is tricky without
+                # digging into the library's internals. We can log before and after.
+                snapshot_download(repo_id=model_name, local_dir=MODELS_PATH / model_name, local_dir_use_symlinks=False)
+                task_log_manager.log(task_id, f"Finished downloading {model_name}")
+            except Exception as e:
+                task_log_manager.log(task_id, f"An unexpected error occurred in the download thread for {model_name}: {e}")
+            finally:
+                task_log_manager.finish_task(task_id)
+
+        thread = Thread(target=do_download, args=(task_id,))
         thread.start()
 
-        return {"message": f"Started downloading model: {model_name}. It will be available shortly."}
+        return {"task_id": task_id}
 
     except Exception as e:
         import traceback
@@ -452,6 +535,8 @@ async def run_logppt(
     columns_order: str = Form("")
 ):
     try:
+        task_id = task_log_manager.start_task()
+
         # Save the uploaded file
         upload_dir = Path("uploads")
         upload_dir.mkdir(exist_ok=True)
@@ -459,26 +544,34 @@ async def run_logppt(
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        # Parse shots
         shot_list = [int(s.strip()) for s in shots.split(',')]
-
-        # Run the pipeline
-        config_service = ConfigService()
-        config = config_service.load_config()
-        logppt_service = LogPPTService(config)
-
         dataset_name = Path(file.filename).stem
-        results = logppt_service.run_pipeline(
-            file_path=str(file_path),
-            model_name=model_name,
-            shots=shot_list,
-            max_train_steps=max_train_steps,
-            dataset_name=dataset_name,
-            content_config=content_config,
-            columns_order=columns_order
-        )
 
-        return results
+        def do_run_pipeline():
+            try:
+                config_service = ConfigService()
+                config = config_service.load_config()
+                logppt_service = LogPPTService(config, task_id, task_log_manager)
+
+                results = logppt_service.run_pipeline(
+                    file_path=str(file_path),
+                    model_name=model_name,
+                    shots=shot_list,
+                    max_train_steps=max_train_steps,
+                    dataset_name=dataset_name,
+                    content_config=content_config,
+                    columns_order=columns_order
+                )
+                task_log_manager.log(task_id, f"PIPELINE_COMPLETE::{json.dumps(results)}")
+            except Exception as e:
+                task_log_manager.log(task_id, f"ERROR::{str(e)}")
+            finally:
+                task_log_manager.finish_task(task_id)
+
+        thread = Thread(target=do_run_pipeline)
+        thread.start()
+
+        return {"task_id": task_id}
 
     except Exception as e:
         import traceback

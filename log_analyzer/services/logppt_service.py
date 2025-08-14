@@ -12,11 +12,16 @@ from logppt.parsing_base import template_extraction
 from logppt.evaluation.evaluator_main import evaluator, prepare_results
 
 class LogPPTService:
-    def __init__(self, config):
+    def __init__(self, config, task_id, log_manager):
         self.config = config
+        self.task_id = task_id
+        self.log_manager = log_manager
+
+    def log(self, message):
+        self.log_manager.log(self.task_id, message)
 
     def run_pipeline(self, file_path: str, model_name: str, shots: list, max_train_steps: int, dataset_name: str = "custom", content_config: str = "", columns_order: str = ""):
-
+        self.log("LogPPT pipeline started.")
         # Create a temporary directory for this run
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         run_dir = Path("temp_runs") / f"logppt_{timestamp}"
@@ -26,12 +31,15 @@ class LogPPTService:
         results_dir.mkdir(exist_ok=True)
 
         # 1. Read and Preprocess the uploaded log file
+        self.log("Reading and preprocessing the log file...")
         try:
             df = pd.read_csv(file_path)
+            self.log(f"Successfully read {len(df)} lines.")
         except Exception as e:
             raise ValueError(f"Could not read the uploaded CSV file: {e}")
 
         if content_config:
+            self.log("Applying content configuration...")
             try:
                 # Find all column names in the format string
                 req_cols = [col[1:-1] for col in content_config.split('}') if '{' in col]
@@ -63,10 +71,12 @@ class LogPPTService:
                 raise ValueError(f"Error applying columns_order: Column {e} not found in the CSV.")
 
         # The rest of the pipeline uses the preprocessed df
+        self.log("Preprocessing complete.")
         raw_logs = df['Content'].tolist()
         labels = df['EventTemplate'].tolist()
 
         # 2. Sampling
+        self.log("Starting sampling...")
         validation_file_path = run_dir / "validation.json"
         with open(validation_file_path, 'w') as f:
             for log, label in zip(raw_logs, labels):
@@ -84,8 +94,10 @@ class LogPPTService:
 
         first_shot = shots[0]
         train_file = sample_files[first_shot]
+        self.log(f"Sampling complete. Using {first_shot} shots for training.")
 
         # 3. Training and Parsing
+        self.log("Initializing model and data loader...")
         class SimpleArgs:
             def __init__(self, d):
                 self.__dict__.update(d)
@@ -145,9 +157,13 @@ class LogPPTService:
             device='cpu'
         )
 
+        self.log("Starting model training...")
         p_model = trainer.train()
+        self.log("Model training complete.")
         trainer.save_pretrained(common_args.output_dir)
+        self.log(f"Model saved to {common_args.output_dir}")
 
+        self.log("Starting log parsing...")
         p_model.load_checkpoint(common_args.output_dir)
         log_lines = df['Content'].tolist()
         templates, _ = template_extraction(p_model, 'cpu', log_lines, vtoken=data_loader.vtoken)
@@ -163,11 +179,13 @@ class LogPPTService:
         templates_path = results_dir / f"{dataset_name}_templates.csv"
         template_df.to_csv(templates_path, index=False)
 
+        self.log("Log parsing complete.")
         # Create dummy output files in the main outputs dir to make them downloadable
         final_parsed_path = Path("outputs") / parsed_log_path.name
         final_templates_path = Path("outputs") / templates_path.name
         os.link(parsed_log_path, final_parsed_path)
         os.link(templates_path, final_templates_path)
+        self.log("Output files created.")
 
         return {
             "evaluation": {"message": "Evaluation step not fully implemented. Parsed files are generated."},

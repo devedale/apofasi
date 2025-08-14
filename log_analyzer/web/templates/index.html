@@ -133,9 +133,18 @@
                 <button id="download-model-btn">Download</button>
             </div>
             <h3>Downloaded Models</h3>
-            <ul id="downloaded-models-list">
-                <!-- Models will be listed here -->
-            </ul>
+            <table id="downloaded-models-table">
+                <thead>
+                    <tr>
+                        <th>Model Name</th>
+                        <th>Size (MB)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="downloaded-models-list">
+                    <!-- Models will be listed here -->
+                </tbody>
+            </table>
         </div>
 
         <!-- LogPPT Tab Content -->
@@ -184,6 +193,15 @@
             </div>
         </div>
     </div>
+
+    <div id="log-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Task Output</h2>
+            <pre id="log-output"></pre>
+        </div>
+    </div>
+
     <script src="/static/script.js"></script>
 </body>
 </html>

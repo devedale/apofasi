@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const logpptDownloadTemplatesLink = document.getElementById('logppt-download-templates-link');
     const logpptContentConfig = document.getElementById('logppt-content-config');
     const logpptColumnsOrder = document.getElementById('logppt-columns-order');
+    const logModal = document.getElementById('log-modal');
+    const logOutput = document.getElementById('log-output');
+    const closeModalBtn = document.querySelector('.close-button');
 
     let initialConfig = {};
     const debounceTimers = {};
@@ -316,12 +319,77 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/models');
             if (!response.ok) throw new Error('Could not load downloaded models.');
             const data = await response.json();
-            const modelOptions = data.models.map(model => `<option value="${model}">${model}</option>`).join('');
-            downloadedModelsList.innerHTML = data.models.map(model => `<li>${model}</li>`).join('');
+            const modelOptions = data.models.map(model => `<option value="${model.name}">${model.name}</option>`).join('');
+
+            downloadedModelsList.innerHTML = data.models.map(model => `
+                <tr>
+                    <td>${model.name}</td>
+                    <td>${model.size_mb}</td>
+                    <td><button class="delete-model-btn" data-model-name="${model.name}">Delete</button></td>
+                </tr>
+            `).join('');
+
             logpptModelSelect.innerHTML = modelOptions;
         } catch (error) {
             showStatus(error.message, true);
         }
+    };
+
+    const deleteModel = async (modelName) => {
+        if (!confirm(`Are you sure you want to delete the model '${modelName}'?`)) {
+            return;
+        }
+        showStatus(`Deleting model '${modelName}'...`, false, 0);
+        try {
+            const response = await fetch(`/api/models/${modelName}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error((await response.json()).error || 'Model deletion failed.');
+            const result = await response.json();
+            showStatus(result.message || 'Model deleted successfully!');
+            loadDownloadedModels();
+        } catch (error) {
+            showStatus(`Error deleting model: ${error.message}`, true);
+        }
+    };
+
+    const openLogModal = () => {
+        logOutput.textContent = '';
+        logModal.style.display = 'block';
+    };
+
+    const closeLogModal = () => {
+        logModal.style.display = 'none';
+    };
+
+    const streamLogs = (taskId) => {
+        openLogModal();
+        const eventSource = new EventSource(`/api/stream-logs/${taskId}`);
+
+        eventSource.onmessage = (event) => {
+            if (event.data.startsWith("PIPELINE_COMPLETE::")) {
+                const results = JSON.parse(event.data.substring("PIPELINE_COMPLETE::".length));
+                logOutput.textContent += "\n\nPipeline complete!\n";
+                logpptEvaluationResults.innerHTML = `<pre>${JSON.stringify(results.evaluation, null, 2)}</pre>`;
+                logpptDownloadParsedLink.href = results.parsed_log_url;
+                logpptDownloadTemplatesLink.href = results.templates_url;
+                logpptResults.style.display = 'block';
+                eventSource.close();
+            } else if (event.data.startsWith("ERROR::")) {
+                const errorMsg = event.data.substring("ERROR::".length);
+                logOutput.textContent += `\n\nERROR: ${errorMsg}\n`;
+                showStatus(`Error during LogPPT process: ${errorMsg}`, true);
+                eventSource.close();
+            } else {
+                logOutput.textContent += event.data + '\n';
+                logOutput.scrollTop = logOutput.scrollHeight;
+            }
+        };
+
+        eventSource.onerror = () => {
+            logOutput.textContent += '\n\nConnection to log stream lost.';
+            eventSource.close();
+        };
     };
 
     const downloadModel = async () => {
@@ -330,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showStatus('Please enter a model name.', true);
             return;
         }
-        showStatus(`Downloading model '${modelName}'... This may take some time.`, false, 0);
+
         downloadModelBtn.disabled = true;
         try {
             const response = await fetch('/api/models/download', {
@@ -340,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!response.ok) throw new Error((await response.json()).error || 'Model download failed.');
             const result = await response.json();
-            showStatus(result.message || 'Model downloaded successfully!');
+            streamLogs(result.task_id);
             modelNameInput.value = '';
             loadDownloadedModels();
         } catch (error) {
@@ -365,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('content_config', logpptContentConfig.value);
         formData.append('columns_order', logpptColumnsOrder.value);
 
-        showStatus('Running LogPPT process... This can take a significant amount of time.', false, 0);
         runLogpptIntegrationBtn.disabled = true;
         logpptResults.style.display = 'none';
 
@@ -381,12 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const result = await response.json();
-            showStatus('LogPPT process completed successfully!', false);
-
-            logpptEvaluationResults.innerHTML = `<pre>${JSON.stringify(result.evaluation, null, 2)}</pre>`;
-            logpptDownloadParsedLink.href = result.parsed_log_url;
-            logpptDownloadTemplatesLink.href = result.templates_url;
-            logpptResults.style.display = 'block';
+            streamLogs(result.task_id);
 
         } catch (error) {
             showStatus(`Error during LogPPT process: ${error.message}`, true);
@@ -397,6 +459,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     downloadModelBtn.addEventListener('click', downloadModel);
     runLogpptIntegrationBtn.addEventListener('click', runLogpptIntegration);
+    closeModalBtn.addEventListener('click', closeLogModal);
+    downloadedModelsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-model-btn')) {
+            const modelName = e.target.dataset.modelName;
+            deleteModel(modelName);
+        }
+    });
 
     // --- Initial Load ---
     loadConfig();

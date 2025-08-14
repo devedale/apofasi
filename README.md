@@ -50,13 +50,14 @@ Open your web browser and navigate to `http://localhost:7979`.
 
 ### Model Management
 
-The "Model Management" tab allows you to manage the LLM models used by the application. You can:
-- See a list of already downloaded models.
-- Download new models from Ollama by providing the model name (e.g., `roberta-base`).
+The "Model Management" tab allows you to manage the Hugging Face models used by the LogPPT feature. You can:
+- See a list of already downloaded models, along with their size on disk.
+- Download new models from Hugging Face Hub by providing the model name (e.g., `roberta-base`). The download progress will be shown in a real-time log viewer.
+- Delete downloaded models to free up disk space.
 
 ### LogPPT Integration
 
-The "LogPPT" tab provides a powerful interface for advanced log parsing using the LogPPT library.
+The "LogPPT" tab provides a powerful interface for advanced log parsing using the LogPPT library. When you start a LogPPT process, a real-time log viewer will appear, showing the progress of the sampling, training, and parsing steps.
 
 **Workflow:**
 1.  **Upload a structured log file (CSV).** This file should be the output of a previous analysis step or a custom CSV file.
