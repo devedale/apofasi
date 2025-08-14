@@ -141,8 +141,18 @@ async def preview_anonymization(preview_request: PreviewRequest):
 
         analyzer_config = presidio_config.get("analyzer", {})
 
-        # The entities from the UI now contain detailed objects, not just booleans
-        enabled_entities = [k for k, v in analyzer_config.get("entities", {}).items() if isinstance(v, dict) and v.get('enabled')]
+        # The entities from the UI can be either a detailed dict or a simple boolean.
+        # This logic handles both cases to ensure the preview works correctly.
+        entities_map = analyzer_config.get("entities", {})
+        enabled_entities = []
+        for k, v in entities_map.items():
+            if isinstance(v, dict):
+                # Handles the detailed structure from the config file
+                if v.get('enabled'):
+                    enabled_entities.append(k)
+            elif v:
+                # Handles the simple boolean from the UI's preview request
+                enabled_entities.append(k)
 
         ad_hoc_recognizers = analyzer_config.get('ad_hoc_recognizers', [])
         for rec in ad_hoc_recognizers:
