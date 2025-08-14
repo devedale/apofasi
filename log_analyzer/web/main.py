@@ -165,63 +165,64 @@ async def preview_anonymization(preview_request: PreviewRequest):
 
 @app.post("/api/analysis/{analysis_type}")
 async def run_analysis(analysis_type: str, request: AnalysisRequest):
-    config_service = ConfigService()
-    config = config_service.load_config()
+    try:
+        config_service = ConfigService()
+        config = config_service.load_config()
 
-    log_reader = LogReader(config)
-    parser_chain = create_parser_chain(config)
-    drain3_service = Drain3Service(config)
-    presidio_service = PresidioService(config.get('presidio', {}))
+        log_reader = LogReader(config)
+        parser_chain = create_parser_chain(config)
+        drain3_service = Drain3Service(config)
+        presidio_service = PresidioService(config.get('presidio', {}))
 
-    input_path = os.path.join("examples", request.input_file)
-    if not os.path.exists(input_path):
-        return JSONResponse(status_code=404, content={"error": "Input file not found."})
+        input_path = os.path.join("examples", request.input_file)
+        if not os.path.exists(input_path):
+            return JSONResponse(status_code=404, content={"error": "Input file not found."})
 
-    all_records: List[ParsedRecord] = []
-    for line_num, line_content in log_reader.read_lines(input_path):
-        if not line_content: continue
+        all_records: List[ParsedRecord] = []
+        for line_num, line_content in log_reader.read_lines(input_path):
+            if not line_content: continue
 
-        log_entry = LogEntry(line_number=line_num, content=line_content, source_file=input_path)
-        parsed_record = parser_chain.handle(log_entry)
+            log_entry = LogEntry(line_number=line_num, content=line_content, source_file=input_path)
+            parsed_record = parser_chain.handle(log_entry)
 
-        if parsed_record:
-            parsed_record.presidio_anonymized = presidio_service.anonymize_text(
-                parsed_record.original_content,
-                language=config.get('presidio', {}).get('analyzer', {}).get('languages', ['en'])[0]
-            )
-            parsed_record.presidio_metadata = []
-            all_records.append(parsed_record)
+            if parsed_record:
+                parsed_record.presidio_anonymized = presidio_service.anonymize_text(
+                    parsed_record.original_content,
+                    language=config.get('presidio', {}).get('analyzer', {}).get('languages', ['en'])[0]
+                )
+                parsed_record.presidio_metadata = []
+                all_records.append(parsed_record)
 
-    original_content = [rec.original_content for rec in all_records]
-    original_results = drain3_service.process_batch(original_content, 'original')
-    anonymized_content = [rec.presidio_anonymized or "" for rec in all_records]
-    anonymized_results = drain3_service.process_batch(anonymized_content, 'anonymized')
+        original_content = [rec.original_content for rec in all_records]
+        original_results = drain3_service.process_batch(original_content, 'original')
+        anonymized_content = [rec.presidio_anonymized or "" for rec in all_records]
+        anonymized_results = drain3_service.process_batch(anonymized_content, 'anonymized')
 
-    for i, record in enumerate(all_records):
-        if i < len(original_results): record.drain3_original = original_results[i]
-        if i < len(anonymized_results): record.drain3_anonymized = anonymized_results[i]
+        for i, record in enumerate(all_records):
+            if i < len(original_results): record.drain3_original = original_results[i]
+            if i < len(anonymized_results): record.drain3_anonymized = anonymized_results[i]
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename_base = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
-    output_filename = ""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename_base = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
+        output_filename = ""
 
-    if analysis_type == "anonymize":
-        output_filename = f"{output_filename_base}.log"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_anonymized_text(all_records, output_path)
-    elif analysis_type == "logppt":
-        output_filename = f"{output_filename_base}.csv"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_logppt(all_records, output_path)
-    elif analysis_type == "json_report":
-        output_filename = f"{output_filename_base}.json"
-        output_path = os.path.join("outputs", output_filename)
-        format_as_json_report(all_records, output_path)
-    else:
-        return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
+        if analysis_type == "anonymize":
+            output_filename = f"{output_filename_base}.log"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_anonymized_text(all_records, output_path)
+        elif analysis_type == "logppt":
+            output_filename = f"{output_filename_base}.csv"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_logppt(all_records, output_path)
+        elif analysis_type == "json_report":
+            output_filename = f"{output_filename_base}.json"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_json_report(all_records, output_path)
+        else:
+            return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
 
-    return {"download_url": f"/outputs/{output_filename}"}
-except Exception as e:
-    import traceback
-    print(traceback.format_exc())
-    return JSONResponse(status_code=500, content={"error": f"An error occurred during analysis: {str(e)}"})
+        return {"download_url": f"/outputs/{output_filename}"}
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during analysis: {str(e)}"})
