@@ -1,0 +1,26 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+
+  log-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7979:8000"
+    depends_on:
+      - ollama
+    volumes:
+      - ./log_analyzer:/app/log_analyzer
+      - ./config:/app/config
+      - ./examples:/app/examples
+      - ./outputs:/app/outputs
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    command: uvicorn log_analyzer.web.main:app --host 0.0.0.0 --port 8000 --reload
