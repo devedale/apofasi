@@ -3,8 +3,9 @@
 # Its primary responsibilities are:
 # 1.  Loading and interpreting the 'presidio' section of the global config.
 # 2.  Correctly instantiating the AnalyzerEngine with all its recognizers.
-# 3.  Correctly instantiating the AnonymizerEngine with a fully configured set of operators.
+# 3.  Correctly instantiating the AnonymizerEngine and preparing the operators for it.
 # 4.  Providing a simple, high-level interface for anonymizing text.
+# 5.  Providing a method to inspect the recognizer registry for the UI.
 #
 # This service-based approach decouples the web layer (or any other consumer) from the
 # complexities of Presidio's configuration, adhering to the Single Responsibility Principle
@@ -35,6 +36,7 @@ class PresidioService:
             logger.info("Presidio service is disabled in the configuration.")
             self.analyzer = None
             self.anonymizer = None
+            self.operators = {}
             self.is_enabled = False
             return
 
@@ -42,62 +44,37 @@ class PresidioService:
         self.config = presidio_config
         self.is_enabled = True
         self.analyzer = self._create_analyzer()
-        # The operators are not passed to the constructor, but to the anonymize method.
-        # So, we create a default AnonymizerEngine and store the operators separately.
         self.operators = self._get_operators()
         self.anonymizer = AnonymizerEngine()
         logger.info("PresidioService initialized successfully.")
 
-    def _get_operators(self) -> Optional[Dict[str, OperatorConfig]]:
+    def _get_operators(self) -> Dict[str, OperatorConfig]:
         """
-        # === TEACHER COMMENT ===
-        # This method builds the dictionary of 'operators' that defines anonymization strategy.
-        # Each key is an entity name (e.g., "PHONE_NUMBER"), and the value is an OperatorConfig
-        # that defines the anonymization strategy (e.g., 'mask', 'replace', 'hash').
-        # This dictionary is then passed to the `anonymize` method on each call.
+        Builds the dictionary of 'operators' that defines anonymization strategy.
         """
-        try:
-            anonymizer_config = self.config.get('anonymizer', {})
-            strategies = anonymizer_config.get('strategies', {})
-            strategy_configs = anonymizer_config.get('strategy_config', {})
+        operators = {}
+        anonymizer_config = self.config.get('anonymizer', {})
+        strategies = anonymizer_config.get('strategies', {})
+        strategy_configs = anonymizer_config.get('strategy_config', {})
 
-            operators = {}
-            # --- GUIDE COMMENT: Build OperatorConfig for each entity ---
-            # Iterate through all entity->strategy mappings defined in the config.
-            for entity_name, strategy_name in strategies.items():
-                # Get the detailed parameters for this strategy (e.g., hash salt, mask character).
+        for entity_name, strategy_name in strategies.items():
+            params = strategy_configs.get(strategy_name, {})
+            operators[entity_name.upper()] = OperatorConfig(strategy_name, params)
+
+        ad_hoc_recognizers = self.config.get('analyzer', {}).get('ad_hoc_recognizers', [])
+        for rec_conf in ad_hoc_recognizers:
+            strategy_name = rec_conf.get("strategy")
+            entity_name = rec_conf.get("name")
+            if entity_name and strategy_name:
                 params = strategy_configs.get(strategy_name, {})
-
-                # Create the OperatorConfig and add it to our dictionary.
                 operators[entity_name.upper()] = OperatorConfig(strategy_name, params)
 
-            # --- GUIDE COMMENT: Handle ad-hoc recognizers ---
-            # Ad-hoc recognizers might also need a specific anonymization strategy.
-            ad_hoc_recognizers = self.config.get('analyzer', {}).get('ad_hoc_recognizers', [])
-            for rec_conf in ad_hoc_recognizers:
-                strategy_name = rec_conf.get("strategy")
-                entity_name = rec_conf.get("name")
-                if entity_name and strategy_name:
-                    params = strategy_configs.get(strategy_name, {})
-                    operators[entity_name.upper()] = OperatorConfig(strategy_name, params)
-
-            logger.info(f"Created operators dictionary with {len(operators)} operators.")
-            return operators
-        except Exception as e:
-            logger.error(f"Fatal error creating Presidio operators: {e}", exc_info=True)
-            return None
+        logger.info(f"Created operators dictionary with {len(operators)} operators.")
+        return operators
 
     def _create_analyzer(self) -> Optional[AnalyzerEngine]:
         """
-        # === TEACHER COMMENT ===
-        # The AnalyzerEngine is the core of PII identification in Presidio. It uses a set of
-        # 'recognizers' to find entities in text. Recognizers can be NLP-based (like for PERSON),
-        # rule-based, or simple regex-based (PatternRecognizer).
-        # This method constructs the engine by:
-        # 1.  Initializing a RecognizerRegistry.
-        # 2.  Loading predefined recognizers for the specified languages (e.g., 'en', 'it').
-        # 3.  Adding custom ad-hoc regex patterns from the config file.
-        # 4.  Passing the configured registry and other settings to the AnalyzerEngine constructor.
+        Creates and configures the Presidio AnalyzerEngine based on the loaded config.
         """
         try:
             analyzer_config = self.config.get('analyzer', {})
@@ -106,19 +83,13 @@ class PresidioService:
             registry = RecognizerRegistry()
             registry.load_predefined_recognizers(languages=languages)
 
-            # Add ad-hoc recognizers from the config
             ad_hoc_recognizers = analyzer_config.get('ad_hoc_recognizers', [])
             for rec_conf in ad_hoc_recognizers:
                 if rec_conf.get("name") and rec_conf.get("regex"):
-                    try:
-                        pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
-                        ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
-                        registry.add_recognizer(ad_hoc_recognizer)
-                        logger.info(f"Successfully added ad-hoc recognizer '{rec_conf['name']}'.")
-                    except Exception as e:
-                        logger.error(f"Failed to add ad-hoc recognizer '{rec_conf.get('name')}': {e}")
+                    pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
+                    ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
+                    registry.add_recognizer(ad_hoc_recognizer)
 
-            # Extracting other potential AnalyzerEngine parameters from config
             confidence_threshold = analyzer_config.get('analysis', {}).get('confidence_threshold')
 
             return AnalyzerEngine(
@@ -133,21 +104,12 @@ class PresidioService:
     def anonymize_text(self, text: str, **kwargs) -> str:
         """
         Anonymizes a given text string using the configured Presidio engines.
-
-        Args:
-            text: The input string to anonymize.
-            **kwargs: Additional parameters to pass to the analyzer's analyze method.
-
-        Returns:
-            The anonymized text. Returns the original text if the service is disabled.
         """
         if not self.is_enabled or not self.analyzer or not self.anonymizer:
             return text
 
         try:
             analyzer_results = self.analyzer.analyze(text=text, **kwargs)
-
-            # The 'operators' dictionary is passed to the anonymize method directly.
             anonymized_result = self.anonymizer.anonymize(
                 text=text,
                 analyzer_results=analyzer_results,
@@ -156,5 +118,47 @@ class PresidioService:
             return anonymized_result.text
         except Exception as e:
             logger.error(f"Error during anonymization: {e}", exc_info=True)
-            # Return original text as a safe fallback
             return text
+
+    def get_recognizer_details(self) -> Dict[str, Any]:
+        """
+        Inspects the analyzer's registry and returns a detailed dictionary of
+        all available recognizers and their entities for the UI.
+        """
+        if not self.is_enabled or not self.analyzer:
+            return {}
+
+        user_entities = self.config.get("analyzer", {}).get("entities", {})
+        user_strategies = self.config.get("anonymizer", {}).get("strategies", {})
+        language = self.config.get("analyzer", {}).get("languages", ["en"])[0]
+
+        detailed_entities = {}
+        try:
+            default_recognizers = self.analyzer.get_recognizers(language=language)
+            for rec in default_recognizers:
+                entities = getattr(rec, 'supported_entities', [])
+                if not entities:
+                    continue
+
+                for entity_name in entities:
+                    is_enabled = user_entities.get(entity_name, True)
+                    strategy = user_strategies.get(entity_name, "replace")
+                    score = getattr(rec, 'default_score', 0.0)
+
+                    detailed_entities[entity_name] = {
+                        "enabled": is_enabled,
+                        "strategy": strategy,
+                        "score": score if isinstance(score, (int, float)) else 0.0,
+                        "regex": "N/A (NLP or other logic)",
+                        "is_regex_based": False
+                    }
+
+                    if isinstance(rec, PatternRecognizer):
+                        detailed_entities[entity_name]["regex"] = "\\n".join(p.regex for p in rec.patterns)
+                        detailed_entities[entity_name]["is_regex_based"] = True
+        except Exception as e:
+            logger.error(f"Error inspecting recognizers: {e}", exc_info=True)
+            # Fallback to a simpler representation if inspection fails
+            return user_entities
+
+        return detailed_entities

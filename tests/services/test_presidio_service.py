@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from presidio_anonymizer.entities import OperatorConfig
-# Corrected import: AnalysisResult does not exist, it is RecognizerResult
 from presidio_analyzer import RecognizerResult
 
 from log_analyzer.services.presidio_service import PresidioService
@@ -52,7 +51,6 @@ def test_presidio_service_initialization(sample_presidio_config):
     assert service.is_enabled
     assert service.analyzer is not None
     assert service.anonymizer is not None
-    # Operators are now a separate attribute on the service
     assert service.operators is not None
     assert "PHONE_NUMBER" in service.operators
     assert "PERSON" in service.operators
