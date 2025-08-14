@@ -47,12 +47,26 @@ def format_as_anonymized_text(records: List[ParsedRecord], output_path: str):
             f.write(f"{record.presidio_anonymized or ''}\n")
 
 def format_as_logppt(records: List[ParsedRecord], output_path: str):
-    # ... (omitting for brevity, same as before) ...
-    pass
+    if not records: return
+    all_keys = set()
+    for record in records:
+        if record.parsed_data: all_keys.update(record.parsed_data.keys())
+    sorted_keys = sorted(list(all_keys))
+    headers = ["LineId", "Timestamp"] + sorted_keys + ["Content", "EventId", "Template"]
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        for record in records:
+            drain_result = record.drain3_anonymized or {}
+            row = {"LineId": record.line_number, "Timestamp": record.timestamp, "Content": record.unparsed_content, "EventId": drain_result.get("cluster_id", "N/A"), "Template": drain_result.get("template_mined", "N/A")}
+            for key in sorted_keys:
+                row[key] = record.parsed_data.get(key, "")
+            writer.writerow(row)
 
 def format_as_json_report(records: List[ParsedRecord], output_path: str):
-    # ... (omitting for brevity, same as before) ...
-    pass
+    report = [record.model_dump(exclude_none=True) for record in records]
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
 # --- API Endpoints ---
 
@@ -70,15 +84,12 @@ async def get_config():
     config = config_service.load_config()
     presidio_config = config.get("presidio", {})
 
-    # Instantiate the service to get detailed recognizer info
     presidio_service = PresidioService(presidio_config)
 
-    # Get the detailed entity map from the service
     detailed_entities = presidio_service.get_recognizer_details()
 
-    # Replace the simple entity map in the config with our new detailed one
     if detailed_entities:
-        presidio_config["analyzer"]["entities"] = detailed_entities
+        presidio_config.setdefault("analyzer", {})["entities"] = detailed_entities
 
     return presidio_config
 
@@ -92,12 +103,31 @@ async def save_config(update_request: ConfigUpdateRequest):
     else:
         return JSONResponse(status_code=500, content={"status": "error", "message": "Failed to save configuration."})
 
+@app.get("/api/sample-files", response_class=JSONResponse)
+async def get_sample_files():
+    examples_dir = "examples"
+    try:
+        files = [f for f in os.listdir(examples_dir) if os.path.isfile(os.path.join(examples_dir, f))]
+        return {"files": files}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/api/sample-line", response_class=JSONResponse)
+async def get_sample_line(filepath: str, line_number: int = 1):
+    examples_dir = os.path.abspath("examples")
+    requested_path = os.path.abspath(os.path.join(examples_dir, os.path.basename(filepath)))
+    if not requested_path.startswith(examples_dir):
+        return JSONResponse(status_code=403, content={"error": "Access forbidden."})
+    try:
+        with open(requested_path, 'r', encoding='utf-8', errors='ignore') as f:
+            for i, line in enumerate(f):
+                if i + 1 == line_number: return {"line_content": line.strip()}
+        return JSONResponse(status_code=404, content={"error": f"Line {line_number} not found."})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 @app.post("/api/preview", response_class=JSONResponse)
 async def preview_anonymization(preview_request: PreviewRequest):
-    """
-    Anonymizes a sample text based on the provided Presidio configuration
-    using the centralized PresidioService.
-    """
     presidio_config = preview_request.presidio_config
     sample_text = preview_request.sample_text
     if not sample_text:
@@ -110,7 +140,9 @@ async def preview_anonymization(preview_request: PreviewRequest):
             return JSONResponse(content={"anonymized_text": "[PREVIEW] Presidio is disabled."})
 
         analyzer_config = presidio_config.get("analyzer", {})
-        enabled_entities = [k for k, v in analyzer_config.get("entities", {}).items() if v.get('enabled')]
+
+        # The entities from the UI now contain detailed objects, not just booleans
+        enabled_entities = [k for k, v in analyzer_config.get("entities", {}).items() if isinstance(v, dict) and v.get('enabled')]
 
         ad_hoc_recognizers = analyzer_config.get('ad_hoc_recognizers', [])
         for rec in ad_hoc_recognizers:
@@ -133,7 +165,6 @@ async def preview_anonymization(preview_request: PreviewRequest):
 
 @app.post("/api/analysis/{analysis_type}")
 async def run_analysis(analysis_type: str, request: AnalysisRequest):
-    # This function remains largely the same, but uses PresidioService
     config_service = ConfigService()
     config = config_service.load_config()
 
@@ -153,7 +184,7 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
         log_entry = LogEntry(line_number=line_num, content=line_content, source_file=input_path)
         parsed_record = parser_chain.handle(log_entry)
 
-        if parsed_record:
+        if parsed_,record:
             parsed_record.presidio_anonymized = presidio_service.anonymize_text(
                 parsed_record.original_content,
                 language=config.get('presidio', {}).get('analyzer', {}).get('languages', ['en'])[0]
@@ -161,5 +192,36 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             parsed_record.presidio_metadata = []
             all_records.append(parsed_record)
 
-    # ... (rest of the function for drain3 and file output, same as before) ...
-    return JSONResponse(content={"message": "Analysis complete, but file output logic omitted for brevity."})
+    original_content = [rec.original_content for rec in all_records]
+    original_results = drain3_service.process_batch(original_content, 'original')
+    anonymized_content = [rec.presidio_anonymized or "" for rec in all_records]
+    anonymized_results = drain3_service.process_batch(anonymized_content, 'anonymized')
+
+    for i, record in enumerate(all_records):
+        if i < len(original_results): record.drain3_original = original_results[i]
+        if i < len(anonymized_results): record.drain3_anonymized = anonymized_results[i]
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_filename_base = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
+    output_filename = ""
+
+    if analysis_type == "anonymize":
+        output_filename = f"{output_filename_base}.log"
+        output_path = os.path.join("outputs", output_filename)
+        format_as_anonymized_text(all_records, output_path)
+    elif analysis_type == "logppt":
+        output_filename = f"{output_filename_base}.csv"
+        output_path = os.path.join("outputs", output_filename)
+        format_as_logppt(all_records, output_path)
+    elif analysis_type == "json_report":
+        output_filename = f"{output_filename_base}.json"
+        output_path = os.path.join("outputs", output_filename)
+        format_as_json_report(all_records, output_path)
+    else:
+        return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
+
+    return {"download_url": f"/outputs/{output_filename}"}
+except Exception as e:
+    import traceback
+    print(traceback.format_exc())
+    return JSONResponse(status_code=500, content={"error": f"An error occurred during analysis: {str(e)}"})
