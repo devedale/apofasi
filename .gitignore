@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ollama data
+ollama_data/id_ed25519.pub
+
+# Temporary files
+temp_runs/
+uploads/
+models/

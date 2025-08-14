@@ -23,6 +23,7 @@ huggingface-hub
 
 # LogPPT dependencies
 datasets
+pandarallel
 accelerate
 joblib
 natsort
