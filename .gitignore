@@ -122,3 +122,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 temp_runs/
+temp_runs/logppt_20250814_224632/results/model/pytorch_model.bin
