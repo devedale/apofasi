@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-slim
+FROM public.ecr.aws/k9x5n2l5/shopper-python-3.10-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy the requirements file into the container at /app
 # We will create this file in a later step
 COPY requirements.txt .
+
+# Install CPU-only torch and torchvision
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

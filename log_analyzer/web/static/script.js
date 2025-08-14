@@ -19,6 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisResultsDiv = document.getElementById('analysis-results');
     const analysisStatusMessage = document.getElementById('analysis-status-message');
     const downloadLink = document.getElementById('download-link');
+    const modelNameInput = document.getElementById('model-name-input');
+    const downloadModelBtn = document.getElementById('download-model-btn');
+    const downloadedModelsList = document.getElementById('downloaded-models-list');
+    const logpptFileUpload = document.getElementById('logppt-file-upload');
+    const logpptShots = document.getElementById('logppt-shots');
+    const logpptModelSelect = document.getElementById('logppt-model-select');
+    const logpptMaxTrainSteps = document.getElementById('logppt-max-train-steps');
+    const runLogpptIntegrationBtn = document.getElementById('run-logppt-integration-btn');
+    const logpptResults = document.getElementById('logppt-results');
+    const logpptEvaluationResults = document.getElementById('logppt-evaluation-results');
+    const logpptDownloadParsedLink = document.getElementById('logppt-download-parsed-link');
+    const logpptDownloadTemplatesLink = document.getElementById('logppt-download-templates-link');
+    const logpptContentConfig = document.getElementById('logppt-content-config');
+    const logpptColumnsOrder = document.getElementById('logppt-columns-order');
 
     let initialConfig = {};
     const debounceTimers = {};
@@ -297,8 +311,96 @@ document.addEventListener('DOMContentLoaded', () => {
     analysisButtons.forEach(button => button.addEventListener('click', () => runAnalysis(button.dataset.analysisType)));
     addRegexBtn.addEventListener('click', () => addRegexRow());
 
+    const loadDownloadedModels = async () => {
+        try {
+            const response = await fetch('/api/models');
+            if (!response.ok) throw new Error('Could not load downloaded models.');
+            const data = await response.json();
+            const modelOptions = data.models.map(model => `<option value="${model}">${model}</option>`).join('');
+            downloadedModelsList.innerHTML = data.models.map(model => `<li>${model}</li>`).join('');
+            logpptModelSelect.innerHTML = modelOptions;
+        } catch (error) {
+            showStatus(error.message, true);
+        }
+    };
+
+    const downloadModel = async () => {
+        const modelName = modelNameInput.value.trim();
+        if (!modelName) {
+            showStatus('Please enter a model name.', true);
+            return;
+        }
+        showStatus(`Downloading model '${modelName}'... This may take some time.`, false, 0);
+        downloadModelBtn.disabled = true;
+        try {
+            const response = await fetch('/api/models/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model_name: modelName })
+            });
+            if (!response.ok) throw new Error((await response.json()).error || 'Model download failed.');
+            const result = await response.json();
+            showStatus(result.message || 'Model downloaded successfully!');
+            modelNameInput.value = '';
+            loadDownloadedModels();
+        } catch (error) {
+            showStatus(`Error downloading model: ${error.message}`, true);
+        } finally {
+            downloadModelBtn.disabled = false;
+        }
+    };
+
+    const runLogpptIntegration = async () => {
+        const file = logpptFileUpload.files[0];
+        if (!file) {
+            showStatus('Please select a file to upload.', true);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('model_name', logpptModelSelect.value);
+        formData.append('shots', logpptShots.value);
+        formData.append('max_train_steps', logpptMaxTrainSteps.value);
+        formData.append('content_config', logpptContentConfig.value);
+        formData.append('columns_order', logpptColumnsOrder.value);
+
+        showStatus('Running LogPPT process... This can take a significant amount of time.', false, 0);
+        runLogpptIntegrationBtn.disabled = true;
+        logpptResults.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/logppt/run', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'LogPPT process failed.');
+            }
+
+            const result = await response.json();
+            showStatus('LogPPT process completed successfully!', false);
+
+            logpptEvaluationResults.innerHTML = `<pre>${JSON.stringify(result.evaluation, null, 2)}</pre>`;
+            logpptDownloadParsedLink.href = result.parsed_log_url;
+            logpptDownloadTemplatesLink.href = result.templates_url;
+            logpptResults.style.display = 'block';
+
+        } catch (error) {
+            showStatus(`Error during LogPPT process: ${error.message}`, true);
+        } finally {
+            runLogpptIntegrationBtn.disabled = false;
+        }
+    };
+
+    downloadModelBtn.addEventListener('click', downloadModel);
+    runLogpptIntegrationBtn.addEventListener('click', runLogpptIntegration);
+
     // --- Initial Load ---
     loadConfig();
     loadSampleFiles();
     updatePreviewFromLine();
+    loadDownloadedModels();
 });

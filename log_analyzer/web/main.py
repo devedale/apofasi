@@ -2,11 +2,13 @@ import sys
 import os
 import json
 import csv
+import glob
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+from threading import Thread
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -17,12 +19,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 # --- Direct Imports ---
 from log_analyzer.services.config_service import ConfigService
+from log_analyzer.services.logppt_service import LogPPTService
 from log_analyzer.parsing.interfaces import LogEntry, ParsedRecord
 from log_analyzer.parsing.parser_factory import create_parser_chain
 from log_analyzer.services.log_reader import LogReader
 from log_analyzer.services.drain3_service import Drain3Service
 from presidio_analyzer import AnalyzerEngine, RecognizerRegistry, Pattern, PatternRecognizer
 from presidio_anonymizer import AnonymizerEngine, OperatorConfig
+from huggingface_hub import snapshot_download
 
 # --- FastAPI App Initialization ---
 app = FastAPI()
@@ -46,6 +50,54 @@ class ConfigUpdateRequest(BaseModel):
 
 class AnalysisRequest(BaseModel):
     input_file: str
+
+class ModelDownloadRequest(BaseModel):
+    model_name: str
+
+# --- Model Management ---
+MODELS_PATH = Path("models")
+
+@app.get("/api/models", response_class=JSONResponse)
+async def get_models():
+    """
+    Returns a list of downloaded Hugging Face models from the local 'models' directory.
+    """
+    try:
+        if not MODELS_PATH.exists():
+            return {"models": []}
+        models = [d.name for d in MODELS_PATH.iterdir() if d.is_dir()]
+        return {"models": sorted(models)}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.post("/api/models/download", response_class=JSONResponse)
+async def download_model(request: ModelDownloadRequest):
+    """
+    Downloads a model from Hugging Face Hub to the local 'models' directory.
+    """
+    try:
+        model_name = request.model_name
+        if not model_name or not isinstance(model_name, str) or ' ' in model_name:
+             return JSONResponse(status_code=400, content={"error": "Invalid model name provided."})
+
+        def do_download():
+            print(f"Starting download for model: {model_name}")
+            try:
+                snapshot_download(repo_id=model_name, local_dir=MODELS_PATH / model_name, local_dir_use_symlinks=False)
+                print(f"Finished downloading {model_name}")
+            except Exception as e:
+                print(f"An unexpected error occurred in the download thread for {model_name}: {e}")
+
+        thread = Thread(target=do_download)
+        thread.start()
+
+        return {"message": f"Started downloading model: {model_name}. It will be available shortly."}
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during model download: {str(e)}"})
+
 
 # --- Formatting Helper Functions ---
 def _build_operators(config: Dict[str, Any]) -> Dict[str, OperatorConfig]:
@@ -389,3 +441,46 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
         import traceback
         print(traceback.format_exc())
         return JSONResponse(status_code=500, content={"error": f"An error occurred during analysis: {str(e)}"})
+
+@app.post("/api/logppt/run")
+async def run_logppt(
+    file: UploadFile = File(...),
+    model_name: str = Form(...),
+    shots: str = Form(...),
+    max_train_steps: int = Form(...),
+    content_config: str = Form(""),
+    columns_order: str = Form("")
+):
+    try:
+        # Save the uploaded file
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
+        file_path = upload_dir / file.filename
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+
+        # Parse shots
+        shot_list = [int(s.strip()) for s in shots.split(',')]
+
+        # Run the pipeline
+        config_service = ConfigService()
+        config = config_service.load_config()
+        logppt_service = LogPPTService(config)
+
+        dataset_name = Path(file.filename).stem
+        results = logppt_service.run_pipeline(
+            file_path=str(file_path),
+            model_name=model_name,
+            shots=shot_list,
+            max_train_steps=max_train_steps,
+            dataset_name=dataset_name,
+            content_config=content_config,
+            columns_order=columns_order
+        )
+
+        return results
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return JSONResponse(status_code=500, content={"error": f"An error occurred during LogPPT processing: {str(e)}"})

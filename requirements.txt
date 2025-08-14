@@ -19,3 +19,16 @@ fastapi
 uvicorn[standard]
 python-multipart
 Jinja2
+huggingface-hub
+
+# LogPPT dependencies
+accelerate
+joblib
+natsort
+numpy
+pytorch_crf
+regex
+scikit-learn
+scipy
+textdistance
+transformers

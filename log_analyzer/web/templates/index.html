@@ -13,6 +13,8 @@
         <div class="tab-bar">
             <button class="tab-button active" data-tab="analysis-tab">Analysis</button>
             <button class="tab-button" data-tab="config-tab">Configuration</button>
+            <button class="tab-button" data-tab="model-management-tab">Model Management</button>
+            <button class="tab-button" data-tab="logppt-tab">LogPPT</button>
         </div>
 
         <div id="status-banner" class="status-banner" style="display: none;"></div>
@@ -120,6 +122,66 @@
                     </div>
                 </fieldset>
             </form>
+        </div>
+
+        <!-- Model Management Tab Content -->
+        <div id="model-management-tab" class="tab-content">
+            <h2>Model Management</h2>
+            <div class="form-group">
+                <label for="model-name-input">Hugging Face Model Name</label>
+                <input type="text" id="model-name-input" placeholder="e.g., roberta-base">
+                <button id="download-model-btn">Download</button>
+            </div>
+            <h3>Downloaded Models</h3>
+            <ul id="downloaded-models-list">
+                <!-- Models will be listed here -->
+            </ul>
+        </div>
+
+        <!-- LogPPT Tab Content -->
+        <div id="logppt-tab" class="tab-content">
+            <h2>LogPPT Integration</h2>
+            <div class="form-group">
+                <label for="logppt-file-upload">Upload Structured Log File (CSV)</label>
+                <input type="file" id="logppt-file-upload" accept=".csv">
+            </div>
+            <fieldset>
+                <legend>LogPPT Configuration</legend>
+                <div class="form-group">
+                    <label for="logppt-shots">Number of Shots (for sampling)</label>
+                    <input type="text" id="logppt-shots" value="8, 16, 32">
+                </div>
+                <div class="form-group">
+                    <label for="logppt-model-select">Select Model</label>
+                    <select id="logppt-model-select">
+                        <!-- Downloaded models will be populated here -->
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="logppt-max-train-steps">Max Train Steps</label>
+                    <input type="number" id="logppt-max-train-steps" value="1000">
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Advanced Configuration</legend>
+                <div class="form-group">
+                    <label for="logppt-content-config">Content Field Configuration</label>
+                    <textarea id="logppt-content-config" rows="3" placeholder="e.g., {column1} - {column2}"></textarea>
+                    <p class="help-text">Define how to construct the 'Content' field for LogPPT using the columns from your data. Use curly braces to denote column names, e.g., {message} or {field1} {field2}.</p>
+                </div>
+                <div class="form-group">
+                    <label for="logppt-columns-order">Column Order</label>
+                    <input type="text" id="logppt-columns-order" placeholder="e.g., timestamp, level, message">
+                    <p class="help-text">Specify the columns to include in the output and their order, separated by commas.</p>
+                </div>
+            </fieldset>
+            <button id="run-logppt-integration-btn">Run LogPPT Process</button>
+            <div id="logppt-results" style="display: none;">
+                <h3>LogPPT Results</h3>
+                <div id="logppt-evaluation-results"></div>
+                <a id="logppt-download-parsed-link" href="#" target="_blank">Download Parsed Log</a>
+                <a id="logppt-download-templates-link" href="#" target="_blank">Download Templates</a>
+            </div>
         </div>
     </div>
     <script src="/static/script.js"></script>
