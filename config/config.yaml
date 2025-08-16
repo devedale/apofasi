@@ -1,283 +1,187 @@
-# Configurazione centralizzata per il parser di log
-# Questo file sostituisce config.ini e parser_config.yaml per supportare strutture dati complesse
-
-# Configurazione generale dell'applicazione
 app:
-  name: "Clean Log Parser"
-  version: "1.0.0"
+  name: Clean Log Parser
+  version: 1.0.0
   debug: false
   strict_mode: false
-
 centralized_regex:
-  # Configurazione per il servizio regex centralizzato
-  # Abilita la generazione di template anonimizzati coerenti
   generate_anonymized_templates: true
-
-  # Abilita il logging dettagliato per debug
   verbose_logging: false
-
-  # Categorie di pattern
   categories:
-    - "parsing"
-    - "anonymization"
-    - "detection"
-
-  # Pattern regex per anonimizzazione
+  - parsing
+  - anonymization
+  - detection
   anonymization:
-    # IP addresses
-    ip_address: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b"
-    ipv6_address: "\\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\b"
-
-    # MAC addresses
-    mac_address: "\\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\\b"
-
-    # Email addresses
-    email: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
-
-    # URLs
-    url: "https?://[^\\s<>\"{}|\\^`\\[\\]\\\\]+"
-
-    # File paths
-    file_path: "(?:/[^\\s<>\"{}|\\^`\\[\\]\\\\]+)+"
-
-    # Timestamps e date (UNIFICATI - un solo scopo)
-    timestamp: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?"
-    date: "\\d{4}-\\d{2}-\\d{2}"
-    time: "\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?"
-
-    # Numbers and IDs (UNIFICATI - un solo scopo)
-    uuid: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-    hex_id: "0x[0-9a-fA-F]+"
-
-    # REGOLE PRECISE per ID specifici (non tutti i numeri grandi)
-    system_id: "\\b(?:id|seq|pid|tid|uid|gid|sid|rid|aid|bid|cid|did|eid|fid|gid|hid|iid|jid|kid|lid|mid|nid|oid|pid|qid|rid|sid|tid|uid|vid|wid|xid|yid|zid)\\s*=\\s*\\d{5,}\\b"
-
-    # Timestamp Unix (non tutti i numeri grandi)
-    unix_timestamp: "\\b\\d{10,19}\\b"
-
-    # Hash numerici (non tutti i numeri grandi)
-    numeric_hash: "\\b\\d{32,64}\\b"
-
-    # Hostnames and domains
-    hostname: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
-    domain: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
-
-    # Credit cards
-    credit_card: "\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b"
-
-    # Device IDs
-    device_id: "\\b[A-Z]{2,}[A-Z0-9]{8,}\\b"
-    device_name: "\\b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\\b"
-    fortinet_device: "\\bFGT[A-Z0-9]{12,}\\b"
-
-    # Phone numbers
-    phone: "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b"
-
-    # SSN
-    ssn: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
-
-    # Version numbers
-    version: "\\b(?:v?)?\\d+\\.\\d+(?:\\.\\d+)?(?:-[a-zA-Z0-9]+)?\\b"
-
-    # Pattern per anonimizzazione aggiuntivi (UNIFICATI)
-    hash_string: "\\b(?:hash|sha1|sha256|md5|checksum|fingerprint|digest)\\s*[:=]\\s*[a-fA-F0-9]{32,64}\\b"
-    user_identifier: "\\b(?:user_id|userid|uid|user|username)\\s*[:=]\\s*\\d{6,}\\b"
-
-    # PATTERN INTELLIGENTI PER PORTE
-    port_number: ":(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-    hostname_port: "([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-
-    # Porte comuni per servizi specifici
-    http_port: ":80\\b"
-    https_port: ":443\\b"
-    ssh_port: ":22\\b"
-    ftp_port: ":21\\b"
-    smtp_port: ":25\\b"
-    dns_port: ":53\\b"
-    dhcp_port: ":67\\b"
-    ntp_port: ":123\\b"
-    snmp_port: ":161\\b"
-    ldap_port: ":389\\b"
-    mysql_port: ":3306\\b"
-    postgres_port: ":5432\\b"
-    redis_port: ":6379\\b"
-    mongodb_port: ":27017\\b"
-    elasticsearch_port: ":9200\\b"
-    kibana_port: ":5601\\b"
-    grafana_port: ":3000\\b"
-    prometheus_port: ":9090\\b"
-
-    # 🆕 PLACEHOLDER GENERICI per template (UNIFICATI - un solo scopo)
-    # Stringhe generiche tra virgolette (non già anonimizzate)
-    # generic_string: "\"([^\"]*)\""  # ❌ RIMOSSO: causa anonimizzazione eccessiva
-
-    # Numeri generici (non già anonimizzati)
-    #generic_number: "\\b(?<!<)(?<!>)\\d+(?!>)\\b"
-
-    # Date generiche (non già anonimizzate)
-    #generic_date: "\\b(?<!<)(?<!>)\\d{4}-\\d{2}-\\d{2}(?!>)\\b"
-
-    # Time generici (non già anonimizzati)
-    #generic_time: "\\b(?<!<)(?<!>)\\d{2}:\\d{2}:\\d{2}(?!>)\\b"
-
-    # Timestamp generici (non già anonimizzati)
-    generic_timestamp: "\\b(?<!<)(?<!>)\\d{4}-\\d{2}-\\d{2}[T\\s]\\d{2}:\\d{2}:\\d{2}(?!>)\\b"
-
-    # 🆕 PLACEHOLDER SPECIFICI per sostituzione (UNIFICATI)
-    # Questi sono i placeholder che vengono usati per sostituire i pattern rilevati
-    placeholder_ip: "<IP>"
-    placeholder_mac: "<MAC>"
-    placeholder_email: "<EMAIL>"
-    placeholder_timestamp: "<TIMESTAMP>"
-    placeholder_date: "<DATE>"
-    placeholder_time: "<TIME>"
-    placeholder_version: "<VERSION>"
-    placeholder_path: "<FILE_PATH>"
-    placeholder_url: "<URL>"
-    placeholder_devid: "<DEVICE_ID>"
-    placeholder_devname: "<DEVICE_NAME>"
-    placeholder_hostname: "<HOSTNAME>"
-    placeholder_tz: "<TIMEZONE>"
-    placeholder_vd: "<VD>"
-    placeholder_numeric_id: "<NUMERIC_ID>"
-    placeholder_hash: "<HASH>"
-    placeholder_uuid: "<UUID>"
-    placeholder_num: "<NUM>"
-
-  # Pattern regex per parsing
+    ip_address: \b(?:\d{1,3}\.){3}\d{1,3}\b
+    ipv6_address: \b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b
+    mac_address: \b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b
+    email: \b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b
+    url: https?://[^\s<>"{}|\^`\[\]\\]+
+    file_path: (?:/[^\s<>"{}|\^`\[\]\\]+)+
+    timestamp: \d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?
+    date: \d{4}-\d{2}-\d{2}
+    time: \d{2}:\d{2}:\d{2}(?:\.\d+)?
+    uuid: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+    hex_id: 0x[0-9a-fA-F]+
+    system_id: \b(?:id|seq|pid|tid|uid|gid|sid|rid|aid|bid|cid|did|eid|fid|gid|hid|iid|jid|kid|lid|mid|nid|oid|pid|qid|rid|sid|tid|uid|vid|wid|xid|yid|zid)\s*=\s*\d{5,}\b
+    unix_timestamp: \b\d{10,19}\b
+    numeric_hash: \b\d{32,64}\b
+    hostname: \b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b
+    domain: \b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b
+    credit_card: \b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b
+    device_id: \b[A-Z]{2,}[A-Z0-9]{8,}\b
+    device_name: \b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\b
+    fortinet_device: \bFGT[A-Z0-9]{12,}\b
+    phone: \b\d{3}[-.]?\d{3}[-.]?\d{4}\b
+    ssn: \b\d{3}-\d{2}-\d{4}\b
+    version: \b(?:v?)?\d+\.\d+(?:\.\d+)?(?:-[a-zA-Z0-9]+)?\b
+    hash_string: \b(?:hash|sha1|sha256|md5|checksum|fingerprint|digest)\s*[:=]\s*[a-fA-F0-9]{32,64}\b
+    user_identifier: \b(?:user_id|userid|uid|user|username)\s*[:=]\s*\d{6,}\b
+    port_number: :(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\b
+    hostname_port: ([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\b
+    http_port: :80\b
+    https_port: :443\b
+    ssh_port: :22\b
+    ftp_port: :21\b
+    smtp_port: :25\b
+    dns_port: :53\b
+    dhcp_port: :67\b
+    ntp_port: :123\b
+    snmp_port: :161\b
+    ldap_port: :389\b
+    mysql_port: :3306\b
+    postgres_port: :5432\b
+    redis_port: :6379\b
+    mongodb_port: :27017\b
+    elasticsearch_port: :9200\b
+    kibana_port: :5601\b
+    grafana_port: :3000\b
+    prometheus_port: :9090\b
+    generic_timestamp: \b(?<!<)(?<!>)\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?!>)\b
+    placeholder_ip: <IP>
+    placeholder_mac: <MAC>
+    placeholder_email: <EMAIL>
+    placeholder_timestamp: <TIMESTAMP>
+    placeholder_date: <DATE>
+    placeholder_time: <TIME>
+    placeholder_version: <VERSION>
+    placeholder_path: <FILE_PATH>
+    placeholder_url: <URL>
+    placeholder_devid: <DEVICE_ID>
+    placeholder_devname: <DEVICE_NAME>
+    placeholder_hostname: <HOSTNAME>
+    placeholder_tz: <TIMEZONE>
+    placeholder_vd: <VD>
+    placeholder_numeric_id: <NUMERIC_ID>
+    placeholder_hash: <HASH>
+    placeholder_uuid: <UUID>
+    placeholder_num: <NUM>
   parsing:
-    apache_clf: "^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<timestamp>[^\\]]+)\\] \"(?P<request>[^\"]*)\" (?P<status>\\d+) (?P<bytes>\\S+)"
-    apache_combined: "^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<timestamp>[^\\]]+)\\] \"(?P<request>[^\"]*)\" (?P<status>\\d+) (?P<bytes>\\S+) \"(?P<referer>[^\"]*)\" \"(?P<user_agent>[^\"]*)\""
-    syslog: "^(?P<timestamp>\\w{3}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<hostname>\\S+)\\s+(?P<process>\\S+)\\[(?P<pid>\\d+)\\]:\\s+(?P<message>.*)$"
-    fortinet: "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<device_id>\\S+)\\s+(?P<type>\\S+)\\s+(?P<subtype>\\S+)\\s+(?P<level>\\S+)\\s+(?P<message>.*)$"
-
-  # Pattern regex per cleaning
+    apache_clf: ^(?P<ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] "(?P<request>[^"]*)"
+      (?P<status>\d+) (?P<bytes>\S+)
+    apache_combined: ^(?P<ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] "(?P<request>[^"]*)"
+      (?P<status>\d+) (?P<bytes>\S+) "(?P<referer>[^"]*)" "(?P<user_agent>[^"]*)"
+    syslog: ^(?P<timestamp>\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?P<process>\S+)\[(?P<pid>\d+)\]:\s+(?P<message>.*)$
+    fortinet: ^(?P<timestamp>\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(?P<device_id>\S+)\s+(?P<type>\S+)\s+(?P<subtype>\S+)\s+(?P<level>\S+)\s+(?P<message>.*)$
   cleaning:
-    csv_header_clean: "[^a-zA-Z0-9_]"
-    multiple_underscore: "_+"
-    timestamp_clean: "(\\d{2}-\\d{2}),(\\d{2}:\\d{2}:\\d{2}\\.\\d+)"
-
-  # Pattern regex per detection
+    csv_header_clean: '[^a-zA-Z0-9_]'
+    multiple_underscore: _+
+    timestamp_clean: (\d{2}-\d{2}),(\d{2}:\d{2}:\d{2}\.\d+)
   detection:
-    ip_address: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
-    mac_address: "\\b(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}\\b"
-    unix_timestamp: "\\b\\d{10,19}\\b"
-    email: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
-    credit_card: "\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b"
-    ssn: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
-    phone: "\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b"
-    uuid: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-    hex_id: "0x[0-9a-fA-F]+"
-    numeric_id: "\\b\\d{5,}\\b"
-    hostname: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
-    domain: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b"
-    version: "\\b(?:v?)?\\d+\\.\\d+(?:\\.\\d+)?(?:-[a-zA-Z0-9]+)?\\b"
-    sequence: "\\b\\d{10,}\\b"
-    path: "(?:/[^/\\s]+)+"
-    url: "https?://[^\\s<>\"{}|\\^`\\[\\]\\\\]+"
-    device_id: "\\b[A-Z]{2,}[A-Z0-9]{8,}\\b"
-    device_name: "\\b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\\b"
-    fortinet_device: "\\bFGT[A-Z0-9]{12,}\\b"
-
-    # 🆕 PATTERN DI DETECTION PER PORTE
-    # Porta singola nel range valido 1-65535
-    port_number: ":(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-
-    # Pattern composto HOSTNAME:PORT
-    hostname_port: "([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\\b"
-
-    # Porte comuni per servizi specifici
-    http_port: ":80\\b"
-    https_port: ":443\\b"
-    ssh_port: ":22\\b"
-    ftp_port: ":21\\b"
-    smtp_port: ":25\\b"
-    dns_port: ":53\\b"
-    dhcp_port: ":67\\b"
-    ntp_port: ":123\\b"
-    snmp_port: ":161\\b"
-    ldap_port: ":389\\b"
-    mysql_port: ":3306\\b"
-    postgres_port: ":5432\\b"
-    redis_port: ":6379\\b"
-    mongodb_port: ":27017\\b"
-    elasticsearch_port: ":9200\\b"
-    kibana_port: ":5601\\b"
-    grafana_port: ":3000\\b"
-    prometheus_port: ":9090\\b"
-
-  # Configurazione regex
+    ip_address: \b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b
+    mac_address: \b(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}\b
+    unix_timestamp: \b\d{10,19}\b
+    email: \b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b
+    credit_card: \b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b
+    ssn: \b\d{3}-\d{2}-\d{4}\b
+    phone: \b\d{3}[-.]?\d{3}[-.]?\d{4}\b
+    uuid: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+    hex_id: 0x[0-9a-fA-F]+
+    numeric_id: \b\d{5,}\b
+    hostname: \b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b
+    domain: \b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b
+    version: \b(?:v?)?\d+\.\d+(?:\.\d+)?(?:-[a-zA-Z0-9]+)?\b
+    sequence: \b\d{10,}\b
+    path: (?:/[^/\s]+)+
+    url: https?://[^\s<>"{}|\^`\[\]\\]+
+    device_id: \b[A-Z]{2,}[A-Z0-9]{8,}\b
+    device_name: \b(?:mg-|dev-|prod-|test-)[a-zA-Z0-9_-]+\b
+    fortinet_device: \bFGT[A-Z0-9]{12,}\b
+    port_number: :(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\b
+    hostname_port: ([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}:(6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]|[1-5]?[0-9]{1,4}|[1-9][0-9]{1,3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])\b
+    http_port: :80\b
+    https_port: :443\b
+    ssh_port: :22\b
+    ftp_port: :21\b
+    smtp_port: :25\b
+    dns_port: :53\b
+    dhcp_port: :67\b
+    ntp_port: :123\b
+    snmp_port: :161\b
+    ldap_port: :389\b
+    mysql_port: :3306\b
+    postgres_port: :5432\b
+    redis_port: :6379\b
+    mongodb_port: :27017\b
+    elasticsearch_port: :9200\b
+    kibana_port: :5601\b
+    grafana_port: :3000\b
+    prometheus_port: :9090\b
   regex_config:
-    application_order: "priority"
+    application_order: priority
     cache_size: 100
-    default_flags: "IGNORECASE"
+    default_flags: IGNORECASE
     enable_cache: true
     timeout_ms: 1000
-
-# Configurazione CSV recognition patterns
 csv_recognition:
-  # Pattern per riconoscere CSV strutturati
   structured_indicators:
-    # Loghub indicators
     loghub:
       indicators:
-        - "LineId"
-        - "EventId"
-        - "EventTemplate"
-        - "Content"
-        - "Component"
-        - "Pid"
-        - "Time"
-        - "Timestamp"
+      - LineId
+      - EventId
+      - EventTemplate
+      - Content
+      - Component
+      - Pid
+      - Time
+      - Timestamp
       min_matches: 3
-
-    # Cybersecurity indicators
     cybersecurity:
       indicators:
-        - "Event ID"
-        - "Timestamp"
-        - "Source IP"
-        - "Destination IP"
-        - "User Agent"
-        - "Attack Type"
-        - "Attack Severity"
-        - "Data Exfiltrated"
-        - "Threat Intelligence"
-        - "Response Action"
+      - Event ID
+      - Timestamp
+      - Source IP
+      - Destination IP
+      - User Agent
+      - Attack Type
+      - Attack Severity
+      - Data Exfiltrated
+      - Threat Intelligence
+      - Response Action
       min_matches: 5
-
-    # Intrusion data indicators
     intrusion_data:
       indicators:
-        - "session_id"
-        - "network_packet_size"
-        - "protocol_type"
-        - "login_attempts"
-        - "session_duration"
-        - "encryption_used"
-        - "ip_reputation_score"
-        - "failed_logins"
-        - "browser_type"
-        - "unusual_time_access"
-        - "attack_detected"
+      - session_id
+      - network_packet_size
+      - protocol_type
+      - login_attempts
+      - session_duration
+      - encryption_used
+      - ip_reputation_score
+      - failed_logins
+      - browser_type
+      - unusual_time_access
+      - attack_detected
       min_matches: 5
-
 file_formats:
-  # Configurazione per i formati di file supportati e priorità dei parser
-  # Abilita il logging dettagliato per i parser
   verbose_parser_logging: true
-
-  # Formati supportati
-  supported_csv: "Comma-separated values files"
-  supported_json: "JSON structured log files"
-  supported_syslog: "Standard syslog format"
-  supported_fortinet: "Fortinet firewall logs"
-  supported_apache: "Apache web server logs"
-  supported_txt: "Plain text log files"
-  supported_log: "Generic log files"
-  supported_elog: "Fortinet event logs"
-
-  # Priorità dei parser (numeri più bassi = priorità più alta)
+  supported_csv: Comma-separated values files
+  supported_json: JSON structured log files
+  supported_syslog: Standard syslog format
+  supported_fortinet: Fortinet firewall logs
+  supported_apache: Apache web server logs
+  supported_txt: Plain text log files
+  supported_log: Generic log files
+  supported_elog: Fortinet event logs
   priority_csv: 1
   priority_json: 2
   priority_syslog: 3
@@ -286,687 +190,463 @@ file_formats:
   priority_txt: 6
   priority_log: 7
   priority_elog: 8
-
-  # Parser specifici per formato
-  parser_csv: "MultiStrategyParser"
-  parser_json: "MultiStrategyParser"
-  parser_syslog: "MultiStrategyParser"
-  parser_fortinet: "MultiStrategyParser"
-  parser_apache: "MultiStrategyParser"
-  parser_txt: "MultiStrategyParser"
-  parser_log: "MultiStrategyParser"
-  parser_elog: "MultiStrategyParser"
-
-# Configurazione parser specifici
+  parser_csv: MultiStrategyParser
+  parser_json: MultiStrategyParser
+  parser_syslog: MultiStrategyParser
+  parser_fortinet: MultiStrategyParser
+  parser_apache: MultiStrategyParser
+  parser_txt: MultiStrategyParser
+  parser_log: MultiStrategyParser
+  parser_elog: MultiStrategyParser
 parsers:
-  # Parser CSV
   csv:
     enabled: true
     auto_detect_delimiter: true
-    supported_delimiters: [",", ";", "\t", "|"]
+    supported_delimiters:
+    - ','
+    - ;
+    - "\t"
+    - '|'
     encoding_detection: true
-
-  # Parser JSON
   json:
     enabled: true
     support_jsonl: true
     max_depth: 10
-
-  # Parser Syslog
   syslog:
     enabled: true
     formats:
-      - "RFC3164"
-      - "RFC5424"
-      - "Cisco"
-      - "Linux"
-      - "FacilitySeverity"
-
-  # Parser CEF
+    - RFC3164
+    - RFC5424
+    - Cisco
+    - Linux
+    - FacilitySeverity
   cef:
     enabled: true
     parse_extensions: true
-
-  # Parser Fortinet
   fortinet:
     enabled: true
-    key_value_separator: "="
-
-  # Parser Apache
+    key_value_separator: '='
   apache:
     enabled: true
     formats:
-      - "Common"
-      - "Combined"
-      - "Custom"
-
+    - Common
+    - Combined
+    - Custom
 drain3:
-  # Configurazione per il servizio Drain3 - DRAIN INFINITO SENZA LIMITI
-  # IMPORTANTE: max_clusters: 999999 = limite praticamente infinito sui cluster
-  # IMPORTANTE: max_children: 999999 = limite praticamente infinito sui figli
-  # Questo permette al drain di processare file di qualsiasi dimensione senza limiti pratici
-
-  # Parametri per il miner originale (SENZA LIMITI PRATICI)
   original:
     depth: 4
-    max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
-    max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
+    max_children: 999999
+    max_clusters: 999999
     similarity_threshold: 0.4
-
-  # Parametri per il miner anonimizzato (SENZA LIMITI PRATICI)
   anonymized:
     depth: 4
-    max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
-    max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
+    max_children: 999999
+    max_clusters: 999999
     similarity_threshold: 0.4
-
-  # Parametri comuni (fallback) - SENZA LIMITI PRATICI
   depth: 4
-  max_children: 999999  # Limite praticamente infinito sui figli - DRAIN INFINITO
-  max_clusters: 999999  # Limite praticamente infinito sui cluster - DRAIN INFINITO
+  max_children: 999999
+  max_clusters: 999999
   similarity_threshold: 0.4
-
-  # Configurazione per anonimizzazione
   anonymization:
     enabled: true
     preserve_structure: true
-
-    # Campi da anonimizzare sempre
     always_anonymize:
-      - "ip_address"
-      - "user_id"
-      - "session_id"
-      - "device_id"
-      - "mac_address"
-      - "email"
-      - "phone"
-      - "credit_card"
-      - "ssn"
-      - "path"
-      - "srcip"
-      - "dstip"
-      - "ip"
-      #- "devid"
-      - "devname"
-      - "hostname"
-      - "device_name"
-      - "fortinet_device"
-      - "filename"
-      - "source_file"
-      #- "tz"
-      - "vd"
-
-    # Metodi di anonimizzazione
+    - ip_address
+    - user_id
+    - session_id
+    - device_id
+    - mac_address
+    - email
+    - phone
+    - credit_card
+    - ssn
+    - path
+    - srcip
+    - dstip
+    - ip
+    - devname
+    - hostname
+    - device_name
+    - fortinet_device
+    - filename
+    - source_file
+    - vd
     methods:
       hash:
-        algorithm: "sha256"
-        salt: "clean_parser_salt_2024"
+        algorithm: sha256
+        salt: clean_parser_salt_2024
         fields:
-          - "user_id"
-          - "session_id"
-          - "device_id"
-
+        - user_id
+        - session_id
+        - device_id
       mask:
-        pattern: "***"
+        pattern: '***'
         fields:
-          - "credit_card"
-          - "ssn"
-          - "phone"
-
-      # ✅ RIMOSSA SEZIONE REPLACE DUPLICATA
-      # Tutti i placeholder sono ora definiti nella sezione anonymization sopra
-      # replace:
-      #   ip_address: "<IP>"
-      #   mac_address: "<MAC>"
-      #   ... (duplicato con anonymization)
-
-# Configurazione per rilevamento automatico dei tipi
+        - credit_card
+        - ssn
+        - phone
 field_detection:
   name_patterns:
     timestamp:
-      patterns: ["timestamp", "time", "date", "datetime"]
-      field_type: "timestamp"
+      patterns:
+      - timestamp
+      - time
+      - date
+      - datetime
+      field_type: timestamp
       confidence: 0.9
     ip_address:
-      patterns: ["ip", "srcip", "dstip", "source_ip", "dest_ip"]
-      field_type: "ip_address"
+      patterns:
+      - ip
+      - srcip
+      - dstip
+      - source_ip
+      - dest_ip
+      field_type: ip_address
       confidence: 0.9
     user_id:
-      patterns: ["user_id", "userid", "uid", "user"]
-      field_type: "user_id"
+      patterns:
+      - user_id
+      - userid
+      - uid
+      - user
+      field_type: user_id
       confidence: 0.9
     process_id:
-      patterns: ["pid", "process_id", "processid"]
-      field_type: "process_id"
+      patterns:
+      - pid
+      - process_id
+      - processid
+      field_type: process_id
       confidence: 0.9
     port:
-      patterns: ["port", "port_number"]
-
-# Configurazione Microsoft Presidio - Analisi PII e Datamining
+      patterns:
+      - port
+      - port_number
 presidio:
-  # Abilita/disabilita Presidio
   enabled: true
-
-  # Modalità di anonimizzazione: "classic" (regex esistente) o "presidio" (AI-powered)
-  anonymization_mode: "hybrid"  # "classic", "presidio", "hybrid"
-
-  # Configurazione Analyzer - Rilevamento entità PII
+  anonymization_mode: hybrid
   analyzer:
-    # Lingue supportate per l'analisi
-    languages: ["en", "it"]
-
-    # Entità PII da rilevare per datamining
+    languages:
+    - en
+    - it
     entities:
-      # Informazioni personali
-      PERSON: true           # Nomi di persone
-      PERSON_ID: true        # ID personali (SSN, codice fiscale, etc.)
-      EMAIL_ADDRESS: true    # Indirizzi email
-      PHONE_NUMBER: true     # Numeri di telefono
-      CREDIT_CARD: true      # Carte di credito
-      IBAN_CODE: true        # Codici IBAN
-
-      # Informazioni geografiche
-      LOCATION: true         # Luoghi, città, paesi
-      ADDRESS: true          # Indirizzi completi
-      CITY: true             # Città
-      COUNTRY: true          # Paesi
-      ZIP_CODE: true         # Codici postali
-
-      # Informazioni digitali
-      IP_ADDRESS: true       # Indirizzi IP
-      DOMAIN_NAME: true      # Nomi di dominio
-      URL: true              # URL completi
-      MAC_ADDRESS: true      # Indirizzi MAC
-
-      # Informazioni temporali
-      DATE_TIME: true        # Date e orari
-      DATE: true             # Solo date
-      TIME: true             # Solo orari
-
-      # Informazioni aziendali
-      ORGANIZATION: true     # Nomi di organizzazioni
-      COMPANY: true          # Nomi di aziende
-      JOB_TITLE: true        # Titoli di lavoro
-
-      # Informazioni tecniche
-      ID: true               # ID generici
-      KEY: true              # Chiavi (API, database, etc.)
-      HASH: true             # Hash (MD5, SHA, etc.)
-      UUID: true             # UUID/GUID
-
-      # Informazioni finanziarie
-      CURRENCY: true         # Valute
-      BANK_ACCOUNT: true     # Conti bancari
-      CREDIT_SCORE: true     # Punteggi di credito
-
-      # Informazioni mediche
-      MEDICAL_RECORD: true   # Record medici
-      DIAGNOSIS: true        # Diagnosi
-      MEDICATION: true       # Farmaci
-
-      # Informazioni legali
-      CASE_NUMBER: true      # Numeri di caso
-      COURT: true            # Tribunali
-      LAW_FIRM: true         # Studi legali
-
-      # Informazioni di sicurezza
-      PASSWORD: true         # Password
-      SECRET_KEY: true       # Chiavi segrete
-      ACCESS_TOKEN: true     # Token di accesso
-
-      # Informazioni di rete
-      HOSTNAME: true         # Nomi host
-      PORT: true             # Porte
-      PROTOCOL: true         # Protocolli (HTTP, HTTPS, etc.)
-
-      # Informazioni di sistema
-      PROCESS_ID: true       # ID di processo
-      THREAD_ID: true        # ID di thread
-      SESSION_ID: true       # ID di sessione
-
-      # Informazioni di log
-      LOG_LEVEL: true        # Livelli di log (INFO, ERROR, etc.)
-      LOG_SOURCE: true       # Sorgenti di log
-      LOG_TYPE: true         # Tipi di log
-
-      # Informazioni di configurazione
-      CONFIG_KEY: true       # Chiavi di configurazione
-      ENV_VAR: true          # Variabili d'ambiente
-      SETTING: true          # Impostazioni
-
-    # Configurazione analisi
+      CREDIT_CARD: true
+      CRYPTO: true
+      DATE_TIME: true
+      EMAIL_ADDRESS: true
+      IBAN_CODE: true
+      IP_ADDRESS: true
+      IT_DRIVER_LICENSE: true
+      IT_FISCAL_CODE: true
+      IT_IDENTITY_CARD: true
+      IT_PASSPORT: true
+      IT_VAT_CODE: true
+      LOCATION: true
+      MEDICAL_LICENSE: true
+      NRP: true
+      ORGANIZATION: true
+      PERSON: true
+      PHONE_NUMBER: true
+      UK_NHS: true
+      URL: true
+      US_BANK_NUMBER: true
+      US_DRIVER_LICENSE: true
+      US_ITIN: true
+      US_PASSPORT: true
+      US_SSN: true
     analysis:
-      # Soglia di confidenza per il rilevamento (0.0 - 1.0)
       confidence_threshold: 0.7
-
-      # Abilita analisi contestuale
       contextual_analysis: true
-
-      # Abilita analisi semantica
       semantic_analysis: true
-
-      # Abilita analisi pattern-based
       pattern_analysis: true
-
-      # Abilita analisi rule-based
       rule_analysis: true
-
-      # Abilita analisi ML-based
       ml_analysis: true
-
-      # Abilita analisi regex-based
       regex_analysis: true
-
-      # Abilita analisi fuzzy
       fuzzy_analysis: true
-
-      # Abilita analisi cross-field
       cross_field_analysis: true
-
-      # Abilita analisi temporale
       temporal_analysis: true
-
-      # Abilita analisi geografica
       geographic_analysis: true
-
-      # Abilita analisi finanziaria
       financial_analysis: true
-
-      # Abilita analisi medica
       medical_analysis: true
-
-      # Abilita analisi legale
       legal_analysis: true
-
-      # Abilita analisi di sicurezza
       security_analysis: true
-
-      # Abilita analisi di rete
       network_analysis: true
-
-      # Abilita analisi di sistema
       system_analysis: true
-
-      # Abilita analisi di log
       log_analysis: true
-
-      # Abilita analisi di configurazione
       config_analysis: true
-
-    # Configurazione performance
     performance:
-      # Abilita caching dei risultati
       enable_caching: true
-
-      # Dimensione cache (MB)
       cache_size_mb: 100
-
-      # TTL cache (secondi)
       cache_ttl_seconds: 3600
-
-      # Abilita parallel processing
       enable_parallel: true
-
-      # Numero di worker per parallel processing
       num_workers: 4
-
-      # Timeout per analisi (secondi)
       analysis_timeout: 30
-
-      # Abilita batch processing
       enable_batch: true
-
-      # Dimensione batch
       batch_size: 1000
-
-  # Configurazione Anonymizer - Anonimizzazione entità rilevate
+    language: it
+    ad_hoc_recognizers: []
   anonymizer:
-    # Strategie di anonimizzazione per tipo di entità
     strategies:
-      # Informazioni personali
-      PERSON: "replace"           # Sostituisci con <PERSON>
-      PERSON_ID: "hash"           # Hash dell'ID
-      EMAIL_ADDRESS: "replace"    # Sostituisci con <EMAIL>
-      PHONE_NUMBER: "mask"        # Maschera il numero
-      CREDIT_CARD: "mask"         # Maschera la carta
-      IBAN_CODE: "mask"           # Maschera l'IBAN
-
-      # Informazioni geografiche
-      LOCATION: "replace"         # Sostituisci con <LOCATION>
-      ADDRESS: "replace"          # Sostituisci con <ADDRESS>
-      CITY: "replace"             # Sostituisci con <CITY>
-      COUNTRY: "replace"          # Sostituisci con <COUNTRY>
-      ZIP_CODE: "mask"            # Maschera il codice
-
-      # Informazioni digitali
-      IP_ADDRESS: "replace"       # Sostituisci con <IP>
-      DOMAIN_NAME: "replace"      # Sostituisci con <DOMAIN>
-      URL: "replace"              # Sostituisci con <URL>
-      MAC_ADDRESS: "mask"         # Maschera l'indirizzo
-
-      # Informazioni temporali
-      DATE_TIME: "replace"        # Sostituisci con <DATETIME>
-      DATE: "replace"             # Sostituisci con <DATE>
-      TIME: "replace"             # Sostituisci con <TIME>
-
-      # Informazioni aziendali
-      ORGANIZATION: "replace"     # Sostituisci con <ORG>
-      COMPANY: "replace"          # Sostituisci con <COMPANY>
-      JOB_TITLE: "replace"        # Sostituisci con <JOB>
-
-      # Informazioni tecniche
-      ID: "hash"                  # Hash dell'ID
-      KEY: "hash"                 # Hash della chiave
-      HASH: "keep"                # Mantieni l'hash
-      UUID: "hash"                # Hash dell'UUID
-
-      # Informazioni finanziarie
-      CURRENCY: "keep"            # Mantieni la valuta
-      BANK_ACCOUNT: "mask"        # Maschera il conto
-      CREDIT_SCORE: "mask"        # Maschera il punteggio
-
-      # Informazioni mediche
-      MEDICAL_RECORD: "hash"      # Hash del record
-      DIAGNOSIS: "replace"        # Sostituisci con <DIAGNOSIS>
-      MEDICATION: "replace"       # Sostituisci con <MED>
-
-      # Informazioni legali
-      CASE_NUMBER: "hash"         # Hash del numero
-      COURT: "replace"            # Sostituisci con <COURT>
-      LAW_FIRM: "replace"         # Sostituisci con <LAW_FIRM>
-
-      # Informazioni di sicurezza
-      PASSWORD: "hash"            # Hash della password
-      SECRET_KEY: "hash"          # Hash della chiave
-      ACCESS_TOKEN: "hash"        # Hash del token
-
-      # Informazioni di rete
-      HOSTNAME: "replace"          # Sostituisci con <HOSTNAME>
-      PORT: "keep"                 # Mantieni la porta
-      PROTOCOL: "keep"             # Mantieni il protocollo
-
-      # Informazioni di sistema
-      PROCESS_ID: "hash"           # Hash dell'ID
-      THREAD_ID: "hash"            # Hash dell'ID
-      SESSION_ID: "hash"           # Hash dell'ID
-
-      # Informazioni di log
-      LOG_LEVEL: "keep"            # Mantieni il livello
-      LOG_SOURCE: "replace"        # Sostituisci con <SOURCE>
-      LOG_TYPE: "keep"             # Mantieni il tipo
-
-      # Informazioni di configurazione
-      CONFIG_KEY: "replace"        # Sostituisci con <CONFIG_KEY>
-      ENV_VAR: "replace"           # Sostituisci con <ENV_VAR>
-      SETTING: "keep"               # Mantieni l'impostazione
-
-    # Configurazione strategie
+      CREDIT_CARD: mask
+      CRYPTO: replace
+      DATE_TIME: replace
+      EMAIL_ADDRESS: replace
+      IBAN_CODE: mask
+      IP_ADDRESS: replace
+      IT_DRIVER_LICENSE: replace
+      IT_FISCAL_CODE: replace
+      IT_IDENTITY_CARD: replace
+      IT_PASSPORT: replace
+      IT_VAT_CODE: replace
+      LOCATION: replace
+      MEDICAL_LICENSE: replace
+      NRP: replace
+      ORGANIZATION: replace
+      PERSON: replace
+      PHONE_NUMBER: mask
+      UK_NHS: replace
+      URL: replace
+      US_BANK_NUMBER: replace
+      US_DRIVER_LICENSE: replace
+      US_ITIN: replace
+      US_PASSPORT: replace
+      US_SSN: replace
     strategy_config:
-      # Strategia "replace" - sostituisce con placeholder
       replace:
-        # Placeholder personalizzati per tipo di entità
         placeholders:
-          PERSON: "<PERSON>"
-          PERSON_ID: "<PERSON_ID>"
-          EMAIL_ADDRESS: "<EMAIL>"
-          PHONE_NUMBER: "<PHONE>"
-          CREDIT_CARD: "<CREDIT_CARD>"
-          IBAN_CODE: "<IBAN>"
-          LOCATION: "<LOCATION>"
-          ADDRESS: "<ADDRESS>"
-          CITY: "<CITY>"
-          COUNTRY: "<COUNTRY>"
-          ZIP_CODE: "<ZIP>"
-          IP_ADDRESS: "<IP>"
-          DOMAIN_NAME: "<DOMAIN>"
-          URL: "<URL>"
-          MAC_ADDRESS: "<MAC>"
-          DATE_TIME: "<DATETIME>"
-          DATE: "<DATE>"
-          TIME: "<TIME>"
-          ORGANIZATION: "<ORG>"
-          COMPANY: "<COMPANY>"
-          JOB_TITLE: "<JOB>"
-          ID: "<ID>"
-          KEY: "<KEY>"
-          UUID: "<UUID>"
-          BANK_ACCOUNT: "<BANK_ACCOUNT>"
-          CREDIT_SCORE: "<CREDIT_SCORE>"
-          MEDICAL_RECORD: "<MEDICAL_RECORD>"
-          DIAGNOSIS: "<DIAGNOSIS>"
-          MEDICATION: "<MED>"
-          CASE_NUMBER: "<CASE_NUMBER>"
-          COURT: "<COURT>"
-          LAW_FIRM: "<LAW_FIRM>"
-          PASSWORD: "<PASSWORD>"
-          SECRET_KEY: "<SECRET_KEY>"
-          ACCESS_TOKEN: "<ACCESS_TOKEN>"
-          HOSTNAME: "<HOSTNAME>"
-          LOG_SOURCE: "<LOG_SOURCE>"
-          CONFIG_KEY: "<CONFIG_KEY>"
-          ENV_VAR: "<ENV_VAR>"
-
-      # Strategia "hash" - crea hash dell'entità
+          PERSON: <PERSON>
+          PERSON_ID: <PERSON_ID>
+          EMAIL_ADDRESS: <EMAIL>
+          PHONE_NUMBER: <PHONE>
+          CREDIT_CARD: <CREDIT_CARD>
+          IBAN_CODE: <IBAN>
+          LOCATION: <LOCATION>
+          ADDRESS: <ADDRESS>
+          CITY: <CITY>
+          COUNTRY: <COUNTRY>
+          ZIP_CODE: <ZIP>
+          IP_ADDRESS: <IP>
+          DOMAIN_NAME: <DOMAIN>
+          URL: <URL>
+          MAC_ADDRESS: <MAC>
+          DATE_TIME: <DATETIME>
+          DATE: <DATE>
+          TIME: <TIME>
+          ORGANIZATION: <ORG>
+          COMPANY: <COMPANY>
+          JOB_TITLE: <JOB>
+          ID: <ID>
+          KEY: <KEY>
+          UUID: <UUID>
+          BANK_ACCOUNT: <BANK_ACCOUNT>
+          CREDIT_SCORE: <CREDIT_SCORE>
+          MEDICAL_RECORD: <MEDICAL_RECORD>
+          DIAGNOSIS: <DIAGNOSIS>
+          MEDICATION: <MED>
+          CASE_NUMBER: <CASE_NUMBER>
+          COURT: <COURT>
+          LAW_FIRM: <LAW_FIRM>
+          PASSWORD: <PASSWORD>
+          SECRET_KEY: <SECRET_KEY>
+          ACCESS_TOKEN: <ACCESS_TOKEN>
+          HOSTNAME: <HOSTNAME>
+          LOG_SOURCE: <LOG_SOURCE>
+          CONFIG_KEY: <CONFIG_KEY>
+          ENV_VAR: <ENV_VAR>
       hash:
-        algorithm: "sha256"        # Algoritmo di hashing
-        salt: "presidio_salt_2025" # Salt per l'hash
-        include_entity_type: true  # Include tipo entità nell'hash
-        truncate_length: 16        # Lunghezza hash troncato
-
-      # Strategia "mask" - maschera parte dell'entità
+        algorithm: sha256
+        salt: presidio_salt_2025
+        include_entity_type: true
+        truncate_length: 16
       mask:
-        mask_char: "*"             # Carattere per mascherare
-        mask_ratio: 0.7            # Percentuale da mascherare (0.0 - 1.0)
-        preserve_format: true      # Mantieni formato originale
-        preserve_length: true      # Mantieni lunghezza originale
-
-      # Strategia "keep" - mantieni l'entità originale
+        mask_char: '*'
+        mask_ratio: 0.7
+        preserve_format: true
+        preserve_length: true
       keep:
-        log_decision: true         # Logga la decisione di mantenere
-        reason: "business_required" # Motivo per mantenere
-
-  # Configurazione Datamining - Estrazione informazioni per analisi
+        log_decision: true
+        reason: business_required
   datamining:
-    # Abilita estrazione per datamining
     enabled: true
-
-    # Tipi di informazioni da estrarre per analisi
     extract_for_analysis:
-      # Pattern di comportamento
-      behavior_patterns: true      # Pattern comportamentali
-      temporal_patterns: true      # Pattern temporali
-      geographic_patterns: true    # Pattern geografici
-      network_patterns: true       # Pattern di rete
-      security_patterns: true      # Pattern di sicurezza
-
-      # Metriche e statistiche
-      metrics: true                # Metriche generali
-      statistics: true             # Statistiche dettagliate
-      trends: true                 # Tendenze temporali
-      anomalies: true              # Anomalie rilevate
-      correlations: true            # Correlazioni tra entità
-
-      # Informazioni di business
-      business_insights: true      # Insight di business
-      risk_indicators: true        # Indicatori di rischio
-      compliance_metrics: true     # Metriche di compliance
-      performance_metrics: true    # Metriche di performance
-
-      # Informazioni tecniche
-      technical_insights: true     # Insight tecnici
-      system_health: true          # Salute del sistema
-      capacity_metrics: true       # Metriche di capacità
-      error_patterns: true         # Pattern di errore
-
-      # Informazioni di sicurezza
-      security_insights: true      # Insight di sicurezza
-      threat_indicators: true      # Indicatori di minaccia
-      vulnerability_metrics: true  # Metriche di vulnerabilità
-      incident_patterns: true      # Pattern di incidente
-
-    # Configurazione output per datamining
+      behavior_patterns: true
+      temporal_patterns: true
+      geographic_patterns: true
+      network_patterns: true
+      security_patterns: true
+      metrics: true
+      statistics: true
+      trends: true
+      anomalies: true
+      correlations: true
+      business_insights: true
+      risk_indicators: true
+      compliance_metrics: true
+      performance_metrics: true
+      technical_insights: true
+      system_health: true
+      capacity_metrics: true
+      error_patterns: true
+      security_insights: true
+      threat_indicators: true
+      vulnerability_metrics: true
+      incident_patterns: true
     output:
-      # Formati di output
       formats:
-        - "json"                   # Output JSON strutturato
-        - "csv"                    # Output CSV per analisi
-        - "parquet"                # Output Parquet per big data
-        - "avro"                   # Output Avro per streaming
-
-      # Livello di dettaglio
-      detail_level: "full"         # "minimal", "standard", "full"
-
-      # Abilita metadati per tracciabilità
+      - json
+      - csv
+      - parquet
+      - avro
+      detail_level: full
       include_metadata: true
-
-      # Abilita confidence scores
       include_confidence: true
-
-      # Abilita contesto per entità
       include_context: true
-
-      # Abilita relazioni tra entità
       include_relationships: true
-
-      # Abilita timeline per entità
       include_timeline: true
-
-      # Abilita geolocalizzazione
       include_geolocation: true
-
-      # Abilita classificazione rischio
       include_risk_classification: true
-
-      # Abilita score di sensibilità
       include_sensitivity_score: true
-      field_type: "port"
+      field_type: port
       confidence: 0.9
     message:
-      patterns: ["message", "content", "msg", "log"]
-      field_type: "message"
+      patterns:
+      - message
+      - content
+      - msg
+      - log
+      field_type: message
       confidence: 0.9
     level:
-      patterns: ["level", "severity", "priority"]
-      field_type: "level"
+      patterns:
+      - level
+      - severity
+      - priority
+      field_type: level
       confidence: 0.9
     component:
-      patterns: ["component", "service", "module", "class"]
-      field_type: "component"
+      patterns:
+      - component
+      - service
+      - module
+      - class
+      field_type: component
       confidence: 0.9
     hostname:
-      patterns: ["hostname", "host", "server"]
-      field_type: "hostname"
+      patterns:
+      - hostname
+      - host
+      - server
+      field_type: hostname
       confidence: 0.9
     url:
-      patterns: ["url", "uri", "link"]
-      field_type: "url"
+      patterns:
+      - url
+      - uri
+      - link
+      field_type: url
       confidence: 0.9
     path:
-      patterns: ["path", "filepath", "directory"]
-      field_type: "path"
+      patterns:
+      - path
+      - filepath
+      - directory
+      field_type: path
       confidence: 0.9
     email:
-      patterns: ["email", "mail", "e-mail"]
-      field_type: "email"
+      patterns:
+      - email
+      - mail
+      - e-mail
+      field_type: email
       confidence: 0.9
     hash:
-      patterns: ["hash", "sha1", "sha256", "md5", "checksum"]
-      field_type: "hash"
+      patterns:
+      - hash
+      - sha1
+      - sha256
+      - md5
+      - checksum
+      field_type: hash
       confidence: 0.9
-
   value_patterns:
     timestamp:
       patterns:
-        - '\\d{4}-\\d{2}-\\d{2}[T\\s]\\d{2}:\\d{2}:\\d{2}'
-        - '\\d{2}:\\d{2}:\\d{2}'
-        - '\\d{8}-\\d{2}:\\d{2}:\\d{2}:\\d{3}'
+      - \\d{4}-\\d{2}-\\d{2}[T\\s]\\d{2}:\\d{2}:\\d{2}
+      - \\d{2}:\\d{2}:\\d{2}
+      - \\d{8}-\\d{2}:\\d{2}:\\d{2}:\\d{3}
     ip_address:
       patterns:
-        - '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b'
+      - \\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b
     user_id:
       patterns:
-        - '\\b\\d{6,}\\b'
-        - '[a-zA-Z0-9_]{3,20}'
+      - \\b\\d{6,}\\b
+      - '[a-zA-Z0-9_]{3,20}'
     process_id:
       patterns:
-        - '\\b\\d{1,5}\\b'
+      - \\b\\d{1,5}\\b
     port:
       patterns:
-        - '\\b\\d{1,5}\\b'
+      - \\b\\d{1,5}\\b
     hash:
       patterns:
-        - '\\b[a-fA-F0-9]{32,64}\\b'
+      - \\b[a-fA-F0-9]{32,64}\\b
     email:
       patterns:
-        - '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b'
-
-# Configurazione per normalizzazione timestamp
+      - \\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b
 timestamp_normalization:
   enabled: true
   patterns:
-    - name: "date_time_separated"
-      pattern: '(\\d{2}-\\d{2}),(\\d{2}:\\d{2}:\\d{2}\\.\\d+)'
-      replacement: '{year}-\\\\1 \\\\2'
-    - name: "iso_timestamp"
-      pattern: '(\\d{4}-\\d{2}-\\d{2})T(\\d{2}:\\d{2}:\\d{2})'
-      replacement: '\\\\1 \\\\2'
-
-# Configurazione per CSV complessi
+  - name: date_time_separated
+    pattern: (\\d{2}-\\d{2}),(\\d{2}:\\d{2}:\\d{2}\\.\\d+)
+    replacement: '{year}-\\\\1 \\\\2'
+  - name: iso_timestamp
+    pattern: (\\d{4}-\\d{2}-\\d{2})T(\\d{2}:\\d{2}:\\d{2})
+    replacement: \\\\1 \\\\2
 complex_csv:
   enabled: true
   max_fields: 10
-  timestamp_fields: ["date", "time", "datetime"]
+  timestamp_fields:
+  - date
+  - time
+  - datetime
   complex_indicators:
-    - "Event Time"
-    - "Machine Id"
-    - "LineId"
-    - "EventId"
-    - "EventTemplate"
-
-# Configurazione per analisi intelligente
+  - Event Time
+  - Machine Id
+  - LineId
+  - EventId
+  - EventTemplate
 intelligent_analysis:
   enabled: true
   features:
-    - "has_commas"
-    - "has_pipes"
-    - "has_tabs"
-    - "has_quotes"
-    - "length"
-    - "word_count"
-    - "field_count"
-    - "timestamp_patterns"
-    - "ip_patterns"
-    - "hash_patterns"
-
-# Configurazione output
+  - has_commas
+  - has_pipes
+  - has_tabs
+  - has_quotes
+  - length
+  - word_count
+  - field_count
+  - timestamp_patterns
+  - ip_patterns
+  - hash_patterns
 output:
-  format: "json"
+  format: json
   pretty_print: true
   include_metadata: true
   include_statistics: true
-
-  # Organizzazione output
   organization:
     by_parser: true
     by_file: true
     combined: true
-
-  # Directory output
-  directory: "outputs"
-
-  # Naming convention
+  directory: outputs
   naming:
-    pattern: "{parser}_{timestamp}.json"
-    timestamp_format: "%Y%m%d_%H%M%S"
-
-# Configurazione logging
+    pattern: '{parser}_{timestamp}.json'
+    timestamp_format: '%Y%m%d_%H%M%S'
 logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "clean_parser.log"
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file: clean_parser.log
   console: true
-
-# Configurazione per il parser universale adattivo
 parser:
   adaptive:
     enabled: true
