@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from threading import Thread
 
+
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,9 +22,10 @@ from pydantic import BaseModel
 # --- Path Setup ---
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-# --- Direct Imports ---
+# --- Service-based Imports ---
 from log_analyzer.services.config_service import ConfigService
 from log_analyzer.services.logppt_service import LogPPTService
+from log_analyzer.services.presidio_service import PresidioService
 from log_analyzer.parsing.interfaces import LogEntry, ParsedRecord
 from log_analyzer.parsing.parser_factory import create_parser_chain
 from log_analyzer.services.log_reader import LogReader
@@ -32,6 +34,7 @@ from presidio_analyzer import AnalyzerEngine, RecognizerRegistry, Pattern, Patte
 from presidio_anonymizer import AnonymizerEngine, OperatorConfig
 from huggingface_hub import snapshot_download
 
+
 # --- FastAPI App Initialization ---
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="log_analyzer/web/static"), name="static")
@@ -39,12 +42,6 @@ app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 templates = Jinja2Templates(directory="log_analyzer/web/templates")
 
 # --- Pydantic Models ---
-class AdHocRecognizer(BaseModel):
-    name: str
-    regex: str
-    score: float
-    strategy: Optional[str] = 'replace'
-
 class PreviewRequest(BaseModel):
     sample_text: str
     presidio_config: Dict[str, Any]
@@ -309,56 +306,19 @@ async def read_root(request: Request):
 async def get_config():
     """
     Returns the current Presidio configuration, augmented with details
-    about the recognizers for the UI. This version is more robust.
+    about the recognizers for the UI, by using the PresidioService.
     """
     config_service = ConfigService()
     config = config_service.load_config()
     presidio_config = config.get("presidio", {})
 
-    # Load user's saved settings for quick lookup
-    user_entities = presidio_config.get("analyzer", {}).get("entities", {})
-    user_strategies = presidio_config.get("anonymizer", {}).get("strategies", {})
-    language = presidio_config.get("analyzer", {}).get("language", "en")
+    presidio_service = PresidioService(presidio_config)
 
-    detailed_entities = {}
+    detailed_entities = presidio_service.get_recognizer_details()
 
-    try:
-        # Instead of using the registry directly, initialize a full analyzer
-        analyzer = AnalyzerEngine(supported_languages=[language])
-        default_recognizers = analyzer.get_recognizers(language=language)
+    if detailed_entities:
+        presidio_config.setdefault("analyzer", {})["entities"] = detailed_entities
 
-        for rec in default_recognizers:
-            # Handle recognizers with single or multiple supported entities
-            entities = getattr(rec, 'supported_entities', [])
-            if not entities:
-                continue # Skip recognizers with no supported entities
-
-            for entity_name in entities:
-                is_enabled = user_entities.get(entity_name, True) # Default to enabled
-                strategy = user_strategies.get(entity_name, "replace")
-                score = getattr(rec, 'default_score', 0.0)
-
-                detailed_entities[entity_name] = {
-                    "enabled": is_enabled,
-                    "strategy": strategy,
-                    "score": score if isinstance(score, (int, float)) else 0.0,
-                    "regex": "N/A (NLP or other logic)",
-                    "is_regex_based": False
-                }
-
-                if isinstance(rec, PatternRecognizer):
-                    detailed_entities[entity_name]["regex"] = "\\n".join(p.regex for p in rec.patterns)
-                    detailed_entities[entity_name]["is_regex_based"] = True
-
-    except Exception as e:
-        import traceback
-        print(f"ERROR in get_config while inspecting recognizers: {traceback.format_exc()}")
-        # If inspection fails, fall back to just returning the raw config from the file.
-        # The UI will be less rich, but it won't be empty.
-        return presidio_config
-
-    # Replace the simple entity map in the config with our new detailed one
-    presidio_config["analyzer"]["entities"] = detailed_entities
     return presidio_config
 
 @app.post("/api/config", response_class=JSONResponse)
@@ -396,55 +356,47 @@ async def get_sample_line(filepath: str, line_number: int = 1):
 
 @app.post("/api/preview", response_class=JSONResponse)
 async def preview_anonymization(preview_request: PreviewRequest):
-    config = preview_request.presidio_config
+    presidio_config = preview_request.presidio_config
     sample_text = preview_request.sample_text
-    if not sample_text: return JSONResponse(content={"anonymized_text": ""})
+    if not sample_text:
+        return JSONResponse(content={"anonymized_text": ""})
 
     try:
-        language = config.get("analyzer", {}).get("language", "en")
+        presidio_service = PresidioService(presidio_config)
 
-        # Create a new registry and analyzer for each request to keep it stateless
-        registry = RecognizerRegistry()
-        registry.load_predefined_recognizers(languages=[language])
+        if not presidio_service.is_enabled:
+            return JSONResponse(content={"anonymized_text": "[PREVIEW] Presidio is disabled."})
 
-        # Add ad-hoc recognizers to the new registry
-        ad_hoc_recognizers = config.get('analyzer', {}).get('ad_hoc_recognizers', [])
-        for rec_conf in ad_hoc_recognizers:
-            if rec_conf.get("name") and rec_conf.get("regex"):
-                try:
-                    pattern = Pattern(name=rec_conf['name'], regex=rec_conf['regex'], score=float(rec_conf['score']))
-                    ad_hoc_recognizer = PatternRecognizer(supported_entity=rec_conf['name'], patterns=[pattern])
-                    registry.add_recognizer(ad_hoc_recognizer)
-                except Exception as e:
-                    # Log error if a custom regex fails to compile, but don't crash
-                    print(f"Failed to add ad-hoc recognizer '{rec_conf.get('name')}': {e}")
+        analyzer_config = presidio_config.get("analyzer", {})
 
-        analyzer = AnalyzerEngine(registry=registry, supported_languages=[language])
-        anonymizer = AnonymizerEngine()
+        # The entities from the UI can be either a detailed dict or a simple boolean.
+        # This logic handles both cases to ensure the preview works correctly.
+        entities_map = analyzer_config.get("entities", {})
+        enabled_entities = []
+        for k, v in entities_map.items():
+            if isinstance(v, dict):
+                # Handles the detailed structure from the config file
+                if v.get('enabled'):
+                    enabled_entities.append(k)
+            elif v:
+                # Handles the simple boolean from the UI's preview request
+                enabled_entities.append(k)
 
-        # Get the list of entities to run from the UI config
-        enabled_entities = [k for k, v in config.get("analyzer", {}).get("entities", {}).items() if v]
-        # Also include any custom entities
+        ad_hoc_recognizers = analyzer_config.get('ad_hoc_recognizers', [])
         for rec in ad_hoc_recognizers:
             if rec.get("name") and rec.get("name") not in enabled_entities:
                 enabled_entities.append(rec.get("name"))
 
         if not enabled_entities:
-            return JSONResponse(content={"anonymized_text": "[PREVIEW] No entities are enabled."})
+            return JSONResponse(content={"anonymized_text": "[PREVIEW] No entities enabled."})
 
-        # Analyze the text for the specific entities
-        analyzer_results = analyzer.analyze(text=sample_text, language=language, entities=enabled_entities)
-
-        # Build the operators config using the new helper function
-        operators = _build_operators(config)
-
-        anonymized_result = anonymizer.anonymize(
-            text=sample_text,
-            analyzer_results=analyzer_results,
-            operators=operators
+        anonymized_text = presidio_service.anonymize_text(
+            sample_text,
+            language=analyzer_config.get("languages", ["en"])[0],
+            entities=enabled_entities
         )
 
-        return JSONResponse(content={"anonymized_text": anonymized_result.text})
+        return JSONResponse(content={"anonymized_text": anonymized_text})
     except Exception as e:
         import traceback
         return JSONResponse(status_code=500, content={"error": f"An error occurred during preview: {traceback.format_exc()}"})
@@ -454,43 +406,44 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
     try:
         config_service = ConfigService()
         config = config_service.load_config()
+
         log_reader = LogReader(config)
         parser_chain = create_parser_chain(config)
         drain3_service = Drain3Service(config)
-        presidio_anonymizer = AnonymizerEngine()
-        presidio_config = config.get('presidio', {})
-        language = presidio_config.get("analyzer", {}).get("language", "en")
-        registry = RecognizerRegistry()
-        registry.load_predefined_recognizers(languages=[language])
-        presidio_analyzer = AnalyzerEngine(registry=registry)
+        presidio_service = PresidioService(config.get('presidio', {}))
+
         input_path = os.path.join("examples", request.input_file)
         if not os.path.exists(input_path):
             return JSONResponse(status_code=404, content={"error": "Input file not found."})
+
         all_records: List[ParsedRecord] = []
         for line_num, line_content in log_reader.read_lines(input_path):
             if not line_content: continue
+
             log_entry = LogEntry(line_number=line_num, content=line_content, source_file=input_path)
             parsed_record = parser_chain.handle(log_entry)
+
             if parsed_record:
-                if presidio_config.get('enabled', False):
-                    analyzer_results = presidio_analyzer.analyze(text=parsed_record.original_content, language=language)
-                    operators = _build_operators(presidio_config)
-                    anonymized_result = presidio_anonymizer.anonymize(text=parsed_record.original_content, analyzer_results=analyzer_results, operators=operators)
-                    parsed_record.presidio_anonymized = anonymized_result.text
-                    parsed_record.presidio_metadata = [res.to_dict() for res in analyzer_results]
-                else:
-                    parsed_record.presidio_anonymized = parsed_record.original_content
+                parsed_record.presidio_anonymized = presidio_service.anonymize_text(
+                    parsed_record.original_content,
+                    language=config.get('presidio', {}).get('analyzer', {}).get('languages', ['en'])[0]
+                )
+                parsed_record.presidio_metadata = []
                 all_records.append(parsed_record)
+
         original_content = [rec.original_content for rec in all_records]
         original_results = drain3_service.process_batch(original_content, 'original')
         anonymized_content = [rec.presidio_anonymized or "" for rec in all_records]
         anonymized_results = drain3_service.process_batch(anonymized_content, 'anonymized')
+
         for i, record in enumerate(all_records):
             if i < len(original_results): record.drain3_original = original_results[i]
             if i < len(anonymized_results): record.drain3_anonymized = anonymized_results[i]
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename_base = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
         output_filename = ""
+
         if analysis_type == "anonymize":
             output_filename = f"{output_filename_base}.log"
             output_path = os.path.join("outputs", output_filename)
@@ -519,6 +472,7 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             format_as_json_report(all_records, output_path)
         else:
             return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
+
         return {"download_url": f"/outputs/{output_filename}"}
     except Exception as e:
         import traceback

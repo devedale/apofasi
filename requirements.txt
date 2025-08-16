@@ -34,3 +34,9 @@ scikit-learn
 scipy
 textdistance
 transformers
+
+
+# Testing Framework
+pytest
+pytest-mock
+

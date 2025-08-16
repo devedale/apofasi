@@ -337,9 +337,16 @@ presidio:
       EMAIL_ADDRESS: true
       IBAN_CODE: true
       IP_ADDRESS: true
+      IT_DRIVER_LICENSE: true
+      IT_FISCAL_CODE: true
+      IT_IDENTITY_CARD: true
+      IT_PASSPORT: true
+      IT_VAT_CODE: true
       LOCATION: true
       MEDICAL_LICENSE: true
       NRP: true
+      ORGANIZATION: true
+
       PERSON: true
       PHONE_NUMBER: true
       UK_NHS: true
@@ -378,7 +385,7 @@ presidio:
       analysis_timeout: 30
       enable_batch: true
       batch_size: 1000
-    language: en
+    language: it
     ad_hoc_recognizers: []
   anonymizer:
     strategies:
@@ -388,9 +395,15 @@ presidio:
       EMAIL_ADDRESS: replace
       IBAN_CODE: mask
       IP_ADDRESS: replace
+      IT_DRIVER_LICENSE: replace
+      IT_FISCAL_CODE: replace
+      IT_IDENTITY_CARD: replace
+      IT_PASSPORT: replace
+      IT_VAT_CODE: replace
       LOCATION: replace
       MEDICAL_LICENSE: replace
       NRP: replace
+      ORGANIZATION: replace
       PERSON: replace
       PHONE_NUMBER: mask
       UK_NHS: replace
