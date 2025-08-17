@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisButtons = document.querySelectorAll('.analysis-btn');
     const analysisResultsDiv = document.getElementById('analysis-results');
     const analysisStatusMessage = document.getElementById('analysis-status-message');
-    const downloadLink = document.getElementById('download-link');
+    let downloadLink = document.getElementById('download-link');
     const modelNameInput = document.getElementById('model-name-input');
     const downloadModelBtn = document.getElementById('download-model-btn');
     const downloadedModelsList = document.getElementById('downloaded-models-list');
@@ -239,21 +239,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (analysisType === 'logppt') {
                 // LogPPT returns both original and anonymized URLs
                 if (result.original_download_url && result.anonymized_download_url) {
+                    // Ensure a primary download link exists
+                    if (!downloadLink) {
+                        downloadLink = document.createElement('a');
+                        downloadLink.id = 'download-link';
+                        downloadLink.target = '_blank';
+                        downloadLink.className = 'download-link';
+                        analysisResultsDiv.appendChild(downloadLink);
+                    }
+
+                    // Update the original report link
                     downloadLink.href = result.original_download_url;
-                    downloadLink.textContent = `Download Original Report`;
-                    
-                    // Create second download link for anonymized report
-                    const anonymizedLink = document.createElement('a');
+                    downloadLink.textContent = 'Download Original Report';
+
+                    // Find or create the anonymized report link placed after the original
+                    let anonymizedLink = document.getElementById('anonymized-download-link');
+                    if (!anonymizedLink) {
+                        anonymizedLink = document.createElement('a');
+                        anonymizedLink.id = 'anonymized-download-link';
+                        anonymizedLink.target = '_blank';
+                        anonymizedLink.className = 'download-link';
+                        // Insert the new link after the original, then place a separator before it
+                        downloadLink.insertAdjacentElement('afterend', anonymizedLink);
+                        anonymizedLink.insertAdjacentText('beforebegin', ' | ');
+                    }
                     anonymizedLink.href = result.anonymized_download_url;
-                    anonymizedLink.textContent = `Download Anonymized Report`;
-                    anonymizedLink.className = 'download-link';
-                    anonymizedLink.download = '';
-                    
-                    // Replace the single download link with both
-                    downloadLink.parentNode.innerHTML = '';
-                    downloadLink.parentNode.appendChild(downloadLink);
-                    downloadLink.parentNode.appendChild(document.createTextNode(' | '));
-                    downloadLink.parentNode.appendChild(anonymizedLink);
+                    anonymizedLink.textContent = 'Download Anonymized Report';
                 }
             } else {
                 // Other analysis types return single download_url

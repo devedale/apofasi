@@ -15,7 +15,6 @@ from presidio_analyzer import AnalyzerEngine, Pattern, PatternRecognizer
 from presidio_analyzer.recognizer_registry import RecognizerRegistry, RecognizerRegistryProvider
 from presidio_anonymizer import AnonymizerEngine, OperatorConfig
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class PresidioService:

@@ -58,13 +58,21 @@ class LogPPTService:
         results_dir = run_dir / "results"
         results_dir.mkdir(exist_ok=True)
 
-        # 1. Read and Preprocess the uploaded log file
+        # 1. Read and Preprocess the uploaded log file (CSV or plain text)
         self.log("Reading and preprocessing the log file...")
+        file_ext = Path(file_path).suffix.lower()
         try:
-            df = pd.read_csv(file_path)
-            self.log(f"Successfully read {len(df)} lines.")
+            if file_ext == '.csv':
+                df = pd.read_csv(file_path)
+                self.log(f"Successfully read CSV with {len(df)} rows.")
+            else:
+                # Treat as plain text log: one line per record
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    lines = [line.rstrip('\n') for line in f]
+                df = pd.DataFrame({'Content': lines})
+                self.log(f"Successfully read plain text with {len(df)} lines; created 'Content' column.")
         except Exception as e:
-            raise ValueError(f"Could not read the uploaded CSV file: {e}")
+            raise ValueError(f"Could not read the uploaded file: {e}")
 
         if content_config:
             self.log("Applying content configuration...")
@@ -86,6 +94,7 @@ class LogPPTService:
         else:
             self.log("No content configuration provided, checking for existing 'Content' column...")
             if 'Content' not in df.columns:
+                # If it's plain log without structuring, we already created Content; otherwise fail gracefully
                 raise ValueError("No 'Content' column found and no content configuration provided. Please either: 1) Include a 'Content' column in your CSV, or 2) Provide a content configuration to construct it from other columns.")
             self.log("Using existing 'Content' column from CSV")
 
@@ -93,10 +102,9 @@ class LogPPTService:
             raise ValueError("The CSV must contain a 'Content' column, or you must define it using the Content Field Configuration.")
 
         if 'EventTemplate' not in df.columns:
-            # If there's no ground truth template, we can't do sampling in the same way.
-            # For now, let's assume it's required for the demo.
-            # We can create a dummy one for parsing-only tasks later.
-            df['EventTemplate'] = df['Content'] # Use content as template if not present
+            # If there is no ground truth template, create a placeholder from content
+            # This enables sampling/training even on unstructured logs, aligned with LogPPT examples
+            df['EventTemplate'] = df['Content']
 
         if columns_order:
             try:

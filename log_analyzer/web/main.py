@@ -36,6 +36,14 @@ from huggingface_hub import snapshot_download
 
 
 # --- FastAPI App Initialization ---
+import logging
+
+# Reduce noisy logs from presidio-analyzer and its submodules
+logging.getLogger("presidio").setLevel(logging.WARNING)
+logging.getLogger("presidio-analyzer").setLevel(logging.WARNING)
+logging.getLogger("presidio_analyzer").setLevel(logging.WARNING)
+logging.getLogger("presidio_anonymizer").setLevel(logging.WARNING)
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="log_analyzer/web/static"), name="static")
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")

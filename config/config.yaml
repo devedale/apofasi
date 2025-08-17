@@ -346,7 +346,6 @@ presidio:
       MEDICAL_LICENSE: true
       NRP: true
       ORGANIZATION: true
-
       PERSON: true
       PHONE_NUMBER: true
       UK_NHS: true
