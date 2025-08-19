@@ -304,6 +304,276 @@ def format_as_json_report(records: List[ParsedRecord], output_path: str):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
+def format_as_csv_from_unified(unified_data: List[Dict], output_path: str, version: str = "anonymized"):
+    """
+    Generate clean CSV export from unified log data.
+    This function ensures CSV compatibility by handling problematic characters.
+    
+    Args:
+        unified_data: List of unified log records (from model_dump)
+        output_path: Output file path
+        version: "original" or "anonymized" to determine which data to use
+    """
+    if not unified_data: return
+    
+    def clean_csv_value(value):
+        """
+        Clean a value for CSV export by handling problematic characters.
+        Replaces commas with semicolons and quotes with single quotes.
+        """
+        if value is None:
+            return ""
+        value_str = str(value)
+        # Replace problematic characters
+        value_str = value_str.replace(',', ';')  # Replace commas with semicolons
+        value_str = value_str.replace('"', "'")  # Replace double quotes with single quotes
+        value_str = value_str.replace('\n', ' ')  # Replace newlines with spaces
+        value_str = value_str.replace('\r', ' ')  # Replace carriage returns with spaces
+        value_str = value_str.replace('\t', ' ')  # Replace tabs with spaces
+        # Trim whitespace
+        value_str = value_str.strip()
+        return value_str
+    
+    # Collect all possible keys from parsed_data across all records
+    all_keys = set()
+    for record in unified_data:
+        if record.get('parsed_data'): 
+            all_keys.update(record['parsed_data'].keys())
+    
+    # Sort keys for consistent column order
+    sorted_keys = sorted(list(all_keys))
+    
+    # Define headers with ONLY parsed_data keys (clean and simple)
+    headers = sorted_keys
+    
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        
+        for record in unified_data:
+            # Build row with ONLY parsed_data values
+            parsed_data = record.get('parsed_data', {})
+            row = {}
+            
+            # Add only parsed_data fields with cleaned values
+            for key in sorted_keys:
+                row[key] = clean_csv_value(parsed_data.get(key, ""))
+            
+            writer.writerow(row)
+
+def format_as_excel_analysis(unified_data: List[Dict], output_path: str, config: Dict):
+    """
+    Generate Excel file with unique values analysis and field insights.
+    
+    Args:
+        unified_data: List of unified log records (from model_dump)
+        output_path: Output Excel file path
+        config: Application configuration for Presidio and regex patterns
+    """
+    if not unified_data: return
+    
+    try:
+        import pandas as pd
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.utils.dataframe import dataframe_to_rows
+        from collections import defaultdict, Counter
+        import re
+    except ImportError as e:
+        raise ImportError(f"Required packages not available: {e}. Install with: pip install pandas openpyxl")
+    
+    # Collect all possible keys and their unique values
+    field_values = defaultdict(set)
+    field_counts = defaultdict(int)
+    
+    for record in unified_data:
+        parsed_data = record.get('parsed_data', {})
+        for key, value in parsed_data.items():
+            if value is not None and str(value).strip():
+                field_values[key].add(str(value).strip())
+                field_counts[key] += 1
+    
+    # Create workbook
+    wb = Workbook()
+    
+    # Sheet 1: Unique Values Analysis
+    ws1 = wb.active
+    ws1.title = "Unique Values Analysis"
+    
+    # Find the maximum number of unique values for any field
+    max_unique_values = max(len(values) for values in field_values.values()) if field_values else 0
+    
+    # Create headers
+    headers = list(field_values.keys())
+    headers.sort()
+    
+    # Write headers
+    for col, header in enumerate(headers, 1):
+        cell = ws1.cell(row=1, column=col, value=header)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+        cell.alignment = Alignment(horizontal="center")
+    
+    # Write unique values
+    for col, header in enumerate(headers, 1):
+        unique_values = sorted(list(field_values[header]))
+        for row, value in enumerate(unique_values, 2):
+            cell = ws1.cell(row=row, column=col, value=value)
+            # Add alternating row colors for better readability
+            if row % 2 == 0:
+                cell.fill = PatternFill(start_color="F0F0F0", end_color="F0F0F0", fill_type="solid")
+    
+    # Auto-adjust column widths
+    for column in ws1.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)  # Cap at 50 characters
+        ws1.column_dimensions[column_letter].width = adjusted_width
+    
+    # Sheet 2: Field Analysis Summary
+    ws2 = wb.create_sheet("Field Analysis Summary")
+    
+    # Analysis headers
+    summary_headers = [
+        "Field Name", "Total Occurrences", "Unique Values", "Most Common Value", 
+        "Most Common Count", "Contains IPs", "Contains Emails", "Contains Timestamps",
+        "Contains MACs", "Contains URLs", "Contains Hashes", "Contains Ports",
+        "Field Type", "Notes"
+    ]
+    
+    # Write summary headers
+    for col, header in enumerate(summary_headers, 1):
+        cell = ws2.cell(row=1, column=col, value=header)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+        cell.alignment = Alignment(horizontal="center")
+    
+    # Get regex patterns from config
+    regex_patterns = config.get('centralized_regex', {})
+    detection_patterns = regex_patterns.get('detection', {})
+    
+    # Compile regex patterns
+    compiled_patterns = {}
+    for pattern_name, pattern_str in detection_patterns.items():
+        try:
+            compiled_patterns[pattern_name] = re.compile(pattern_str, re.IGNORECASE)
+        except re.error:
+            continue
+    
+    # Analyze each field
+    row = 2
+    for field_name in sorted(field_values.keys()):
+        values = list(field_values[field_name])
+        total_occurrences = field_counts[field_name]
+        unique_count = len(values)
+        
+        # Find most common value
+        value_counter = Counter()
+        for record in unified_data:
+            parsed_data = record.get('parsed_data', {})
+            if field_name in parsed_data and parsed_data[field_name]:
+                value_counter[str(parsed_data[field_name]).strip()] += 1
+        
+        most_common_value, most_common_count = value_counter.most_common(1)[0] if value_counter else ("", 0)
+        
+        # Pattern analysis
+        contains_ips = any(compiled_patterns.get('ip_address', re.compile(r'')).search(str(v)) for v in values)
+        contains_emails = any(compiled_patterns.get('email', re.compile(r'')).search(str(v)) for v in values)
+        contains_timestamps = any(compiled_patterns.get('timestamp', re.compile(r'')).search(str(v)) for v in values)
+        contains_macs = any(compiled_patterns.get('mac_address', re.compile(r'')).search(str(v)) for v in values)
+        contains_urls = any(compiled_patterns.get('url', re.compile(r'')).search(str(v)) for v in values)
+        contains_hashes = any(compiled_patterns.get('hash', re.compile(r'')).search(str(v)) for v in values)
+        contains_ports = any(compiled_patterns.get('port_number', re.compile(r'')).search(str(v)) for v in values)
+        
+        # Determine field type
+        field_type = "Unknown"
+        if contains_ips:
+            field_type = "IP Address"
+        elif contains_emails:
+            field_type = "Email"
+        elif contains_timestamps:
+            field_type = "Timestamp"
+        elif contains_macs:
+            field_type = "MAC Address"
+        elif contains_urls:
+            field_type = "URL"
+        elif contains_hashes:
+            field_type = "Hash"
+        elif contains_ports:
+            field_type = "Port"
+        elif field_name.lower() in ['timestamp', 'time', 'date']:
+            field_type = "Timestamp"
+        elif field_name.lower() in ['ip', 'srcip', 'dstip', 'source_ip', 'dest_ip']:
+            field_type = "IP Address"
+        elif field_name.lower() in ['user', 'username', 'uid']:
+            field_type = "User ID"
+        elif field_name.lower() in ['port', 'port_number']:
+            field_type = "Port"
+        
+        # Notes
+        notes = []
+        if contains_ips:
+            notes.append("Contains IP addresses")
+        if contains_emails:
+            notes.append("Contains email addresses")
+        if contains_timestamps:
+            notes.append("Contains timestamps")
+        if contains_macs:
+            notes.append("Contains MAC addresses")
+        if contains_urls:
+            notes.append("Contains URLs")
+        if contains_hashes:
+            notes.append("Contains hashes")
+        if contains_ports:
+            notes.append("Contains port numbers")
+        
+        notes_str = "; ".join(notes) if notes else "Standard field"
+        
+        # Write row data
+        ws2.cell(row=row, column=1, value=field_name)
+        ws2.cell(row=row, column=2, value=total_occurrences)
+        ws2.cell(row=row, column=3, value=unique_count)
+        ws2.cell(row=row, column=4, value=most_common_value)
+        ws2.cell(row=row, column=5, value=most_common_count)
+        ws2.cell(row=row, column=6, value="Yes" if contains_ips else "No")
+        ws2.cell(row=row, column=7, value="Yes" if contains_emails else "No")
+        ws2.cell(row=row, column=8, value="Yes" if contains_timestamps else "No")
+        ws2.cell(row=row, column=9, value="Yes" if contains_macs else "No")
+        ws2.cell(row=row, column=10, value="Yes" if contains_urls else "No")
+        ws2.cell(row=row, column=11, value="Yes" if contains_hashes else "No")
+        ws2.cell(row=row, column=12, value="Yes" if contains_ports else "No")
+        ws2.cell(row=row, column=13, value=field_type)
+        ws2.cell(row=row, column=14, value=notes_str)
+        
+        # Add alternating row colors
+        if row % 2 == 0:
+            for col in range(1, 15):
+                ws2.cell(row=row, column=col).fill = PatternFill(start_color="F0F0F0", end_color="F0F0F0", fill_type="solid")
+        
+        row += 1
+    
+    # Auto-adjust column widths for summary sheet
+    for column in ws2.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 30)  # Cap at 30 characters
+        ws2.column_dimensions[column_letter].width = adjusted_width
+    
+    # Save workbook
+    wb.save(output_path)
+
 # --- API Endpoints ---
 
 @app.get("/", response_class=HTMLResponse)
@@ -448,6 +718,9 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             if i < len(original_results): record.drain3_original = original_results[i]
             if i < len(anonymized_results): record.drain3_anonymized = anonymized_results[i]
 
+        # Generate unified data for all analysis types that need it
+        unified_data = [record.model_dump(exclude_none=True) for record in all_records]
+        
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename_base = f"{Path(request.input_file).stem}_{analysis_type}_{timestamp}"
         output_filename = ""
@@ -478,6 +751,32 @@ async def run_analysis(analysis_type: str, request: AnalysisRequest):
             output_filename = f"{output_filename_base}.json"
             output_path = os.path.join("outputs", output_filename)
             format_as_json_report(all_records, output_path)
+        elif analysis_type == "csv_export":
+            # Generate both original and anonymized CSV exports from unified data
+            # Original data export
+            original_filename = f"{output_filename_base}_original.csv"
+            original_path = os.path.join("outputs", original_filename)
+            format_as_csv_from_unified(unified_data, original_path, "original")
+            
+            # Anonymized data export
+            anonymized_filename = f"{output_filename_base}_anonymized.csv"
+            anonymized_path = os.path.join("outputs", anonymized_filename)
+            format_as_csv_from_unified(unified_data, anonymized_path, "anonymized")
+            
+            # Return both download URLs
+            return {
+                "original_download_url": f"/outputs/{original_filename}",
+                "anonymized_download_url": f"/outputs/{anonymized_filename}",
+                "message": "Both original and anonymized CSV exports generated successfully"
+            }
+        elif analysis_type == "excel_analysis":
+            output_filename = f"{output_filename_base}.xlsx"
+            output_path = os.path.join("outputs", output_filename)
+            format_as_excel_analysis(unified_data, output_path, config)
+            return {
+                "download_url": f"/outputs/{output_filename}",
+                "message": "Excel analysis report generated successfully"
+            }
         else:
             return JSONResponse(status_code=400, content={"error": "Invalid analysis type."})
 

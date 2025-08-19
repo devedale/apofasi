@@ -1,0 +1,41 @@
+[
+  {
+    "summary": {
+      "total_logs": 3,
+      "successful_parses": 3,
+      "failed_parses": 0,
+      "success_rate": 100.0
+    },
+    "performance": {
+      "average_response_time": 9.914565188333333,
+      "total_tokens_used": 223,
+      "model_used": "roberta-log-parser"
+    },
+    "results": [
+      {
+        "success": true,
+        "original_log": "03-17 16:13:38.811  1702  2395 D WindowManager: printFreezingDisplayLogsopening app wtoken = AppWindowToken{9f4ef63 token=Token{a64f992 ActivityRecord{de9231d u0 com.tencent.qt.qtl/.activity.info.NewsDetailXmlActivity t761}}}, allDrawn= false, startingDisplayed =  false, startingMoved =  false, isRelaunching =  false",
+        "template": "Template:\n```markdown\n{\n  \"timestamp\": \"03-17 16:13:38.811\",\n  \"pid\": 1702,\n  \"tid\": 2395,\n  \"component\": \"WindowManager\",\n  \"message\": \"printFreezingDisplayLogsopening app wtoken = AppWindowToken{9f4ef63 token=Token{a64f992 ActivityRecord{de9231d u0 com.tencent.qt.qtl/.activity.info.NewsDetailXmlActivity t761}}}\"\n}\n```",
+        "model_used": "roberta-log-parser",
+        "response_time": 20.236337798,
+        "tokens_used": 143
+      },
+      {
+        "success": true,
+        "original_log": "192.168.1.100 - - [25/Dec/2023:10:30:45 +0100] \"GET /api/users/12345 HTTP/1.1\" 200 1456 \"https://example.com\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\"",
+        "template": "Template:\n```\n%{PROTOCOL}:// %{HOST}: %{PORT} - %[TIMESTAMP] %[METHOD] HTTP/%{HTTP_VERSION} \"%{PATH}\"; %{USER_AGENT}\n```",
+        "model_used": "roberta-log-parser",
+        "response_time": 6.947998686,
+        "tokens_used": 52
+      },
+      {
+        "success": true,
+        "original_log": "Dec 25 10:36:45 linux-server kernel: [12345.678901] CPU: 0 PID: 1234 at /path/to/kernel/module.c:123 function_name+0x45/0x67",
+        "template": "Template: `%{PROCESS_ID} %{MODULE_NAME} %{FUNCTION_NAME} %{LINE_NUMBER}`",
+        "model_used": "roberta-log-parser",
+        "response_time": 2.559359081,
+        "tokens_used": 28
+      }
+    ]
+  }
+]

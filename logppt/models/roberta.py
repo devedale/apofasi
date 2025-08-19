@@ -184,60 +184,99 @@ class RobertaForLogParsing(nn.Module):
         self.to(device)
         self.eval()
         
-        # Tokenize input (simplified tokenization for demo)
-        # In a real implementation, you would use proper tokenization
-        tokens = log_text.split()
+        # Tokenize input using the actual tokenizer
+        inputs = self.tokenizer(
+            log_text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=self.tokenizer.model_max_length,
+            padding=True
+        )
         
-        # Create dummy input for demonstration
-        # This is a placeholder - in practice you'd need proper tokenization
-        input_ids = torch.tensor([[1] * len(tokens)], device=device)  # Simplified
-        attention_mask = torch.tensor([[1] * len(tokens)], device=device)
+        # Move inputs to device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
-            # For inference, call the PLM directly (not our training forward wrapper)
-            outputs = self.plm(input_ids=input_ids, attention_mask=attention_mask)
+            # Forward pass through the PLM
+            outputs = self.plm(**inputs)
             logits = outputs.logits
             
             if self.use_crf:
-                # Use CRF decoding
-                if hasattr(outputs, 'predictions'):
-                    predictions = outputs.predictions[0]  # First sequence
-                else:
-                    # Fallback to argmax if no CRF predictions
-                    predictions = torch.argmax(logits, dim=-1)[0]
+                # For inference without CRF training, use argmax on the vtoken dimension
+                vtoken_logits = logits[:, :, [self.vtoken_id]]
+                other_logits = logits[:, :, :self.vtoken_id].max(-1)[0].unsqueeze(-1)
+                combined_logits = torch.cat([other_logits, vtoken_logits], dim=-1)
+                predictions = torch.argmax(combined_logits, dim=-1)[0]
             else:
-                # Use argmax
+                # Use argmax on the full vocabulary
                 predictions = torch.argmax(logits, dim=-1)[0]
             
             # Convert predictions to template
-            # This is a simplified template generation
-            template = self._generate_template(tokens, predictions.cpu().numpy(), vtoken)
+            template = self._generate_template_from_tokens(
+                self.tokenizer.convert_ids_to_tokens(inputs['input_ids'][0]),
+                predictions.cpu().numpy(),
+                vtoken
+            )
             
         return template
     
-    def _generate_template(self, tokens, predictions, vtoken):
+    def _generate_template_from_tokens(self, tokens, predictions, vtoken):
         """
-        Generate template from tokens and predictions.
+        Generate template from tokenized tokens and predictions.
         
         Args:
-            tokens: List of input tokens
+            tokens: List of tokenized tokens
             predictions: List of predicted labels
             vtoken: Virtual token for parameter replacement
             
         Returns:
             str: Generated template
         """
-        # Simplified template generation
-        # In practice, you'd have more sophisticated logic based on your label scheme
         template_parts = []
         
         for token, pred in zip(tokens, predictions):
-            if pred == 1:  # Assuming 1 means parameter
+            # Skip special tokens
+            if token in ['<s>', '</s>', '<pad>']:
+                continue
+                
+            if pred == 1:  # vtoken class
                 template_parts.append(vtoken)
             else:
                 template_parts.append(token)
         
         return " ".join(template_parts)
+    
+    def parse_android_logs(self, log_lines, device="cpu", vtoken="virtual-param"):
+        """
+        Parse multiple Android log lines to extract templates.
+        
+        Args:
+            log_lines: List of Android log lines
+            device: Device to run inference on
+            vtoken: Virtual token for parameter replacement
+            
+        Returns:
+            list: List of parsed templates
+        """
+        templates = []
+        for i, log_line in enumerate(log_lines):
+            try:
+                template = self.parse(log_line.strip(), device, vtoken)
+                templates.append({
+                    'original': log_line.strip(),
+                    'template': template,
+                    'index': i
+                })
+                print(f"Log {i+1}: {template}")
+            except Exception as e:
+                print(f"Errore nel parsing del log {i+1}: {e}")
+                templates.append({
+                    'original': log_line.strip(),
+                    'template': f"ERROR: {str(e)}",
+                    'index': i
+                })
+        
+        return templates
     
     def add_label_token(self, label_words):
         """Add label tokens to the model for prompt tuning."""

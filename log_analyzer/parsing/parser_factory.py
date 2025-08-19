@@ -38,10 +38,22 @@ def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
             current.set_next(json_parser)
         current = json_parser
 
-    # 2. CSV Parser
-    # The CSV parser can be chained next. For simplicity, we create one
-    # default instance. A more advanced factory could create multiple
-    # configured instances for different CSV formats.
+    # 2. Key-Value Parser (moved before CSV for Fortinet logs)
+    # The Key-Value parser should come before CSV for log formats like Fortinet
+    kv_config = config.get('parsers', {}).get('key_value', {})
+    if kv_config.get('enabled', True):
+        kv_parser = KeyValueParser(
+            delimiter=kv_config.get('delimiter', '='),
+            min_pairs=kv_config.get('min_pairs', 3)
+        )
+        if not head:
+            head = kv_parser
+        if current:
+            current.set_next(kv_parser)
+        current = kv_parser
+
+    # 3. CSV Parser
+    # The CSV parser comes after Key-Value for log formats
     csv_config = config.get('parsers', {}).get('csv', {})
     if csv_config.get('enabled', True):
         csv_parser = CSVParser(
@@ -55,7 +67,7 @@ def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
             current.set_next(csv_parser)
         current = csv_parser
 
-    # 3. CEF Parser
+    # 4. CEF Parser
     cef_config = config.get('parsers', {}).get('cef', {})
     if cef_config.get('enabled', True):
         cef_parser = CEFParser()
@@ -64,19 +76,6 @@ def create_parser_chain(config: Dict[str, Any]) -> Optional[AbstractParser]:
         if current:
             current.set_next(cef_parser)
         current = cef_parser
-
-    # 4. Key-Value Parser
-    kv_config = config.get('parsers', {}).get('key_value', {})
-    if kv_config.get('enabled', True):
-        kv_parser = KeyValueParser(
-            delimiter=kv_config.get('delimiter', '='),
-            min_pairs=kv_config.get('min_pairs', 3)
-        )
-        if not head:
-            head = kv_parser
-        if current:
-            current.set_next(kv_parser)
-        current = kv_parser
 
     # 5. Regex Parsers
     # We can add multiple regex parsers from the config.

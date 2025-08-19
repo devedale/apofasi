@@ -1,0 +1,55 @@
+# Dockerfile personalizzato per Ollama con LogPPT integrato
+FROM ollama/ollama:latest
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone LogPPT repository
+RUN git clone https://github.com/LogIntelligence/LogPPT.git /root/LogPPT
+
+# Install only essential Python dependencies
+RUN pip3 install --no-cache-dir \
+    requests \
+    flask
+
+# Copy Modelfile for LogPPT
+COPY Modelfile.logppt /root/LogPPT/Modelfile.logppt
+
+# Set working directory to LogPPT
+WORKDIR /root/LogPPT
+
+# Create startup script that sets up LogPPT model in Ollama
+RUN echo '#!/bin/bash\n\
+echo "🚀 Starting Ollama with LogPPT integration..."\n\
+cd /root/LogPPT\n\
+\n\
+# Start Ollama in background\n\
+ollama serve &\n\
+OLLAMA_PID=$!\n\
+\n\
+# Wait for Ollama to be ready\n\
+echo "⏳ Waiting for Ollama to be ready..."\n\
+sleep 15\n\
+\n\
+# Create LogPPT model\n\
+echo "📥 Creating LogPPT model in Ollama..."\n\
+ollama create logppt-parser -f Modelfile.logppt\n\
+\n\
+# List models to verify\n\
+echo "🔍 Available models:"\n\
+ollama list\n\
+\n\
+# Keep container running\n\
+echo "✅ LogPPT + Ollama ready! Use: ollama run logppt-parser"\n\
+wait $OLLAMA_PID' > /root/start.sh && \
+chmod +x /root/start.sh
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Start the integrated service
+CMD ["/root/start.sh"]

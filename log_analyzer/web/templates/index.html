@@ -22,6 +22,14 @@
         <!-- Analysis Tab Content -->
         <div id="analysis-tab" class="tab-content active">
             <h2>Run Analysis Pipeline</h2>
+            <div class="info-box">
+                <h3>📊 Analysis Options</h3>
+                <p><strong>Anonymize Only:</strong> Generates anonymized log files using AI-powered PII detection.</p>
+                <p><strong>Generate LogPPT Report:</strong> Creates structured CSV reports for LogPPT analysis with both original and anonymized data.</p>
+                <p><strong>Generate Unified JSON:</strong> Exports comprehensive analysis results in JSON format.</p>
+                <p><strong>Export CSV:</strong> Creates clean, structured CSV files optimized for spreadsheet applications. Automatically handles problematic characters (commas, quotes, newlines) to ensure compatibility.</p>
+                <p><strong>Analyze Data Different Values:</strong> Generates Excel report with unique values analysis and field insights. Perfect for data exploration and understanding field types, patterns, and distributions.</p>
+            </div>
             <div class="analysis-controls">
                 <div class="form-group">
                     <label for="analysis-file-select">Select Input File from Examples</label>
@@ -31,6 +39,8 @@
                     <button id="run-anonymize-btn" class="analysis-btn" data-analysis-type="anonymize">Anonymize Only</button>
                     <button id="run-logppt-btn" class="analysis-btn" data-analysis-type="logppt">Generate LogPPT Report</button>
                     <button id="run-json-btn" class="analysis-btn" data-analysis-type="json_report">Generate Unified JSON</button>
+                    <button id="run-csv-export-btn" class="analysis-btn" data-analysis-type="csv_export">Export CSV</button>
+                    <button id="run-excel-analysis-btn" class="analysis-btn" data-analysis-type="excel_analysis">Analyze Data Different Values</button>
                 </div>
             </div>
             <div id="analysis-results" class="analysis-results" style="display: none;">

@@ -1,0 +1,50 @@
+[
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Android",
+    "original_log": "03-17 16:15:42.123  1899  3456 D ActivityManager: Starting activity com.example.app/.MainActivity",
+    "template_used": "Template:\n```markdown\n{\n  \"timestamp\": \"03-17 16:13:38.811\",\n  \"pid\": 1702,\n  \"tid\": 2395,\n  \"component\": \"WindowManager\",\n  \"message\": \"printFreezingDisplayLogsopening app wtoken = AppWindowToken{9f4ef63 token=Token{a64f992 ActivityRecord{de9231d u0 com.tencent.qt.qtl/.activity.info.NewsDetailXmlActivity t761}}}\"\n}\n```",
+    "pattern": "{\n  ([^\"]*): ([0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}),\n  ([^\"]*): 1702,\n  ([^\"]*): 2395,\n  ([^\"]*): ([^\"]*),\n  ([^\"]*): ([^\"]*)\n}"
+  },
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Android",
+    "original_log": "03-17 16:16:15.789  1899  4567 D PackageManager: Installing package com.test.app version 1.2.3",
+    "template_used": "Template:\n```markdown\n{\n  \"timestamp\": \"03-17 16:13:38.811\",\n  \"pid\": 1702,\n  \"tid\": 2395,\n  \"component\": \"WindowManager\",\n  \"message\": \"printFreezingDisplayLogsopening app wtoken = AppWindowToken{9f4ef63 token=Token{a64f992 ActivityRecord{de9231d u0 com.tencent.qt.qtl/.activity.info.NewsDetailXmlActivity t761}}}\"\n}\n```",
+    "pattern": "{\n  ([^\"]*): ([0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}),\n  ([^\"]*): 1702,\n  ([^\"]*): 2395,\n  ([^\"]*): ([^\"]*),\n  ([^\"]*): ([^\"]*)\n}"
+  },
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Apache",
+    "original_log": "192.168.1.200 - - [25/Dec/2023:11:45:30 +0100] \"POST /api/upload HTTP/1.1\" 201 234 \"https://example.com/upload\" \"Mozilla/5.0 (Linux; x86_64) AppleWebKit/537.36\"",
+    "template_used": "Template:\n```\n%{PROTOCOL}:// %{HOST}: %{PORT} - %[TIMESTAMP] %[METHOD] HTTP/%{HTTP_VERSION} \"%{PATH}\"; %{USER_AGENT}\n```",
+    "pattern": "Template:\\\n```\\\n\\(\\[a\\-zA\\-Z\\]\\+\\)://\\ \\(\\[a\\-zA\\-Z0\\-9\\.\\-\\]\\+\\):\\ \\(\\[0\\-9\\]\\+\\)\\ \\-\\ %\\[TIMESTAMP\\]\\ %\\[METHOD\\]\\ HTTP/\\(\\[0\\-9\\]\\+\\\\\\\\\\.\\[0\\-9\\]\\+\\)\\ \"\\(\\[\\^\"\\]\\+\\)\";\\ \\(\\[\\^\"\\]\\*\\)\\\n```"
+  },
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Apache",
+    "original_log": "10.0.0.100 - - [25/Dec/2023:11:46:12 +0100] \"GET /api/status HTTP/2.0\" 200 89 \"https://example.com/status\" \"curl/7.68.0\"",
+    "template_used": "Template:\n```\n%{PROTOCOL}:// %{HOST}: %{PORT} - %[TIMESTAMP] %[METHOD] HTTP/%{HTTP_VERSION} \"%{PATH}\"; %{USER_AGENT}\n```",
+    "pattern": "Template:\\\n```\\\n\\(\\[a\\-zA\\-Z\\]\\+\\)://\\ \\(\\[a\\-zA\\-Z0\\-9\\.\\-\\]\\+\\):\\ \\(\\[0\\-9\\]\\+\\)\\ \\-\\ %\\[TIMESTAMP\\]\\ %\\[METHOD\\]\\ HTTP/\\(\\[0\\-9\\]\\+\\\\\\\\\\.\\[0\\-9\\]\\+\\)\\ \"\\(\\[\\^\"\\]\\+\\)\";\\ \\(\\[\\^\"\\]\\*\\)\\\n```"
+  },
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Linux",
+    "original_log": "Dec 25 11:47:30 linux-server sshd[8901]: Accepted publickey for admin from 192.168.1.50 port 54321 ssh2",
+    "template_used": "Template: `%{PROCESS_ID} %{MODULE_NAME} %{FUNCTION_NAME} %{LINE_NUMBER}`",
+    "pattern": "Template:\\ `\\(\\[0\\-9\\]\\+\\)\\ \\(\\[a\\-zA\\-Z_\\]\\+\\)\\ \\(\\[a\\-zA\\-Z0\\-9_\\+\\]\\+\\)\\ \\(\\[0\\-9\\]\\+\\)`"
+  },
+  {
+    "success": false,
+    "error": "Log non corrisponde al template",
+    "log_type": "Linux",
+    "original_log": "Dec 25 11:48:45 linux-server kernel: [67890.123456] CPU: 1 PID: 5678 at /path/to/another/module.c:456 another_function+0x67/0x89",
+    "template_used": "Template: `%{PROCESS_ID} %{MODULE_NAME} %{FUNCTION_NAME} %{LINE_NUMBER}`",
+    "pattern": "Template:\\ `\\(\\[0\\-9\\]\\+\\)\\ \\(\\[a\\-zA\\-Z_\\]\\+\\)\\ \\(\\[a\\-zA\\-Z0\\-9_\\+\\]\\+\\)\\ \\(\\[0\\-9\\]\\+\\)`"
+  }
+]

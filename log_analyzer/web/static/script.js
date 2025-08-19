@@ -236,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
             analysisStatusMessage.textContent = `Successfully generated report for ${inputFile}.`;
             
             // Handle different response formats based on analysis type
-            if (analysisType === 'logppt') {
-                // LogPPT returns both original and anonymized URLs
+            if (analysisType === 'logppt' || analysisType === 'csv_export') {
+                // Both LogPPT and CSV Export return both original and anonymized URLs
                 if (result.original_download_url && result.anonymized_download_url) {
                     // Ensure a primary download link exists
                     if (!downloadLink) {
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Update the original report link
                     downloadLink.href = result.original_download_url;
-                    downloadLink.textContent = 'Download Original Report';
+                    downloadLink.textContent = analysisType === 'csv_export' ? 'Download Original CSV' : 'Download Original Report';
 
                     // Find or create the anonymized report link placed after the original
                     let anonymizedLink = document.getElementById('anonymized-download-link');
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         anonymizedLink.insertAdjacentText('beforebegin', ' | ');
                     }
                     anonymizedLink.href = result.anonymized_download_url;
-                    anonymizedLink.textContent = 'Download Anonymized Report';
+                    anonymizedLink.textContent = analysisType === 'csv_export' ? 'Download Anonymized CSV' : 'Download Anonymized Report';
                 }
             } else {
                 // Other analysis types return single download_url

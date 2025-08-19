@@ -1,12 +1,14 @@
 services:
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
     ports:
       - "11434:11434"
     volumes:
       - ./ollama_data:/root/.ollama
     container_name: ollama
-    pull_policy: always
+    pull_policy: never  # Usa il build locale
 
   log-processor:
     build:

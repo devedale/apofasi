@@ -1,13 +1,13 @@
 ### File: examples/FGT80FTK22013405.root.elog.txt ###
 
-  [L:1] Original: logver=0702111740 idseq=19900372806008834 itime=1751754627 devid="FGT80FTK22013405" devname="mg-project-bari" vd="root" date=2025-07-06 time=00:30:24 eventtime=1751754624843767899 tz="+0200" logid="0100026001" type="event" subtype="system" level="information" logdesc="DHCP Ack log" interface="internal1" dhcp_msg="Ack" mac="9C:53:22:49:C7:8C" ip=10.63.44.101 lease=86400 hostname="ArcherAX55" msg="DHCP server sends a DHCPACK"
+  [L:1] Original: logver=0702111740 idseq=19900372806008834 itime=1751754627 devid="FGT80FTK22013405" devname="asd-bari" vd="root" date=2025-07-06 time=00:30:24 eventtime=1751754624843767899 tz="+0200" logid="0100026001" type="event" subtype="system" level="information" logdesc="DHCP Ack log" interface="internal1" dhcp_msg="Ack" mac="9C:53:22:49:C7:8C" ip=10.63.44.101 lease=86400 hostname="ArcherAX55" msg="DHCP server sends a DHCPACK"
     Parser: multi_strategy_parsing_fortinet_log_kv
     Parsed Data:
       - logver: 0702111740
       - idseq: 19900372806008834
       - itime: 1751754627
       - devid: "FGT80FTK22013405"
-      - devname: "mg-project-bari"
+      - devname: "asd-bari"
       - vd: "root"
       - date: 2025-07-06
       - time: 00:30:24

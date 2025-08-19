@@ -223,6 +223,10 @@ parsers:
   cef:
     enabled: true
     parse_extensions: true
+  key_value:
+    enabled: true
+    delimiter: '='
+    min_pairs: 3
   fortinet:
     enabled: true
     key_value_separator: '='
