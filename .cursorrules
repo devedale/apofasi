@@ -1,0 +1,175 @@
+!!!debug cursorrules!!!
+
+meta:
+  author: cursor-ai
+  version: 1.1
+  description: >
+    Linee guida avanzate per scrivere codice leggibile, manutenibile e professionale. 
+    Combina principi di clean code, best practice di architettura software, e una tassonomia rigorosa per i commenti. 
+    Include vincoli architetturali, eliminazione del debito tecnico, naming semantico, e testabilità del codice.
+
+---
+description: Guidelines for writing clean, maintainable, and human-readable code. Apply these rules when writing or reviewing code to ensure consistency and quality.
+globs:
+
+---
+
+# === PRINCIPI GENERALI ===
+
+- name: clean-structure
+  description: >
+    Mantieni il codice organizzato in maniera gerarchica e coerente. File e cartelle devono riflettere la logica del dominio e l'intento del codice.
+  severity: suggestion
+
+- name: constants-over-magic-numbers
+  description: >
+    Evita valori hard-coded. Usa costanti nominate per chiarire significato e scopo dei valori, definite in un'unica posizione centrale.
+  severity: warning
+
+- name: meaningful-names
+  description: >
+    Nomi di variabili, funzioni e classi devono essere autoesplicativi. Evita abbreviazioni non standard. Il nome deve comunicare l'intento.
+  severity: warning
+
+- name: single-responsibility
+  description: >
+    Ogni funzione o modulo deve avere una sola responsabilità ben definita. Se un blocco richiede spiegazioni per chiarirne la funzione, considera il refactoring.
+  severity: warning
+
+- name: dry-principle
+  description: >
+    Non ripetere logica. Estrai codice comune in funzioni riutilizzabili e centralizza la logica condivisa.
+  severity: warning
+
+- name: encapsulation
+  description: >
+    Nascondi i dettagli implementativi dietro interfacce chiare. Semplifica le condizioni nidificate usando funzioni ben nominate.
+  severity: suggestion
+
+- name: maintain-code-quality
+  description: >
+    Rifattorizza in modo continuo. Rimuovi debito tecnico il prima possibile. Lascia il codice in condizioni migliori di come l'hai trovato.
+  severity: info
+
+- name: enforce-testing
+  description: >
+    Scrivi test leggibili, copri edge case ed errori. I test devono essere autoesplicativi e manutenibili.
+  severity: suggestion
+
+- name: version-control-discipline
+  description: >
+    Commit piccoli e focalizzati. Messaggi chiari e significativi. Nomina i branch in modo descrittivo.
+  severity: info
+
+
+# === ARCHITETTURA E POSIZIONAMENTO ===
+
+- name: enforce-architecture-structure
+  prompt: |
+    Assicurati che ogni modifica rispetti l’architettura del progetto:
+    Se un modulo è in una posizione errata, spostalo e aggiorna tutti gli import. 
+    Mantieni coerenza, struttura e nomenclatura dei file aderenti alla loro semantica.
+  severity: error
+
+- name: remove-legacy-or-redundant-code
+  prompt: |
+    Rimuovi codice che:
+      - È commentato e non più usato
+      - È duplicato rispetto a funzioni in `shared` o `utils`
+      - Contiene import non utilizzati o riferimenti obsoleti
+      - È legacy fuori dallo standard attuale
+    Se trovi codice non più referenziato, eliminalo. Se ancora usato ma nel posto sbagliato, rilocalo.
+    L'obiettivo è lasciare il codice più pulito, coerente e snello possibile.
+  severity: error
+
+- name: centralize-regex-config
+  description: >
+    Tutti i pattern RegEx usati nel progetto devono essere definiti in un unico file di configurazione centrale, documentati e riutilizzabili. 
+    Questo facilita la manutenzione e riduce gli errori di duplicazione o incoerenza.
+  severity: error
+
+
+# === COMMENTI E DOCUMENTAZIONE ===
+
+- name: comment-philosophy
+  description: >
+    I commenti sono parte integrante del codice. Devono minimizzare il carico cognitivo e facilitare la manutenzione futura. 
+    Devono essere sempre aggiornati, chiari e scritti con intento didattico. Nessun commento è opzionale.
+  severity: info
+
+- name: comment-classification
+  description: >
+    Usa la seguente tassonomia per i commenti:
+      - Function Comments: cosa fa la funzione, contratto, return, side effects
+      - Design Comments: decisioni architetturali e alternative valutate
+      - Why Comments: razionale di una scelta non ovvia
+      - Teacher Comments: conoscenza teorica necessaria per capire il codice (algoritmi, formule, domini)
+      - Guide Comments: segmentano logicamente il codice
+      - Checklist Comments: ricordano modifiche correlate in altri punti
+      - Trivial Comments (evita): non aggiungono nulla al codice
+      - Debt Comments (limita): `TODO`, `FIXME`, `XXX` con giustificazioni chiare
+      - Backup Comments (proibiti): niente codice vecchio commentato
+  severity: info
+
+- name: write-why-not-just-what
+  appliesTo: code
+  recommendation: >
+    Evita commenti che spiegano solo *cosa* fa il codice. Concentrati sul *perché* lo fa così, 
+    soprattutto in presenza di workaround, vincoli di dominio, o casi limite.
+  severity: warning
+
+- name: encourage-function-prologue-comments
+  appliesTo: functions
+  condition: >
+    Function is public or contains branching, side effects, o logica non banale
+  recommendation: >
+    Inserisci un commento prologo all'inizio della funzione con: scopo, input attesi, output e side effects. 
+    Chi legge deve poterla trattare come black box.
+  severity: suggestion
+
+- name: require-design-comments-in-core-modules
+  appliesTo: files
+  condition: >
+    File contiene logica core di business o algoritmica
+  recommendation: >
+    Inserisci un blocco iniziale di commento DESIGN che descriva struttura, flussi dati principali e trade-off implementativi.
+  severity: suggestion
+
+- name: add-teacher-comments-for-specialized-domains
+  appliesTo: functions
+  condition: >
+    La funzione coinvolge matematica, networking, o domini tecnici non ovvi
+  recommendation: >
+    Inserisci commenti didattici che spieghino le conoscenze di base necessarie (es. formule trigonometriche, assunzioni di rete, garanzie di sistema).
+  severity: suggestion
+
+- name: prefer-in-code-api-documentation
+  appliesTo: functions
+  condition: public or exported
+  recommendation: >
+    Documenta l’API direttamente nella definizione della funzione, non in documenti separati. Questo assicura consistenza e aggiornamento.
+  severity: suggestion
+
+- name: avoid-trivial-comments
+  appliesTo: comments
+  condition: >
+    Il commento ripete ciò che il codice già rende evidente
+  recommendation: >
+    Rimuovi commenti come "incrementa x" se il codice `x += 1` è già autoesplicativo
+  severity: error
+
+- name: discourage-backup-comments
+  appliesTo: comments
+  condition: >
+    Blocchi di codice commentato contengono versioni precedenti
+  recommendation: >
+    Rimuovi codice legacy commentato. Usa Git per la storia.
+  severity: error
+
+- name: checklist-comments-for-coupling
+  appliesTo: comment
+  condition: >
+    Il codice ha dipendenze con parti distanti o decentralizzate del sistema
+  recommendation: >
+    Inserisci commenti checklist per ricordare agli sviluppatori di aggiornare anche altri punti (es. nuove ID nel mapping).
+  severity: info

@@ -1,0 +1,6 @@
+EventTemplate,Occurrence
+Out Ġof Ġmemory,1
+F ailed Ġpassword Ġfor Ġuser Ġadmin,1
+200 ĠGET Ġ/ api / users,1
+connection Ġtimeout,1
+CPU Ġusage : Ġ85 %,1

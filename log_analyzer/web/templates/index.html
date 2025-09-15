@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Analyzer & Anonymizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Log Analyzer & Anonymizer</h1>
+
+        <div class="tab-bar">
+            <button class="tab-button active" data-tab="analysis-tab">Analysis</button>
+            <button class="tab-button" data-tab="config-tab">Configuration</button>
+            <button class="tab-button" data-tab="model-management-tab">Model Management</button>
+            <button class="tab-button" data-tab="logppt-tab">LogPPT</button>
+            <button class="tab-button" data-tab="logppt2-tab">LogPPT 2</button>
+            <button class="tab-button advanced" data-tab="finetuning-tab">🚀 LLM Fine-Tuning</button>
+        </div>
+
+        <div id="status-banner" class="status-banner" style="display: none;"></div>
+
+        <!-- Analysis Tab Content -->
+        <div id="analysis-tab" class="tab-content active">
+            <h2>Run Analysis Pipeline</h2>
+            <div class="info-box">
+                <h3>📊 Analysis Options</h3>
+                <p><strong>Anonymize Only:</strong> Generates anonymized log files using AI-powered PII detection.</p>
+                <p><strong>Generate LogPPT Report:</strong> Creates structured CSV reports for LogPPT analysis with both original and anonymized data.</p>
+                <p><strong>Generate Unified JSON:</strong> Exports comprehensive analysis results in JSON format.</p>
+                <p><strong>Export CSV:</strong> Creates clean, structured CSV files optimized for spreadsheet applications. Automatically handles problematic characters (commas, quotes, newlines) to ensure compatibility.</p>
+                <p><strong>Analyze Data Different Values:</strong> Generates Excel report with unique values analysis and field insights. Perfect for data exploration and understanding field types, patterns, and distributions.</p>
+            </div>
+            <div class="analysis-controls">
+                <div class="form-group">
+                    <label for="analysis-file-select">Select Input File from Examples</label>
+                    <select id="analysis-file-select"></select>
+                </div>
+                <div class="analysis-buttons">
+                    <button id="run-anonymize-btn" class="analysis-btn" data-analysis-type="anonymize">Anonymize Only</button>
+                    <button id="run-logppt-btn" class="analysis-btn" data-analysis-type="logppt">Generate LogPPT Report</button>
+                    <button id="run-json-btn" class="analysis-btn" data-analysis-type="json_report">Generate Unified JSON</button>
+                    <button id="run-csv-export-btn" class="analysis-btn" data-analysis-type="csv_export">Export CSV</button>
+                    <button id="run-excel-analysis-btn" class="analysis-btn" data-analysis-type="excel_analysis">Analyze Data Different Values</button>
+                </div>
+            </div>
+            <div id="analysis-results" class="analysis-results" style="display: none;">
+                <h3>Processing Complete</h3>
+                <p id="analysis-status-message"></p>
+                <a id="download-link" href="#" target="_blank">Download Result</a>
+            </div>
+        </div>
+
+        <!-- Configuration Tab Content -->
+        <div id="config-tab" class="tab-content">
+            <form id="config-form">
+                <fieldset>
+                    <legend>Core Settings</legend>
+                    <div class="form-group">
+                        <label for="presidio-enabled">Enable Presidio Anonymization</label>
+                        <input type="checkbox" id="presidio-enabled" name="presidio.enabled">
+                    </div>
+                    <div class="form-group">
+                        <label for="presidio-confidence">Presidio Confidence Threshold</label>
+                        <input type="number" id="presidio-confidence" name="presidio.analyzer.analysis.confidence_threshold" min="0" max="1" step="0.05">
+                    </div>
+                    <div class="form-group">
+                        <label for="presidio-language">Language</label>
+                        <select id="presidio-language" name="presidio.analyzer.language">
+                            <option value="en">English</option>
+                            <option value="it">Italiano</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Entities & Strategies</legend>
+                    <div class="table-container">
+                        <table id="entities-table">
+                            <thead>
+                                <tr>
+                                    <th>Entity</th>
+                                    <th>Enabled</th>
+                                    <th>Strategy</th>
+                                    <th>Regex Pattern</th>
+                                    <th>Default Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Custom Regex Recognizers</legend>
+                    <div class="table-container">
+                        <table id="regex-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Regex Pattern</th>
+                                    <th>Score</th>
+                                    <th>Strategy</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="add-regex-btn">Add Recognizer</button>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Live Preview</legend>
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="sample-file-select">Sample File</label>
+                            <select id="sample-file-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sample-line-number">Line Number</label>
+                            <input type="number" id="sample-line-number" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="preview-input">Preview Input Text</label>
+                        <pre id="preview-input"><code>Select a file and line number to see the text here.</code></pre>
+                    </div>
+                    <div class="form-group">
+                        <label for="preview-output">Anonymized Output</label>
+                        <pre id="preview-output"><code></code></pre>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <!-- Model Management Tab Content -->
+        <div id="model-management-tab" class="tab-content">
+            <h2>Ollama Model Management</h2>
+            
+            <!-- Status indicator -->
+            <div id="ollama-status" class="status-indicator">
+                <span id="status-text">Checking Ollama status...</span>
+                <span id="status-icon">⏳</span>
+            </div>
+            
+            <div class="info-box">
+                <h3>🚀 Ollama Models for LogPPT</h3>
+                <p>LogPPT ora utilizza Ollama per la gestione dei modelli. I modelli disponibili sono:</p>
+                <ul>
+                    <li><strong>logppt-parser</strong> - Modello principale per il parsing dei log</li>
+                    <li><strong>logppt-fast</strong> - Versione veloce per elaborazioni rapide</li>
+                    <li><strong>template-extractor</strong> - Specializzato nell'estrazione di template</li>
+                    <li><strong>roberta-parser</strong> - Parser basato su RoBERTa per Ollama</li>
+                </ul>
+                <p><strong>Nota:</strong> I modelli vengono creati automaticamente la prima volta che vengono richiesti. 
+                Il processo può richiedere alcuni minuti poiché include il download del modello base.</p>
+            </div>
+            
+            <!-- Available Models for Download -->
+            <div class="available-models-section">
+                <h3>📦 Modelli Disponibili</h3>
+                <div id="available-models-grid" class="models-grid">
+                    <!-- I modelli disponibili verranno caricati dinamicamente -->
+                </div>
+            </div>
+            
+            <!-- Manual Model Download -->
+            <div class="form-group">
+                <label for="model-name-input">Nome Modello Personalizzato</label>
+                <input type="text" id="model-name-input" placeholder="e.g., llama2:7b">
+                <button id="download-model-btn">Download/Create Model</button>
+            </div>
+            
+            <h3>Modelli Installati</h3>
+            <table id="downloaded-models-table">
+                <thead>
+                    <tr>
+                        <th>Nome Modello</th>
+                        <th>Dimensione (MB)</th>
+                        <th>Tipo</th>
+                        <th>Ultimo Aggiornamento</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="downloaded-models-list">
+                    <!-- I modelli verranno elencati qui -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- LogPPT Tab Content -->
+        <div id="logppt-tab" class="tab-content">
+            <div class="logppt-container">
+                <!-- Left side: Configuration -->
+                <div class="logppt-config">
+                    <h2>LogPPT Integration</h2>
+                    <div class="info-box">
+                        <h3>🚀 LogPPT Pipeline</h3>
+                        <p>LogPPT (Log Parsing with Prompt Tuning) analyzes your log files to extract event templates and identify variable parameters.</p>
+                        <p><strong>Prerequisites:</strong></p>
+                        <ul>
+                            <li>✅ Download a model from the "Model Management" tab above</li>
+                            <li>✅ Upload a CSV file with your log data</li>
+                            <li>✅ Ensure your CSV has a 'Content' column or configure content formatting</li>
+                        </ul>
+                        <p><strong>Process:</strong> The pipeline will sample your data, fine-tune the model, and generate parsed templates.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logppt-file-upload">Upload Log File (CSV or plain text)</label>
+                        <input type="file" id="logppt-file-upload" accept=".csv,.log,.txt">
+                        <p class="help-text">You can upload a structured CSV (with columns like Content/EventTemplate) or a plain .log/.txt file. Plain logs will be auto-converted into a single-column dataset named 'Content'.</p>
+                    </div>
+                    
+                    <fieldset>
+                        <legend>LogPPT Configuration</legend>
+                        <div class="form-group">
+                            <label for="logppt-shots">Number of Shots (for sampling)</label>
+                            <input type="text" id="logppt-shots" value="8, 16">
+                            <p class="help-text">Number of samples to generate for each shot size. For small datasets, use smaller values (1-5). For large datasets, you can use larger values (8, 16, 32).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt-model-select">Select Model</label>
+                            <select id="logppt-model-select">
+                                <option value="">-- Select a downloaded model --</option>
+                                <!-- Downloaded models will be populated here -->
+                            </select>
+                            <p class="help-text">Choose a model you've downloaded from the Model Management tab.</p>
+                        </div>
+                         <div class="form-group">
+                            <label for="logppt-max-train-steps">Max Train Steps</label>
+                            <input type="number" id="logppt-max-train-steps" value="1000">
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Advanced Configuration</legend>
+                        <div class="form-group">
+                            <label for="logppt-content-config">Content Field Configuration</label>
+                            <textarea id="logppt-content-config" rows="3" placeholder="e.g., {column1} - {column2}"></textarea>
+                            <p class="help-text">Define how to construct the 'Content' field for LogPPT using the columns from your data. Use curly braces to denote column names, e.g., {message} or {field1} {field2}.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt-columns-order">Column Order</label>
+                            <input type="text" id="logppt-columns-order" placeholder="e.g., timestamp, level, message">
+                            <p class="help-text">Specify the columns to include in the output and their order, separated by commas.</p>
+                        </div>
+                    </fieldset>
+                    
+                    <button id="run-logppt-integration-btn">Run LogPPT Process</button>
+                    
+                    <!-- Progress Bar -->
+                    <div id="logppt-progress" style="display: none;">
+                        <h3>Pipeline Progress</h3>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="progress-text" id="progress-text">0%</div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="step" id="step-preprocessing">📋 Preprocessing</div>
+                            <div class="step" id="step-sampling">🔄 Sampling</div>
+                            <div class="step" id="step-training">🎯 Training</div>
+                            <div class="step" id="step-parsing">📊 Parsing</div>
+                        </div>
+                    </div>
+                    
+                    <div id="logppt-results" style="display: none;">
+                        <h3>LogPPT Results</h3>
+                        <div id="logppt-evaluation-results"></div>
+                        <a id="logppt-download-parsed-link" href="#" target="_blank">Download Parsed Log</a>
+                        <a id="logppt-download-templates-link" href="#" target="_blank">Download Templates</a>
+                    </div>
+                </div>
+                
+                <!-- Right side: Task Output (always visible) -->
+                <div class="logppt-output">
+                    <h3>Task Output</h3>
+                    <div id="log-output-container">
+                        <pre id="log-output">Ready to run LogPPT pipeline...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LogPPT 2 Tab Content -->
+        <div id="logppt2-tab" class="tab-content">
+            <div class="logppt-container">
+                <div class="logppt-config">
+                    <h2>LogPPT 2 (Replica Demo + Ollama)</h2>
+                    <div class="info-box">
+                        <h3>🔁 Replica della Demo Ufficiale</h3>
+                        <p>Questa tab replica il workflow della demo in <code>thirdparty/LogPPT/demo</code> usando esclusivamente <strong>Ollama</strong> per garantire che i dati restino locali.</p>
+                        <div class="help-text">
+                            <strong>Demo originale (3 passi):</strong>
+                            <ol>
+                                <li><strong>01_sampling.py</strong>: richiede un CSV strutturato con colonne <code>Content</code> e <code>EventTemplate</code>. Crea <code>validation.json</code> e <code>samples/logppt_*.json</code>.</li>
+                                <li><strong>02_run_logppt.py</strong>: addestra RoBERTa e genera <code>*_full.log_structured.csv</code> e <code>*_full.log_templates.csv</code>.</li>
+                                <li><strong>03_evaluate.py</strong>: valuta le prestazioni sui risultati filtrando per template.</li>
+                            </ol>
+                            <strong>Questa replica:</strong>
+                            <ul>
+                                <li><strong>Sampling</strong>: eseguito solo se è disponibile la ground truth (<code>EventTemplate</code>), altrimenti saltato.</li>
+                                <li><strong>Run</strong>: nessun training RoBERTa; il parsing è fatto con <strong>Ollama</strong> (modello locale <code>logppt-parser</code>).</li>
+                                <li><strong>Evaluate</strong>: valutazione semplice (exact match) se presente ground truth; altrimenti non disponibile.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>🗂️ Struttura cartelle attesa (stile demo)</h3>
+                        <p>La demo originale organizza i dataset così (esempio):</p>
+<pre><code>datasets/
+  loghub-full/
+    Apache/
+      Apache_full.log                      # file non strutturato (opzionale per uso demo)
+      Apache_full.log_structured.csv       # CSV strutturato (Content, EventTemplate)
+      samples/
+        logppt_32.json                     # creato da 01_sampling.py (richiede GT)
+      validation.json                      # creato da 01_sampling.py (richiede GT)
+    BGL/
+      ...
+</code></pre>
+                        <p>Questa interfaccia supporta due modalità:</p>
+                        <ul>
+                            <li><strong>Modalità cartella</strong>: imposta la cartella radice (es. <code>.../datasets/loghub-full</code>) e seleziona un file CSV strutturato da una sottocartella.</li>
+                            <li><strong>Modalità file singolo</strong>: carica un <strong>.log/.txt</strong> (non strutturato, 1 riga = 1 log) o un <strong>.csv</strong> con almeno <code>Content</code> (e opzionale <code>EventTemplate</code>).</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>📄 Formati file</h3>
+                        <ul>
+                            <li><strong>File non strutturato</strong>: <code>.log</code> o <code>.txt</code>, una riga corrisponde a un log. Esempio:
+<pre><code>03-17 16:13:38.811 1702 2395 D WindowManager: test message
+192.168.1.1 - - [10/Oct/2000:13:55:36 -0700] "GET /apache.gif HTTP/1.0" 200 2326
+</code></pre>
+                            </li>
+                            <li><strong>CSV strutturato</strong>: deve contenere <code>Content</code>; se presente anche <code>EventTemplate</code>, abilita sampling/evaluate. Esempio:
+<pre><code>Content,EventTemplate
+"GET /login user=john", "GET /login user=&lt;*&gt;"
+"Error code 500 at /api", "Error code &lt;*&gt; at /api"
+</code></pre>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <fieldset>
+                        <legend>Cartella Dataset</legend>
+                        <div class="form-group">
+                            <label for="logppt2-dataset-dir">Percorso Cartella (radice dataset stile demo)</label>
+                            <input type="text" id="logppt2-dataset-dir" placeholder="e.g., /app/examples">
+                            <button id="logppt2-save-dataset-dir">Save</button>
+                            <p class="help-text">Punta alla cartella che contiene le sottocartelle dei dataset (es. <code>.../datasets/loghub-full</code> con <code>Apache</code>, <code>BGL</code>, ...).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt2-dataset-select">Seleziona file CSV strutturato dalla cartella</label>
+                            <select id="logppt2-dataset-select"></select>
+                            <p class="help-text">Seleziona un <code>*.csv</code> con almeno <code>Content</code>; se include <code>EventTemplate</code>, il sampling e la valutazione saranno attivati.</p>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group">
+                        <label for="logppt2-file-upload">Upload Dataset (CSV con 'Content' o .log/.txt)</label>
+                        <input type="file" id="logppt2-file-upload" accept=".csv,.log,.txt">
+                        <p class="help-text">In alternativa alla selezione dalla cartella, puoi caricare un file singolo.</p>
+                    </div>
+
+                    <fieldset>
+                        <legend>Configurazione</legend>
+                        <div class="form-group">
+                            <label for="logppt2-shots">Shots per Sampling</label>
+                            <input type="text" id="logppt2-shots" value="8, 16">
+                            <p class="help-text">Usato solo se è disponibile la ground truth (<code>EventTemplate</code>). Per dataset piccoli usare valori più bassi (1-5).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="logppt2-evaluate">Valuta (richiede 'EventTemplate')</label>
+                            <input type="checkbox" id="logppt2-evaluate">
+                            <p class="help-text">Esegue una valutazione semplice (exact match dei template) se presente la ground truth.</p>
+                        </div>
+                    </fieldset>
+
+                    <button id="run-logppt2-btn">Run LogPPT 2</button>
+
+                    <div id="logppt2-results" style="display: none;">
+                        <h3>Risultati</h3>
+                        <div id="logppt2-evaluation-results"></div>
+                        <a id="logppt2-download-structured" href="#" target="_blank">Download Structured CSV</a>
+                        <a id="logppt2-download-templates" href="#" target="_blank">Download Templates</a>
+                        <div class="help-text">
+                            <p>I file sono salvati con la stessa nomenclatura della demo: <code>{dataset}_full.log_structured.csv</code> e <code>{dataset}_full.log_templates.csv</code>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="logppt-output">
+                    <h3>Task Output</h3>
+                    <div id="logppt2-log-output-container">
+                        <pre id="logppt2-log-output">Ready to run LogPPT 2 pipeline...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LLM Fine-Tuning Tab Content -->
+        <div id="finetuning-tab" class="tab-content">
+            <div class="finetuning-container">
+                <div class="finetuning-header">
+                    <h2>🚀 LLM Fine-Tuning Studio</h2>
+                    <p class="header-subtitle">Sistema avanzato per fine-tuning di Large Language Models con Ollama</p>
+                </div>
+
+                <div class="finetuning-main">
+                    <!-- Left Panel: Configuration -->
+                    <div class="finetuning-config">
+                        
+                        <!-- Step 1: Model Selection -->
+                        <div class="step-section" id="step-model">
+                            <div class="step-header">
+                                <span class="step-number">1</span>
+                                <h3>Selezione Modello Base</h3>
+                                <div class="step-status" id="step1-status">⏳</div>
+                            </div>
+                            
+                            <div class="model-selection">
+                                <label for="base-model-select">Modello Base:</label>
+                                <select id="base-model-select">
+                                    <option value="">Caricando modelli...</option>
+                                </select>
+                                <div class="model-info" id="model-info">
+                                    <p>Seleziona un modello base per vedere le informazioni</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Training Template -->
+                        <div class="step-section" id="step-template">
+                            <div class="step-header">
+                                <span class="step-number">2</span>
+                                <h3>Template di Training</h3>
+                                <div class="step-status" id="step2-status">⏳</div>
+                            </div>
+                            
+                            <div class="template-selection">
+                                <div class="template-grid" id="template-grid">
+                                    <!-- Templates caricati dinamicamente -->
+                                </div>
+                                
+                                <div class="template-preview" id="template-preview">
+                                    <h4>Anteprima Template</h4>
+                                    <pre id="template-preview-content">Seleziona un template per vedere l'anteprima</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Dataset Upload & Validation -->
+                        <div class="step-section" id="step-dataset">
+                            <div class="step-header">
+                                <span class="step-number">3</span>
+                                <h3>Dataset di Training</h3>
+                                <div class="step-status" id="step3-status">⏳</div>
+                            </div>
+                            
+                            <div class="dataset-upload">
+                                <div class="upload-area" id="dataset-upload-area">
+                                    <div class="upload-icon">📄</div>
+                                    <p>Trascina il dataset qui o clicca per selezionare</p>
+                                    <p class="upload-formats">Formati supportati: JSON, CSV, YAML, TXT</p>
+                                    <input type="file" id="dataset-file-input" accept=".json,.csv,.yaml,.yml,.txt" style="display: none;">
+                                </div>
+                                
+                                <div class="dataset-validation" id="dataset-validation" style="display: none;">
+                                    <h4>Risultati Validazione</h4>
+                                    <div id="validation-results"></div>
+                                    <div id="dataset-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Training Configuration -->
+                        <div class="step-section" id="step-config">
+                            <div class="step-header">
+                                <span class="step-number">4</span>
+                                <h3>Configurazione Training</h3>
+                                <div class="step-status" id="step4-status">⏳</div>
+                            </div>
+                            
+                            <div class="training-config">
+                                <div class="config-group">
+                                    <label for="ft-model-name-input">Nome Nuovo Modello:</label>
+                                    <input type="text" id="ft-model-name-input" placeholder="es: my-custom-model">
+                                </div>
+                                
+                                <div class="config-group">
+                                    <label>Parametri Avanzati:</label>
+                                    <div class="parameter-grid">
+                                        <div class="param-item">
+                                            <label for="temperature-input">Temperature:</label>
+                                            <input type="number" id="temperature-input" value="0.7" min="0.1" max="2" step="0.1">
+                                        </div>
+                                        <div class="param-item">
+                                            <label for="top-p-input">Top P:</label>
+                                            <input type="number" id="top-p-input" value="0.9" min="0.1" max="1" step="0.1">
+                                        </div>
+                                        <div class="param-item">
+                                            <label for="top-k-input">Top K:</label>
+                                            <input type="number" id="top-k-input" value="40" min="1" max="100" step="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button id="start-finetuning-btn" class="finetuning-button" disabled>
+                                    🚀 Avvia Fine-Tuning
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Panel: Monitoring & Results -->
+                    <div class="finetuning-monitor">
+                        
+                        <!-- Progress Section -->
+                        <div class="monitor-section">
+                            <h3>📊 Progress Monitor</h3>
+                            
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="training-progress" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-text" id="progress-text">Pronto per iniziare</div>
+                            </div>
+                            
+                            <div class="training-stats" id="training-stats" style="display: none;">
+                                <div class="stat-item">
+                                    <span class="stat-label">Tempo Trascorso:</span>
+                                    <span class="stat-value" id="elapsed-time">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Stato:</span>
+                                    <span class="stat-value" id="training-status">In attesa</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Logs -->
+                        <div class="monitor-section">
+                            <h3>📝 Live Logs</h3>
+                            <div class="log-container" id="finetuning-logs">
+                                <pre id="finetuning-log-output">🚀 Sistema pronto per il fine-tuning...\n\nSeleziona un modello base e carica un dataset per iniziare.</pre>
+                            </div>
+                        </div>
+
+                        <!-- Model Testing -->
+                        <div class="monitor-section">
+                            <h3>🧪 Test del Modello</h3>
+                            
+                            <div class="test-section">
+                                <div class="model-selector">
+                                    <label for="test-model-select">Modello da Testare:</label>
+                                    <select id="test-model-select">
+                                        <option value="">Seleziona un modello</option>
+                                    </select>
+                                    <button id="refresh-models-btn" class="refresh-btn">🔄</button>
+                                </div>
+                                
+                                <div class="test-input">
+                                    <label for="test-prompt">Prompt di Test:</label>
+                                    <textarea id="test-prompt" placeholder="Inserisci un prompt per testare il modello..."></textarea>
+                                    <button id="test-model-btn" class="test-button" disabled>Testa Modello</button>
+                                </div>
+                                
+                                <div class="test-results" id="test-results" style="display: none;">
+                                    <h4>Risultato:</h4>
+                                    <div class="test-output" id="test-output"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Section -->
+                        <div class="monitor-section">
+                            <h3>📤 Export & Sharing</h3>
+                            
+                            <div class="export-section">
+                                <p>Esporta i tuoi modelli fine-tuned per condivisione o backup:</p>
+                                <button id="export-model-btn" class="export-button" disabled>
+                                    📦 Esporta Modello
+                                </button>
+                                <div class="export-status" id="export-status"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="log-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Task Output</h2>
+            <pre id="log-output"></pre>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

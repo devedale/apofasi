@@ -1,0 +1,23 @@
+Q: Come si installa Python su Windows?
+A: Per installare Python su Windows: 1) Vai su python.org, 2) Scarica l'installer per Windows, 3) Esegui il file e assicurati di spuntare "Add Python to PATH", 4) Segui la procedura guidata, 5) Verifica l'installazione aprendo il prompt e digitando "python --version".
+
+Q: Che differenza c'è tra una lista e una tupla in Python?
+A: Le principali differenze sono: 1) Le liste sono mutabili (modificabili), le tuple sono immutabili, 2) Le liste usano [], le tuple usano (), 3) Le liste sono più lente per accesso agli elementi, 4) Le tuple possono essere usate come chiavi nei dizionari, le liste no.
+
+Q: Come si gestiscono le eccezioni in Python?
+A: Si usano i blocchi try-except: try: codice_che_potrebbe_fallire() except SpecificException as e: gestione_errore() except Exception as e: gestione_generica() finally: codice_sempre_eseguito(). È buona pratica catturare eccezioni specifiche piuttosto che generiche.
+
+Q: Cos'è il list comprehension?
+A: Il list comprehension è una sintassi concisa per creare liste: [espressione for elemento in iterabile if condizione]. Esempio: quadrati = [x**2 for x in range(10) if x % 2 == 0] crea una lista dei quadrati dei numeri pari da 0 a 9.
+
+Q: Come si leggono file in Python?
+A: Usa il context manager: with open('file.txt', 'r') as f: contenuto = f.read(). Altri metodi: f.readline() per una riga, f.readlines() per tutte le righe. Specifica l'encoding se necessario: encoding='utf-8'.
+
+Q: Cos'è la programmazione orientata agli oggetti?
+A: La OOP è un paradigma che organizza il codice in classi e oggetti. Principi chiave: Incapsulamento (nascondere dettagli interni), Ereditarietà (riutilizzo codice), Polimorfismo (stessa interfaccia, comportamenti diversi), Astrazione (modelli semplificati).
+
+Q: Come si usa Git per il version control?
+A: Comandi base: git init (inizializza repo), git add (staged changes), git commit (salva snapshot), git push (carica su remoto), git pull (scarica aggiornamenti), git branch (gestione branch), git merge (unisce branch). Workflow: add → commit → push.
+
+Q: Che cos'è un API REST?
+A: REST (Representational State Transfer) è un'architettura per API web che usa HTTP methods: GET (recupera), POST (crea), PUT (aggiorna), DELETE (elimina). Principi: stateless, cacheable, uniform interface, client-server separation.

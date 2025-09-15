@@ -1,0 +1,322 @@
+[
+  {
+    "id": "e010309a8729eaea",
+    "hash": "b519cdebacd53a7c",
+    "timestamp": "2025-08-07T01:00:13.889730+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/test.xlsx",
+    "line_number": 1,
+    "file_size": 9149,
+    "parser_type": "smart_excel_parser",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'nomi': 'angelo', 'cose': 'arpione', 'citta': 'arezzo', 'piante': 'agave'}",
+    "content_length": 75,
+    "parsed_data": {
+      "nomi": "angelo",
+      "cose": "arpione",
+      "citta": "arezzo",
+      "piante": "agave",
+      "timestamp_info": {
+        "normalized_timestamp": null,
+        "confidence": 0.0,
+        "source": "none",
+        "timezone": "UTC",
+        "original_value": null
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 75,
+          "anonymized_length": 75,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:00:13.889733+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": null,
+        "month": null,
+        "day": null,
+        "hour": null
+      },
+      "by_parser": "smart_excel_parser",
+      "by_source": "examples/test.xlsx",
+      "by_severity": "info",
+      "by_length": 75,
+      "by_confidence": null
+    },
+    "content_hash": "b519cdebacd53a7c",
+    "structure_hash": "df1961c2eaa31ca1",
+    "drain3_metadata": {
+      "has_ip": false,
+      "has_email": false,
+      "has_credit_card": false,
+      "has_url": false,
+      "has_date": false,
+      "has_time": false,
+      "pattern_matches": []
+    }
+  },
+  {
+    "id": "cf46e677c8c3332b",
+    "hash": "8295ea0385567b99",
+    "timestamp": "2025-08-07T01:00:13.889793+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/test.xlsx",
+    "line_number": 1,
+    "file_size": 9149,
+    "parser_type": "smart_excel_parser",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'nomi': 'biondo', 'cose': 'bar', 'citta': 'bari', 'piante': 'basilico'}",
+    "content_length": 72,
+    "parsed_data": {
+      "nomi": "biondo",
+      "cose": "bar",
+      "citta": "bari",
+      "piante": "basilico",
+      "timestamp_info": {
+        "normalized_timestamp": null,
+        "confidence": 0.0,
+        "source": "none",
+        "timezone": "UTC",
+        "original_value": null
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 72,
+          "anonymized_length": 72,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:00:13.889795+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": null,
+        "month": null,
+        "day": null,
+        "hour": null
+      },
+      "by_parser": "smart_excel_parser",
+      "by_source": "examples/test.xlsx",
+      "by_severity": "info",
+      "by_length": 72,
+      "by_confidence": null
+    },
+    "content_hash": "8295ea0385567b99",
+    "structure_hash": "df1961c2eaa31ca1",
+    "drain3_metadata": {
+      "has_ip": false,
+      "has_email": false,
+      "has_credit_card": false,
+      "has_url": false,
+      "has_date": false,
+      "has_time": false,
+      "pattern_matches": []
+    }
+  },
+  {
+    "id": "1b0b6514bb4784d3",
+    "hash": "83b8ce6a75510631",
+    "timestamp": "2025-08-07T01:00:13.889814+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/test.xlsx",
+    "line_number": 1,
+    "file_size": 9149,
+    "parser_type": "smart_excel_parser",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'nomi': 'carlo', 'cose': 'carbone', 'citta': 'catania', 'piante': 'cumino'}",
+    "content_length": 76,
+    "parsed_data": {
+      "nomi": "carlo",
+      "cose": "carbone",
+      "citta": "catania",
+      "piante": "cumino",
+      "timestamp_info": {
+        "normalized_timestamp": null,
+        "confidence": 0.0,
+        "source": "none",
+        "timezone": "UTC",
+        "original_value": null
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 76,
+          "anonymized_length": 76,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:00:13.889815+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": null,
+        "month": null,
+        "day": null,
+        "hour": null
+      },
+      "by_parser": "smart_excel_parser",
+      "by_source": "examples/test.xlsx",
+      "by_severity": "info",
+      "by_length": 76,
+      "by_confidence": null
+    },
+    "content_hash": "83b8ce6a75510631",
+    "structure_hash": "df1961c2eaa31ca1",
+    "drain3_metadata": {
+      "has_ip": false,
+      "has_email": false,
+      "has_credit_card": false,
+      "has_url": false,
+      "has_date": false,
+      "has_time": false,
+      "pattern_matches": []
+    }
+  },
+  {
+    "id": "dba675b768d11b86",
+    "hash": "0443627b935785cd",
+    "timestamp": "2025-08-07T01:00:13.889829+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/test.xlsx",
+    "line_number": 1,
+    "file_size": 9149,
+    "parser_type": "smart_excel_parser",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'nomi': 'edoardo', 'cose': 'ebano', 'citta': 'empoli', 'piante': 'edera'}",
+    "content_length": 74,
+    "parsed_data": {
+      "nomi": "edoardo",
+      "cose": "ebano",
+      "citta": "empoli",
+      "piante": "edera",
+      "timestamp_info": {
+        "normalized_timestamp": null,
+        "confidence": 0.0,
+        "source": "none",
+        "timezone": "UTC",
+        "original_value": null
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 74,
+          "anonymized_length": 74,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:00:13.889830+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": null,
+        "month": null,
+        "day": null,
+        "hour": null
+      },
+      "by_parser": "smart_excel_parser",
+      "by_source": "examples/test.xlsx",
+      "by_severity": "info",
+      "by_length": 74,
+      "by_confidence": null
+    },
+    "content_hash": "0443627b935785cd",
+    "structure_hash": "df1961c2eaa31ca1",
+    "drain3_metadata": {
+      "has_ip": false,
+      "has_email": false,
+      "has_credit_card": false,
+      "has_url": false,
+      "has_date": false,
+      "has_time": false,
+      "pattern_matches": []
+    }
+  }
+]

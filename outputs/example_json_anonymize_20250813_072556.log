@@ -1,0 +1,5 @@
+{"timestamp": "<DATE_TIME>", "level": "ERROR", "service": "kernel", "message": "Out of memory", "server": "server1"}
+{"timestamp": "<DATE_TIME>", "level": "WARN", "service": "sshd", "message": "Failed password for user admin", "ip": "<IP_ADDRESS>", "server": "server1"}
+{"timestamp": "<DATE_TIME>", "level": "INFO", "service": "nginx", "message": "200 GET /api/users", "method": "GET", "path": "/api/users", "status": 200, "server": "server1"}
+{"timestamp": "<DATE_TIME>", "level": "ERROR", "service": "postgres", "message": "connection timeout", "server": "server1"}
+{"timestamp": "<DATE_TIME>", "level": "INFO", "service": "kernel", "message": "CPU usage: 85%", "cpu_usage": 85, "server": "server1"}

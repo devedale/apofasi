@@ -1,0 +1,477 @@
+[
+  {
+    "id": "examples/FGT80FTK22013405.root.elog.txt:1",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 1,
+    "parser_name": "adaptive_drain",
+    "timestamp": "2025-07-05T22:30:27+00:00",
+    "original_content": "logver=0702111740 idseq=19900372806008834 itime=1751754627 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:30:24 eventtime=1751754624843767899 tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+    "anonymized_message": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+    "parsed_data": {
+      "data": {
+        "logver": "0702111740",
+        "idseq": "19900372806008834",
+        "itime": "1751754627",
+        "devid": "\"FGT80FTK22013405\"",
+        "devname": "\"asd-bari\"",
+        "vd": "\"root\"",
+        "date": "2025-07-06",
+        "time": "00:30:24",
+        "eventtime": "1751754624843767899",
+        "tz": "\"+0200\"",
+        "logid": "\"0100026001\"",
+        "type": "\"event\"",
+        "subtype": "\"system\"",
+        "level": "\"information\"",
+        "logdesc": "\"DHCP",
+        "interface": "\"internal1\"",
+        "dhcp_msg": "\"Ack\"",
+        "mac": "\"9C:53:22:49:C7:8C\"",
+        "ip": "10.63.44.101",
+        "lease": "86400"
+      },
+      "cluster_id": 1,
+      "cluster_size": 1,
+      "detected_patterns": {
+        "ip_address": [
+          "10.63.44.101"
+        ],
+        "unix_timestamp": [
+          "0702111740",
+          "1751754627",
+          "0100026001"
+        ],
+        "mac_address": [
+          "9C:53:22:49:C7:8C"
+        ],
+        "status_code": [
+          "101"
+        ]
+      },
+      "regex_patterns": {},
+      "drain3_original": {
+        "cluster_id": 1,
+        "template": "logver=0702111740 idseq=19900372806008834 itime=1751754627 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:30:24 eventtime=1751754624843767899 tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "cluster_size": 1
+      },
+      "drain3_anonymized": {
+        "cluster_id": 1,
+        "template": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "cluster_size": 1
+      }
+    },
+    "presidio_anonymization": {
+      "success": true,
+      "mode": "hybrid",
+      "original_content": "logver=0702111740 idseq=19900372806008834 itime=1751754627 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:30:24 eventtime=1751754624843767899 tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+      "classic_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "method": "classic_regex",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "success": true
+      },
+      "presidio_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "method": "presidio_ai",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "datamining_insights": {},
+        "success": true
+      },
+      "hybrid_metadata": {
+        "total_entities_classic": 0,
+        "total_entities_presidio": 0,
+        "entities_types_classic": [],
+        "entities_types_presidio": [],
+        "processing_method": "separate_processing_original_content",
+        "comparison_notes": "Entrambi i sistemi hanno processato il messaggio originale separatamente"
+      },
+      "combined_datamining_insights": {
+        "classic_insights": {
+          "method": "regex_patterns",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "presidio_insights": {},
+        "comparison_analysis": {
+          "total_entities_detected": 0,
+          "unique_entity_types": 0,
+          "coverage_analysis": "Entrambi i sistemi forniscono copertura complementare"
+        }
+      }
+    },
+    "drain3": {
+      "cluster_id": null,
+      "template": null,
+      "cluster_size": 1
+    },
+    "parsing": {},
+    "success": true,
+    "confidence_score": 0.6,
+    "processing_errors": [],
+    "processing_warnings": []
+  },
+  {
+    "id": "examples/FGT80FTK22013405.root.elog.txt:2",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 2,
+    "parser_name": "adaptive_drain",
+    "timestamp": "2025-07-05T22:31:29+00:00",
+    "original_content": "logver=0702111740 idseq=19900372806008832 itime=1751754689 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:31:24 eventtime=1751754684862908499 tz=\"+0200\" logid=\"0101037141\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=88.61.48.146 locip=93.64.253.210 remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278/7c26da8af8e39c6e\" user=\"88.61.48.146\" group=\"N/A\" useralt=\"N/A\" xauthuser=\"N/A\" xauthgroup=\"N/A\" assignip=N/A vpntunnel=\"to-pescara-pri\" tunnelip=N/A tunnelid=2206215695 tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+    "anonymized_message": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=<IP_ADDRESS> locip=<IP_ADDRESS> remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278<PLACEHOLDER_PATH>\" user=\"<IP_ADDRESS>\" group=\"N<PLACEHOLDER_PATH>\" useralt=\"N<PLACEHOLDER_PATH>\" xauthuser=\"N<PLACEHOLDER_PATH>\" xauthgroup=\"N<PLACEHOLDER_PATH>\" assignip=N<PLACEHOLDER_PATH> vpntunnel=\"to-pescara-pri\" tunnelip=N<PLACEHOLDER_PATH> tunnelid=<UNIX_TIMESTAMP> tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+    "parsed_data": {
+      "data": {
+        "logver": "0702111740",
+        "idseq": "19900372806008832",
+        "itime": "1751754689",
+        "devid": "\"FGT80FTK22013405\"",
+        "devname": "\"asd-bari\"",
+        "vd": "\"root\"",
+        "date": "2025-07-06",
+        "time": "00:31:24",
+        "eventtime": "1751754684862908499",
+        "tz": "\"+0200\"",
+        "logid": "\"0101037141\"",
+        "type": "\"event\"",
+        "subtype": "\"vpn\"",
+        "level": "\"notice\"",
+        "logdesc": "\"IPsec",
+        "msg": "\"IPsec",
+        "action": "\"tunnel-stats\"",
+        "remip": "88.61.48.146",
+        "locip": "93.64.253.210",
+        "remport": "500"
+      },
+      "cluster_id": 2,
+      "cluster_size": 1,
+      "detected_patterns": {
+        "ip_address": [
+          "88.61.48.146",
+          "93.64.253.210"
+        ],
+        "unix_timestamp": [
+          "0702111740",
+          "1751754689",
+          "0101037141",
+          "2206215695"
+        ],
+        "file_path": [
+          "/7c26da8af8e39c6e",
+          "/A"
+        ],
+        "status_code": [
+          "146",
+          "253",
+          "210",
+          "500"
+        ]
+      },
+      "regex_patterns": {},
+      "drain3_original": {
+        "cluster_id": 2,
+        "template": "logver=0702111740 idseq=19900372806008832 itime=1751754689 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:31:24 eventtime=1751754684862908499 tz=\"+0200\" logid=\"0101037141\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=88.61.48.146 locip=93.64.253.210 remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278/7c26da8af8e39c6e\" user=\"88.61.48.146\" group=\"N/A\" useralt=\"N/A\" xauthuser=\"N/A\" xauthgroup=\"N/A\" assignip=N/A vpntunnel=\"to-pescara-pri\" tunnelip=N/A tunnelid=2206215695 tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+        "cluster_size": 1
+      },
+      "drain3_anonymized": {
+        "cluster_id": 2,
+        "template": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=<IP_ADDRESS> locip=<IP_ADDRESS> remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278<PLACEHOLDER_PATH>\" user=\"<IP_ADDRESS>\" group=\"N<PLACEHOLDER_PATH>\" useralt=\"N<PLACEHOLDER_PATH>\" xauthuser=\"N<PLACEHOLDER_PATH>\" xauthgroup=\"N<PLACEHOLDER_PATH>\" assignip=N<PLACEHOLDER_PATH> vpntunnel=\"to-pescara-pri\" tunnelip=N<PLACEHOLDER_PATH> tunnelid=<UNIX_TIMESTAMP> tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+        "cluster_size": 1
+      }
+    },
+    "presidio_anonymization": {
+      "success": true,
+      "mode": "hybrid",
+      "original_content": "logver=0702111740 idseq=19900372806008832 itime=1751754689 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:31:24 eventtime=1751754684862908499 tz=\"+0200\" logid=\"0101037141\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=88.61.48.146 locip=93.64.253.210 remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278/7c26da8af8e39c6e\" user=\"88.61.48.146\" group=\"N/A\" useralt=\"N/A\" xauthuser=\"N/A\" xauthgroup=\"N/A\" assignip=N/A vpntunnel=\"to-pescara-pri\" tunnelip=N/A tunnelid=2206215695 tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+      "classic_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=<IP_ADDRESS> locip=<IP_ADDRESS> remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278<PLACEHOLDER_PATH>\" user=\"<IP_ADDRESS>\" group=\"N<PLACEHOLDER_PATH>\" useralt=\"N<PLACEHOLDER_PATH>\" xauthuser=\"N<PLACEHOLDER_PATH>\" xauthgroup=\"N<PLACEHOLDER_PATH>\" assignip=N<PLACEHOLDER_PATH> vpntunnel=\"to-pescara-pri\" tunnelip=N<PLACEHOLDER_PATH> tunnelid=<UNIX_TIMESTAMP> tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+        "method": "classic_regex",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "success": true
+      },
+      "presidio_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"vpn\" level=\"notice\" logdesc=\"IPsec tunnel statistics\" msg=\"IPsec tunnel statistics\" action=\"tunnel-stats\" remip=<IP_ADDRESS> locip=<IP_ADDRESS> remport=500 locport=500 outintf=\"wan1\" cookies=\"5df8cf6e832e3278<PLACEHOLDER_PATH>\" user=\"<IP_ADDRESS>\" group=\"N<PLACEHOLDER_PATH>\" useralt=\"N<PLACEHOLDER_PATH>\" xauthuser=\"N<PLACEHOLDER_PATH>\" xauthgroup=\"N<PLACEHOLDER_PATH>\" assignip=N<PLACEHOLDER_PATH> vpntunnel=\"to-pescara-pri\" tunnelip=N<PLACEHOLDER_PATH> tunnelid=<UNIX_TIMESTAMP> tunneltype=\"ipsec\" duration=1114987 sentbyte=400945590 rcvdbyte=185308176 nextstat=600 advpnsc=0",
+        "method": "presidio_ai",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "datamining_insights": {},
+        "success": true
+      },
+      "hybrid_metadata": {
+        "total_entities_classic": 0,
+        "total_entities_presidio": 0,
+        "entities_types_classic": [],
+        "entities_types_presidio": [],
+        "processing_method": "separate_processing_original_content",
+        "comparison_notes": "Entrambi i sistemi hanno processato il messaggio originale separatamente"
+      },
+      "combined_datamining_insights": {
+        "classic_insights": {
+          "method": "regex_patterns",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "presidio_insights": {},
+        "comparison_analysis": {
+          "total_entities_detected": 0,
+          "unique_entity_types": 0,
+          "coverage_analysis": "Entrambi i sistemi forniscono copertura complementare"
+        }
+      }
+    },
+    "drain3": {
+      "cluster_id": null,
+      "template": null,
+      "cluster_size": 1
+    },
+    "parsing": {},
+    "success": true,
+    "confidence_score": 0.6,
+    "processing_errors": [],
+    "processing_warnings": []
+  },
+  {
+    "id": "examples/FGT80FTK22013405.root.elog.txt:3",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 3,
+    "parser_name": "adaptive_drain",
+    "timestamp": "2025-07-05T22:32:05+00:00",
+    "original_content": "logver=0702111740 idseq=19900372806008832 itime=1751754725 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:32:01 eventtime=1751754720597425659 tz=\"+0200\" logid=\"0100040704\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6/3\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=1516715254/6481088798,packets=7849124/10090377;\" msg=\"Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0\"",
+    "anonymized_message": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6<PLACEHOLDER_PATH>\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=<UNIX_TIMESTAMP><PLACEHOLDER_PATH>\" msg=\"Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0\"",
+    "parsed_data": {
+      "data": {
+        "logver": "0702111740",
+        "idseq": "19900372806008832",
+        "itime": "1751754725",
+        "devid": "\"FGT80FTK22013405\"",
+        "devname": "\"asd-bari\"",
+        "vd": "\"root\"",
+        "date": "2025-07-06",
+        "time": "00:32:01",
+        "eventtime": "1751754720597425659",
+        "tz": "\"+0200\"",
+        "logid": "\"0100040704\"",
+        "type": "\"event\"",
+        "subtype": "\"system\"",
+        "level": "\"notice\"",
+        "logdesc": "\"System",
+        "action": "\"perf-stats\"",
+        "cpu": "0",
+        "mem": "40",
+        "totalsession": "44",
+        "disk": "0"
+      },
+      "cluster_id": 3,
+      "cluster_size": 1,
+      "detected_patterns": {
+        "unix_timestamp": [
+          "0702111740",
+          "1751754725",
+          "0100040704",
+          "1516715254",
+          "6481088798"
+        ],
+        "file_path": [
+          "/3",
+          "/6481088798,packets=7849124/10090377;"
+        ]
+      },
+      "regex_patterns": {},
+      "drain3_original": {
+        "cluster_id": 3,
+        "template": "logver=0702111740 idseq=19900372806008832 itime=1751754725 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:32:01 eventtime=1751754720597425659 tz=\"+0200\" logid=\"0100040704\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6/3\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=1516715254/6481088798,packets=7849124/10090377;\" msg=\"Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0\"",
+        "cluster_size": 1
+      },
+      "drain3_anonymized": {
+        "cluster_id": 3,
+        "template": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6<PLACEHOLDER_PATH>\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=<UNIX_TIMESTAMP><PLACEHOLDER_PATH>\" msg=\"Performance statistics: average CPU: 0, memory: 40, concurrent sessions: 44, setup-rate: 0\"",
+        "cluster_size": 1
+      }
+    },
+    "presidio_anonymization": {
+      "success": true,
+      "mode": "hybrid",
+      "original_content": "logver=0702111740 idseq=19900372806008832 itime=1751754725 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:32:01 eventtime=1751754720597425659 tz=\"+0200\" logid=\"0100040704\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6/3\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=1516715254/6481088798,packets=7849124/10090377;\" msg=\"Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0\"",
+      "classic_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6<PLACEHOLDER_PATH>\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=<UNIX_TIMESTAMP><PLACEHOLDER_PATH>\" msg=\"Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0\"",
+        "method": "classic_regex",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "success": true
+      },
+      "presidio_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"notice\" logdesc=\"System performance statistics\" action=\"perf-stats\" cpu=0 mem=40 totalsession=44 disk=0 bandwidth=\"6<PLACEHOLDER_PATH>\" setuprate=0 disklograte=0 fazlograte=0 freediskstorage=0 sysuptime=1115536 waninfo=\"name=wan1,bytes=<UNIX_TIMESTAMP><PLACEHOLDER_PATH>\" msg=\"Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0\"",
+        "method": "presidio_ai",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "datamining_insights": {},
+        "success": true
+      },
+      "hybrid_metadata": {
+        "total_entities_classic": 0,
+        "total_entities_presidio": 0,
+        "entities_types_classic": [],
+        "entities_types_presidio": [],
+        "processing_method": "separate_processing_original_content",
+        "comparison_notes": "Entrambi i sistemi hanno processato il messaggio originale separatamente"
+      },
+      "combined_datamining_insights": {
+        "classic_insights": {
+          "method": "regex_patterns",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "presidio_insights": {},
+        "comparison_analysis": {
+          "total_entities_detected": 0,
+          "unique_entity_types": 0,
+          "coverage_analysis": "Entrambi i sistemi forniscono copertura complementare"
+        }
+      }
+    },
+    "drain3": {
+      "cluster_id": null,
+      "template": null,
+      "cluster_size": 1
+    },
+    "parsing": {},
+    "success": true,
+    "confidence_score": 0.6,
+    "processing_errors": [],
+    "processing_warnings": []
+  },
+  {
+    "id": "examples/FGT80FTK22013405.root.elog.txt:4",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 4,
+    "parser_name": "adaptive_drain",
+    "timestamp": "2025-07-05T22:32:19+00:00",
+    "original_content": "logver=0702111740 idseq=19900372806008868 itime=1751754739 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:32:15 eventtime=1751754735214176279 tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+    "anonymized_message": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+    "parsed_data": {
+      "data": {
+        "logver": "0702111740",
+        "idseq": "19900372806008868",
+        "itime": "1751754739",
+        "devid": "\"FGT80FTK22013405\"",
+        "devname": "\"asd-bari\"",
+        "vd": "\"root\"",
+        "date": "2025-07-06",
+        "time": "00:32:15",
+        "eventtime": "1751754735214176279",
+        "tz": "\"+0200\"",
+        "logid": "\"0100026001\"",
+        "type": "\"event\"",
+        "subtype": "\"system\"",
+        "level": "\"information\"",
+        "logdesc": "\"DHCP",
+        "interface": "\"internal1\"",
+        "dhcp_msg": "\"Ack\"",
+        "mac": "\"9C:53:22:49:C7:8C\"",
+        "ip": "10.63.44.101",
+        "lease": "86400"
+      },
+      "cluster_id": 1,
+      "cluster_size": 2,
+      "detected_patterns": {
+        "ip_address": [
+          "10.63.44.101"
+        ],
+        "unix_timestamp": [
+          "0702111740",
+          "1751754739",
+          "0100026001"
+        ],
+        "mac_address": [
+          "9C:53:22:49:C7:8C"
+        ],
+        "status_code": [
+          "101"
+        ]
+      },
+      "regex_patterns": {},
+      "drain3_original": {
+        "cluster_id": 1,
+        "template": "logver=0702111740 <*> <*> devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 <*> <*> tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "cluster_size": 2
+      },
+      "drain3_anonymized": {
+        "cluster_id": 1,
+        "template": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "cluster_size": 2
+      }
+    },
+    "presidio_anonymization": {
+      "success": true,
+      "mode": "hybrid",
+      "original_content": "logver=0702111740 idseq=19900372806008868 itime=1751754739 devid=\"FGT80FTK22013405\" devname=\"asd-bari\" vd=\"root\" date=2025-07-06 time=00:32:15 eventtime=1751754735214176279 tz=\"+0200\" logid=\"0100026001\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"9C:53:22:49:C7:8C\" ip=10.63.44.101 lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+      "classic_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "method": "classic_regex",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "success": true
+      },
+      "presidio_anonymization": {
+        "anonymized_content": "logver=<UNIX_TIMESTAMP> idseq=<UNIX_TIMESTAMP> itime=<UNIX_TIMESTAMP> devid=\"<PLACEHOLDER_DEVID>\" devname=\"<PLACEHOLDER_DEVNAME>\" vd=\"root\" date=<PLACEHOLDER_DATE> time=<PLACEHOLDER_TIME> eventtime=<UNIX_TIMESTAMP> tz=\"+0200\" logid=\"<UNIX_TIMESTAMP>\" type=\"event\" subtype=\"system\" level=\"information\" logdesc=\"DHCP Ack log\" interface=\"internal1\" dhcp_msg=\"Ack\" mac=\"<MAC_ADDRESS>\" ip=<IP_ADDRESS> lease=86400 hostname=\"ArcherAX55\" msg=\"DHCP server sends a DHCPACK\"",
+        "method": "presidio_ai",
+        "entities_detected": [],
+        "anonymization_metadata": {
+          "method": "classic_regex",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "datamining_insights": {},
+        "success": true
+      },
+      "hybrid_metadata": {
+        "total_entities_classic": 0,
+        "total_entities_presidio": 0,
+        "entities_types_classic": [],
+        "entities_types_presidio": [],
+        "processing_method": "separate_processing_original_content",
+        "comparison_notes": "Entrambi i sistemi hanno processato il messaggio originale separatamente"
+      },
+      "combined_datamining_insights": {
+        "classic_insights": {
+          "method": "regex_patterns",
+          "patterns_applied": "centralized_regex_service"
+        },
+        "presidio_insights": {},
+        "comparison_analysis": {
+          "total_entities_detected": 0,
+          "unique_entity_types": 0,
+          "coverage_analysis": "Entrambi i sistemi forniscono copertura complementare"
+        }
+      }
+    },
+    "drain3": {
+      "cluster_id": null,
+      "template": null,
+      "cluster_size": 2
+    },
+    "parsing": {},
+    "success": true,
+    "confidence_score": 0.6,
+    "processing_errors": [],
+    "processing_warnings": []
+  }
+]

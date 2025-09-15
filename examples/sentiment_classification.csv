@@ -1,0 +1,21 @@
+text,sentiment,confidence
+"Questo prodotto è fantastico! Lo consiglio a tutti",positive,0.95
+"Servizio clienti pessimo e prodotto difettoso",negative,0.88
+"Il film era ok, niente di speciale",neutral,0.72
+"Esperienza incredibile! Staff gentilissimo e cibo delizioso",positive,0.92
+"Non funziona come promesso, molto deluso",negative,0.84
+"Prezzo giusto per la qualità offerta",neutral,0.68
+"Migliore acquisto dell'anno! Qualità eccezionale",positive,0.97
+"Spedizione lenta e imballaggio rovinato",negative,0.79
+"Prodotto nella media, fa il suo lavoro",neutral,0.65
+"Sono rimasto colpito dalla professionalità del team",positive,0.89
+"Bug continui nell'app, molto frustrante",negative,0.91
+"Design semplice ma funzionale",neutral,0.58
+"Superato tutte le mie aspettative! Bravissimi",positive,0.94
+"Troppo caro per quello che offre",negative,0.82
+"Interfaccia intuitiva e facile da usare",positive,0.87
+"Documentazione scarsa e poco chiara",negative,0.76
+"Funziona bene ma mancano alcune features",neutral,0.63
+"Servizio impeccabile e consegna puntuale",positive,0.93
+"App si blocca spesso, instabile",negative,0.85
+"Buon rapporto qualità-prezzo",neutral,0.71

@@ -1,0 +1,440 @@
+[
+  {
+    "id": "5d1fbad9322eb5a7",
+    "hash": "4de6ffc7e0dc718e",
+    "timestamp": "2025-07-06T00:00:00+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 1,
+    "file_size": 2180,
+    "parser_type": "fortinet",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'logver': '0702111740', 'idseq': '19900372806008834', 'itime': '1751754627', 'devid': 'FGT80FTK22013405', 'devname': 'asd-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:30:24', 'eventtime': '1751754624843767899', 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': 1, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413257'}",
+    "content_length": 675,
+    "parsed_data": {
+      "logver": "0702111740",
+      "idseq": "19900372806008834",
+      "itime": "1751754627",
+      "devid": "FGT80FTK22013405",
+      "devname": "asd-bari",
+      "vd": "root",
+      "date": "2025-07-06",
+      "time": "00:30:24",
+      "eventtime": "1751754624843767899",
+      "tz": "+0200",
+      "logid": "0100026001",
+      "type": "event",
+      "subtype": "system",
+      "level": "information",
+      "logdesc": "DHCP Ack log",
+      "interface": "internal1",
+      "dhcp_msg": "Ack",
+      "mac": "9C:53:22:49:C7:8C",
+      "ip": "10.63.44.101",
+      "lease": "86400",
+      "hostname": "ArcherAX55",
+      "msg": "DHCP server sends a DHCPACK",
+      "parser_type": "Fortinet",
+      "line_number": 1,
+      "filename": "examples/FGT80FTK22013405.root.elog.txt",
+      "parsed_at": "2025-08-07T03:55:45.413257",
+      "timestamp_info": {
+        "normalized_timestamp": "2025-07-06T00:00:00+00:00",
+        "confidence": 0.85,
+        "source": "explicit",
+        "timezone": "UTC",
+        "original_value": "2025-07-06"
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 675,
+          "anonymized_length": 675,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {
+      "hostname": "ArcherAX55"
+    },
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": [
+        "network"
+      ]
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:55:46.429806+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": 2025,
+        "month": 7,
+        "day": 6,
+        "hour": 0
+      },
+      "by_parser": "fortinet",
+      "by_source": "examples/FGT80FTK22013405.root.elog.txt",
+      "by_severity": "info",
+      "by_length": 675,
+      "by_confidence": null
+    },
+    "content_hash": "4de6ffc7e0dc718e",
+    "structure_hash": "6a457e03fea3c31e",
+    "drain3_metadata": {
+      "anonymization": {
+        "original_length": 675,
+        "anonymized_length": 675,
+        "patterns_applied": [],
+        "anonymization_count": 0,
+        "anonymization_ratio": 0.0
+      }
+    }
+  },
+  {
+    "id": "6aeb63e3d8e623cf",
+    "hash": "b3ecf4bb23383324",
+    "timestamp": "2025-07-06T00:00:00+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 2,
+    "file_size": 2180,
+    "parser_type": "fortinet",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754689', 'devid': 'FGT80FTK22013405', 'devname': 'asd-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:31:24', 'eventtime': '1751754684862908499', 'tz': '+0200', 'logid': '0101037141', 'type': 'event', 'subtype': 'vpn', 'level': 'notice', 'logdesc': 'IPsec tunnel statistics', 'msg': 'IPsec tunnel statistics', 'action': False, 'remip': '88.61.48.146', 'locip': '93.64.253.210', 'remport': '500', 'locport': '500', 'outintf': 'wan1', 'cookies': '5df8cf6e832e3278/7c26da8af8e39c6e', 'user': '88.61.48.146', 'group': 'N/A', 'useralt': 'N/A', 'xauthuser': 'N/A', 'xauthgroup': 'N/A', 'assignip': 'N/A', 'vpntunnel': 'to-pescara-pri', 'tunnelip': 'N/A', 'tunnelid': '2206215695', 'tunneltype': 'ipsec', 'duration': 1114987, 'sentbyte': '400945590', 'rcvdbyte': '185308176', 'nextstat': '600', 'advpnsc': '0', 'parser_type': 'Fortinet', 'line_number': 2, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413291'}",
+    "content_length": 1029,
+    "parsed_data": {
+      "logver": "0702111740",
+      "idseq": "19900372806008832",
+      "itime": "1751754689",
+      "devid": "FGT80FTK22013405",
+      "devname": "asd-bari",
+      "vd": "root",
+      "date": "2025-07-06",
+      "time": "00:31:24",
+      "eventtime": "1751754684862908499",
+      "tz": "+0200",
+      "logid": "0101037141",
+      "type": "event",
+      "subtype": "vpn",
+      "level": "notice",
+      "logdesc": "IPsec tunnel statistics",
+      "msg": "IPsec tunnel statistics",
+      "action": false,
+      "remip": "88.61.48.146",
+      "locip": "93.64.253.210",
+      "remport": "500",
+      "locport": "500",
+      "outintf": "wan1",
+      "cookies": "5df8cf6e832e3278/7c26da8af8e39c6e",
+      "user": "88.61.48.146",
+      "group": "N/A",
+      "useralt": "N/A",
+      "xauthuser": "N/A",
+      "xauthgroup": "N/A",
+      "assignip": "N/A",
+      "vpntunnel": "to-pescara-pri",
+      "tunnelip": "N/A",
+      "tunnelid": "2206215695",
+      "tunneltype": "ipsec",
+      "duration": 1114987,
+      "sentbyte": "400945590",
+      "rcvdbyte": "185308176",
+      "nextstat": "600",
+      "advpnsc": "0",
+      "parser_type": "Fortinet",
+      "line_number": 2,
+      "filename": "examples/FGT80FTK22013405.root.elog.txt",
+      "parsed_at": "2025-08-07T03:55:45.413291",
+      "timestamp_info": {
+        "normalized_timestamp": "2025-07-06T00:00:00+00:00",
+        "confidence": 0.85,
+        "source": "explicit",
+        "timezone": "UTC",
+        "original_value": "2025-07-06"
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 1029,
+          "anonymized_length": 1029,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:55:46.429923+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": 2025,
+        "month": 7,
+        "day": 6,
+        "hour": 0
+      },
+      "by_parser": "fortinet",
+      "by_source": "examples/FGT80FTK22013405.root.elog.txt",
+      "by_severity": "info",
+      "by_length": 1029,
+      "by_confidence": null
+    },
+    "content_hash": "b3ecf4bb23383324",
+    "structure_hash": "5d8defa49dab3f24",
+    "drain3_metadata": {
+      "anonymization": {
+        "original_length": 1029,
+        "anonymized_length": 1029,
+        "patterns_applied": [],
+        "anonymization_count": 0,
+        "anonymization_ratio": 0.0
+      }
+    }
+  },
+  {
+    "id": "acf6013fafb9822f",
+    "hash": "01d7f76bcb8986d2",
+    "timestamp": "2025-07-06T00:00:00+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 3,
+    "file_size": 2180,
+    "parser_type": "fortinet",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'logver': '0702111740', 'idseq': '19900372806008832', 'itime': '1751754725', 'devid': 'FGT80FTK22013405', 'devname': 'asd-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:01', 'eventtime': '1751754720597425659', 'tz': '+0200', 'logid': '0100040704', 'type': 'event', 'subtype': 'system', 'level': 'notice', 'logdesc': 'System performance statistics', 'action': False, 'cpu': '0', 'mem': '40', 'totalsession': '44', 'disk': '0', 'bandwidth': '6/3', 'setuprate': '0', 'disklograte': '0', 'fazlograte': '0', 'freediskstorage': '0', 'sysuptime': '1115536', 'packets': '7849124/10090377;\"', 'msg': 'Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0', 'parser_type': 'Fortinet', 'line_number': 3, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413324'}",
+    "content_length": 848,
+    "parsed_data": {
+      "logver": "0702111740",
+      "idseq": "19900372806008832",
+      "itime": "1751754725",
+      "devid": "FGT80FTK22013405",
+      "devname": "asd-bari",
+      "vd": "root",
+      "date": "2025-07-06",
+      "time": "00:32:01",
+      "eventtime": "1751754720597425659",
+      "tz": "+0200",
+      "logid": "0100040704",
+      "type": "event",
+      "subtype": "system",
+      "level": "notice",
+      "logdesc": "System performance statistics",
+      "action": false,
+      "cpu": "0",
+      "mem": "40",
+      "totalsession": "44",
+      "disk": "0",
+      "bandwidth": "6/3",
+      "setuprate": "0",
+      "disklograte": "0",
+      "fazlograte": "0",
+      "freediskstorage": "0",
+      "sysuptime": "1115536",
+      "packets": "7849124/10090377;\"",
+      "msg": "Performance statistics: average CPU: 0, memory:  40, concurrent sessions:  44, setup-rate: 0",
+      "parser_type": "Fortinet",
+      "line_number": 3,
+      "filename": "examples/FGT80FTK22013405.root.elog.txt",
+      "parsed_at": "2025-08-07T03:55:45.413324",
+      "timestamp_info": {
+        "normalized_timestamp": "2025-07-06T00:00:00+00:00",
+        "confidence": 0.85,
+        "source": "explicit",
+        "timezone": "UTC",
+        "original_value": "2025-07-06"
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 848,
+          "anonymized_length": 848,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {},
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": []
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:55:46.429993+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": 2025,
+        "month": 7,
+        "day": 6,
+        "hour": 0
+      },
+      "by_parser": "fortinet",
+      "by_source": "examples/FGT80FTK22013405.root.elog.txt",
+      "by_severity": "info",
+      "by_length": 848,
+      "by_confidence": null
+    },
+    "content_hash": "01d7f76bcb8986d2",
+    "structure_hash": "168ad325d01e8f20",
+    "drain3_metadata": {
+      "anonymization": {
+        "original_length": 848,
+        "anonymized_length": 848,
+        "patterns_applied": [],
+        "anonymization_count": 0,
+        "anonymization_ratio": 0.0
+      }
+    }
+  },
+  {
+    "id": "3dbeb145a62a884f",
+    "hash": "bf060e2c17c26fbc",
+    "timestamp": "2025-07-06T00:00:00+00:00",
+    "timestamp_confidence": 0.0,
+    "timestamp_source": "unknown",
+    "source_file": "examples/FGT80FTK22013405.root.elog.txt",
+    "line_number": 4,
+    "file_size": 2180,
+    "parser_type": "fortinet",
+    "parsing_confidence": null,
+    "parsing_success": true,
+    "original_content": "{'logver': '0702111740', 'idseq': '19900372806008868', 'itime': '1751754739', 'devid': 'FGT80FTK22013405', 'devname': 'asd-bari', 'vd': 'root', 'date': '2025-07-06', 'time': '00:32:15', 'eventtime': '1751754735214176279', 'tz': '+0200', 'logid': '0100026001', 'type': 'event', 'subtype': 'system', 'level': 'information', 'logdesc': 'DHCP Ack log', 'interface': 'internal1', 'dhcp_msg': 'Ack', 'mac': '9C:53:22:49:C7:8C', 'ip': '10.63.44.101', 'lease': '86400', 'hostname': 'ArcherAX55', 'msg': 'DHCP server sends a DHCPACK', 'parser_type': 'Fortinet', 'line_number': 4, 'filename': 'examples/FGT80FTK22013405.root.elog.txt', 'parsed_at': '2025-08-07T03:55:45.413342'}",
+    "content_length": 675,
+    "parsed_data": {
+      "logver": "0702111740",
+      "idseq": "19900372806008868",
+      "itime": "1751754739",
+      "devid": "FGT80FTK22013405",
+      "devname": "asd-bari",
+      "vd": "root",
+      "date": "2025-07-06",
+      "time": "00:32:15",
+      "eventtime": "1751754735214176279",
+      "tz": "+0200",
+      "logid": "0100026001",
+      "type": "event",
+      "subtype": "system",
+      "level": "information",
+      "logdesc": "DHCP Ack log",
+      "interface": "internal1",
+      "dhcp_msg": "Ack",
+      "mac": "9C:53:22:49:C7:8C",
+      "ip": "10.63.44.101",
+      "lease": "86400",
+      "hostname": "ArcherAX55",
+      "msg": "DHCP server sends a DHCPACK",
+      "parser_type": "Fortinet",
+      "line_number": 4,
+      "filename": "examples/FGT80FTK22013405.root.elog.txt",
+      "parsed_at": "2025-08-07T03:55:45.413342",
+      "timestamp_info": {
+        "normalized_timestamp": "2025-07-06T00:00:00+00:00",
+        "confidence": 0.85,
+        "source": "explicit",
+        "timezone": "UTC",
+        "original_value": "2025-07-06"
+      },
+      "drain3_metadata": {
+        "anonymization": {
+          "original_length": 675,
+          "anonymized_length": 675,
+          "patterns_applied": [],
+          "anonymization_count": 0,
+          "anonymization_ratio": 0.0
+        },
+        "template_analysis": {
+          "best_template": "",
+          "cluster_id": 0,
+          "scope": "unknown",
+          "template_size": 0,
+          "similarity_score": 0.0
+        }
+      }
+    },
+    "extracted_fields": {
+      "hostname": "ArcherAX55"
+    },
+    "security_indicators": {
+      "has_ip": false,
+      "has_mac": false,
+      "has_credentials": false,
+      "has_errors": false,
+      "has_warnings": false,
+      "severity_level": "info",
+      "threat_indicators": [
+        "network"
+      ]
+    },
+    "processing_time_ms": 0,
+    "processed_at": "2025-08-07T01:55:46.430048+00:00",
+    "search_indices": {
+      "by_timestamp": {
+        "year": 2025,
+        "month": 7,
+        "day": 6,
+        "hour": 0
+      },
+      "by_parser": "fortinet",
+      "by_source": "examples/FGT80FTK22013405.root.elog.txt",
+      "by_severity": "info",
+      "by_length": 675,
+      "by_confidence": null
+    },
+    "content_hash": "bf060e2c17c26fbc",
+    "structure_hash": "6a457e03fea3c31e",
+    "drain3_metadata": {
+      "anonymization": {
+        "original_length": 675,
+        "anonymized_length": 675,
+        "patterns_applied": [],
+        "anonymization_count": 0,
+        "anonymization_ratio": 0.0
+      }
+    }
+  }
+]

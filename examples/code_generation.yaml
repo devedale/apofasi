@@ -1,0 +1,75 @@
+examples:
+  - input: "Scrivi una funzione Python per calcolare il fattoriale"
+    output: |
+      def factorial(n):
+          """Calcola il fattoriale di un numero."""
+          if n < 0:
+              raise ValueError("Il fattoriale non è definito per numeri negativi")
+          if n == 0 or n == 1:
+              return 1
+          return n * factorial(n - 1)
+    
+  - input: "Come si crea una lista in Python?"
+    output: |
+      # Diverse modalità per creare liste in Python:
+      
+      # Lista vuota
+      lista_vuota = []
+      
+      # Lista con elementi
+      numeri = [1, 2, 3, 4, 5]
+      
+      # Lista con list comprehension
+      quadrati = [x**2 for x in range(5)]
+      
+      # Lista da stringa
+      caratteri = list("hello")
+
+  - input: "Funzione JavaScript per validare email"
+    output: |
+      function validateEmail(email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(email);
+      }
+      
+      // Uso:
+      console.log(validateEmail("test@example.com")); // true
+      console.log(validateEmail("invalid-email"));    // false
+
+  - input: "Query SQL per trovare utenti attivi"
+    output: |
+      SELECT u.id, u.name, u.email, u.last_login
+      FROM users u
+      WHERE u.status = 'active'
+        AND u.last_login >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      ORDER BY u.last_login DESC;
+
+  - input: "Classe Python per gestire un database"
+    output: |
+      import sqlite3
+      from typing import Optional, List, Tuple
+      
+      class DatabaseManager:
+          def __init__(self, db_path: str):
+              self.db_path = db_path
+              self.connection: Optional[sqlite3.Connection] = None
+          
+          def connect(self) -> None:
+              """Apre la connessione al database."""
+              self.connection = sqlite3.connect(self.db_path)
+              self.connection.row_factory = sqlite3.Row
+          
+          def execute_query(self, query: str, params: Tuple = ()) -> List[sqlite3.Row]:
+              """Esegue una query e restituisce i risultati."""
+              if not self.connection:
+                  self.connect()
+              
+              cursor = self.connection.cursor()
+              cursor.execute(query, params)
+              return cursor.fetchall()
+          
+          def close(self) -> None:
+              """Chiude la connessione al database."""
+              if self.connection:
+                  self.connection.close()
+                  self.connection = None

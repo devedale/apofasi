@@ -1,0 +1,42 @@
+[
+  {
+    "instruction": "Come posso imparare Python?",
+    "response": "Per imparare Python puoi iniziare con tutorial online, libri come 'Automate the Boring Stuff with Python', e praticare su piattaforme come Codecademy o freeCodeCamp. Inizia con i concetti base come variabili, loop e funzioni, poi procedi verso progetti più complessi."
+  },
+  {
+    "instruction": "Qual è la differenza tra una lista e una tupla in Python?",
+    "response": "Le liste sono mutabili (modificabili) e si definiscono con parentesi quadre [], mentre le tuple sono immutabili (non modificabili) e si definiscono con parentesi tonde (). Le liste sono più flessibili per dati che cambiano, le tuple sono migliori per dati fissi."
+  },
+  {
+    "instruction": "Come gestire gli errori in Python?",
+    "response": "In Python gli errori si gestiscono con try/except. Scrivi il codice che potrebbe generare errori nel blocco try, e gestisci l'errore nel blocco except. Puoi anche usare finally per codice che deve sempre eseguire."
+  },
+  {
+    "instruction": "Cosa sono le funzioni lambda in Python?",
+    "response": "Le funzioni lambda sono funzioni anonime che si definiscono in una sola riga. Sintassi: lambda argomenti: espressione. Sono utili per operazioni semplici con map(), filter(), sort(), ma per logica complessa è meglio usare funzioni normali."
+  },
+  {
+    "instruction": "Come installare librerie in Python?",
+    "response": "Usa pip, il package manager di Python. Comando: 'pip install nome_libreria'. Per vedere le librerie installate: 'pip list'. Per installare una versione specifica: 'pip install nome_libreria==versione'."
+  },
+  {
+    "instruction": "Cos'è un dizionario in Python?",
+    "response": "Un dizionario è una struttura dati che memorizza coppie chiave-valore. Si definisce con parentesi graffe {} o dict(). È non ordinato (prima di Python 3.7), mutabile e non permette chiavi duplicate. Utile per mappare dati correlati."
+  },
+  {
+    "instruction": "Come leggere un file in Python?",
+    "response": "Usa la funzione open() con modalità 'r' per lettura. Esempio: with open('file.txt', 'r') as f: contenuto = f.read(). Il costrutto 'with' assicura che il file venga chiuso automaticamente."
+  },
+  {
+    "instruction": "Cosa sono i moduli in Python?",
+    "response": "I moduli sono file Python che contengono definizioni e istruzioni. Permettono di organizzare il codice e riutilizzarlo. Si importano con 'import nome_modulo' o 'from modulo import funzione'. Python ha molti moduli built-in come math, os, sys."
+  },
+  {
+    "instruction": "Come creare una classe in Python?",
+    "response": "Usa la keyword 'class' seguita dal nome della classe. Definisci il metodo __init__ per il costruttore. Esempio: class MiaClasse: def __init__(self, parametro): self.attributo = parametro. Usa 'self' per riferirsi all'istanza corrente."
+  },
+  {
+    "instruction": "Cosa sono le list comprehensions?",
+    "response": "Le list comprehensions sono un modo conciso per creare liste. Sintassi: [espressione for elemento in iterabile if condizione]. Esempio: [x*2 for x in range(10) if x%2==0] crea una lista dei numeri pari moltiplicati per 2."
+  }
+]

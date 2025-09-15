@@ -1,0 +1,14 @@
+[
+    {
+        "input": "Ciao, come stai?",
+        "output": "Ciao! Sto bene, grazie per aver chiesto. Come posso aiutarti oggi?"
+    },
+    {
+        "input": "Che tempo fa?",
+        "output": "Non ho accesso a informazioni meteorologiche in tempo reale. Ti consiglio di consultare un servizio meteo per avere previsioni aggiornate."
+    },
+    {
+        "input": "Spiegami cos'è Python",
+        "output": "Python è un linguaggio di programmazione ad alto livello, interpretato e molto versatile. È noto per la sua sintassi chiara e leggibile, ed è ampiamente utilizzato in sviluppo web, data science, automazione e intelligenza artificiale."
+    }
+]

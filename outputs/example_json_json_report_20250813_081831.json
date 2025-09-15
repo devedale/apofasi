@@ -1,0 +1,219 @@
+[
+  {
+    "original_content": "{\"timestamp\": \"2024-01-15T10:30:45.123Z\", \"level\": \"ERROR\", \"service\": \"kernel\", \"message\": \"Out of memory\", \"server\": \"server1\"}",
+    "line_number": 1,
+    "parser_name": "JSONParser",
+    "parsed_data": {
+      "timestamp": "2024-01-15T10:30:45.123Z",
+      "level": "ERROR",
+      "service": "kernel",
+      "message": "Out of memory",
+      "server": "server1"
+    },
+    "source_file": "examples/example_json.json",
+    "presidio_anonymized": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"ERROR\", \"service\": \"kernel\", \"message\": \"Out of memory\", \"server\": \"server1\"}",
+    "presidio_metadata": [
+      {
+        "entity_type": "DATE_TIME",
+        "start": 15,
+        "end": 39,
+        "score": 0.85,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "SpacyRecognizer",
+          "recognizer_identifier": "SpacyRecognizer_136166816797536"
+        }
+      }
+    ],
+    "drain3_original": {
+      "cluster_id": 1,
+      "template": "{\"timestamp\": \"2024-01-15T10:30:45.123Z\", \"level\": \"ERROR\", \"service\": \"kernel\", \"message\": \"Out of memory\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "drain3_anonymized": {
+      "cluster_id": 1,
+      "template": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"ERROR\", \"service\": \"kernel\", \"message\": \"Out of memory\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "parsed_data_anonymized": {}
+  },
+  {
+    "original_content": "{\"timestamp\": \"2024-01-15T10:30:46.456Z\", \"level\": \"WARN\", \"service\": \"sshd\", \"message\": \"Failed password for user admin\", \"ip\": \"192.168.1.100\", \"server\": \"server1\"}",
+    "line_number": 2,
+    "parser_name": "JSONParser",
+    "parsed_data": {
+      "timestamp": "2024-01-15T10:30:46.456Z",
+      "level": "WARN",
+      "service": "sshd",
+      "message": "Failed password for user admin",
+      "ip": "192.168.1.100",
+      "server": "server1"
+    },
+    "source_file": "examples/example_json.json",
+    "presidio_anonymized": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"WARN\", \"service\": \"sshd\", \"message\": \"Failed password for user admin\", \"ip\": \"<IP_ADDRESS>\", \"server\": \"server1\"}",
+    "presidio_metadata": [
+      {
+        "entity_type": "IP_ADDRESS",
+        "start": 130,
+        "end": 143,
+        "score": 0.95,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "IpRecognizer",
+          "recognizer_identifier": "IpRecognizer_136166816793216"
+        }
+      },
+      {
+        "entity_type": "DATE_TIME",
+        "start": 15,
+        "end": 39,
+        "score": 0.85,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "SpacyRecognizer",
+          "recognizer_identifier": "SpacyRecognizer_136166816797536"
+        }
+      },
+      {
+        "entity_type": "PHONE_NUMBER",
+        "start": 130,
+        "end": 143,
+        "score": 0.4,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "PhoneRecognizer",
+          "recognizer_identifier": "PhoneRecognizer_136166816800896"
+        }
+      }
+    ],
+    "drain3_original": {
+      "cluster_id": 2,
+      "template": "{\"timestamp\": \"2024-01-15T10:30:46.456Z\", \"level\": \"WARN\", \"service\": \"sshd\", \"message\": \"Failed password for user admin\", \"ip\": \"192.168.1.100\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "drain3_anonymized": {
+      "cluster_id": 2,
+      "template": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"WARN\", \"service\": \"sshd\", \"message\": \"Failed password for user admin\", \"ip\": \"<IP_ADDRESS>\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "parsed_data_anonymized": {}
+  },
+  {
+    "original_content": "{\"timestamp\": \"2024-01-15T10:30:47.789Z\", \"level\": \"INFO\", \"service\": \"nginx\", \"message\": \"200 GET /api/users\", \"method\": \"GET\", \"path\": \"/api/users\", \"status\": 200, \"server\": \"server1\"}",
+    "line_number": 3,
+    "parser_name": "JSONParser",
+    "parsed_data": {
+      "timestamp": "2024-01-15T10:30:47.789Z",
+      "level": "INFO",
+      "service": "nginx",
+      "message": "200 GET /api/users",
+      "method": "GET",
+      "path": "/api/users",
+      "status": 200,
+      "server": "server1"
+    },
+    "source_file": "examples/example_json.json",
+    "presidio_anonymized": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"INFO\", \"service\": \"nginx\", \"message\": \"200 GET /api/users\", \"method\": \"GET\", \"path\": \"/api/users\", \"status\": 200, \"server\": \"server1\"}",
+    "presidio_metadata": [
+      {
+        "entity_type": "DATE_TIME",
+        "start": 15,
+        "end": 39,
+        "score": 0.85,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "SpacyRecognizer",
+          "recognizer_identifier": "SpacyRecognizer_136166816797536"
+        }
+      }
+    ],
+    "drain3_original": {
+      "cluster_id": 3,
+      "template": "{\"timestamp\": \"2024-01-15T10:30:47.789Z\", \"level\": \"INFO\", \"service\": \"nginx\", \"message\": \"200 GET /api/users\", \"method\": \"GET\", \"path\": \"/api/users\", \"status\": 200, \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "drain3_anonymized": {
+      "cluster_id": 3,
+      "template": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"INFO\", \"service\": \"nginx\", \"message\": \"200 GET /api/users\", \"method\": \"GET\", \"path\": \"/api/users\", \"status\": 200, \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "parsed_data_anonymized": {}
+  },
+  {
+    "original_content": "{\"timestamp\": \"2024-01-15T10:30:48.012Z\", \"level\": \"ERROR\", \"service\": \"postgres\", \"message\": \"connection timeout\", \"server\": \"server1\"}",
+    "line_number": 4,
+    "parser_name": "JSONParser",
+    "parsed_data": {
+      "timestamp": "2024-01-15T10:30:48.012Z",
+      "level": "ERROR",
+      "service": "postgres",
+      "message": "connection timeout",
+      "server": "server1"
+    },
+    "source_file": "examples/example_json.json",
+    "presidio_anonymized": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"ERROR\", \"service\": \"postgres\", \"message\": \"connection timeout\", \"server\": \"server1\"}",
+    "presidio_metadata": [
+      {
+        "entity_type": "DATE_TIME",
+        "start": 15,
+        "end": 39,
+        "score": 0.85,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "SpacyRecognizer",
+          "recognizer_identifier": "SpacyRecognizer_136166816797536"
+        }
+      }
+    ],
+    "drain3_original": {
+      "cluster_id": 4,
+      "template": "{\"timestamp\": \"2024-01-15T10:30:48.012Z\", \"level\": \"ERROR\", \"service\": \"postgres\", \"message\": \"connection timeout\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "drain3_anonymized": {
+      "cluster_id": 4,
+      "template": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"ERROR\", \"service\": \"postgres\", \"message\": \"connection timeout\", \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "parsed_data_anonymized": {}
+  },
+  {
+    "original_content": "{\"timestamp\": \"2024-01-15T10:30:49.345Z\", \"level\": \"INFO\", \"service\": \"kernel\", \"message\": \"CPU usage: 85%\", \"cpu_usage\": 85, \"server\": \"server1\"}",
+    "line_number": 5,
+    "parser_name": "JSONParser",
+    "parsed_data": {
+      "timestamp": "2024-01-15T10:30:49.345Z",
+      "level": "INFO",
+      "service": "kernel",
+      "message": "CPU usage: 85%",
+      "cpu_usage": 85,
+      "server": "server1"
+    },
+    "source_file": "examples/example_json.json",
+    "presidio_anonymized": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"INFO\", \"service\": \"kernel\", \"message\": \"CPU usage: 85%\", \"cpu_usage\": 85, \"server\": \"server1\"}",
+    "presidio_metadata": [
+      {
+        "entity_type": "DATE_TIME",
+        "start": 15,
+        "end": 39,
+        "score": 0.85,
+        "analysis_explanation": null,
+        "recognition_metadata": {
+          "recognizer_name": "SpacyRecognizer",
+          "recognizer_identifier": "SpacyRecognizer_136166816797536"
+        }
+      }
+    ],
+    "drain3_original": {
+      "cluster_id": 5,
+      "template": "{\"timestamp\": \"2024-01-15T10:30:49.345Z\", \"level\": \"INFO\", \"service\": \"kernel\", \"message\": \"CPU usage: 85%\", \"cpu_usage\": 85, \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "drain3_anonymized": {
+      "cluster_id": 5,
+      "template": "{\"timestamp\": \"<DATE_TIME>\", \"level\": \"INFO\", \"service\": \"kernel\", \"message\": \"CPU usage: 85%\", \"cpu_usage\": 85, \"server\": \"server1\"}",
+      "change_type": "cluster_created"
+    },
+    "parsed_data_anonymized": {}
+  }
+]

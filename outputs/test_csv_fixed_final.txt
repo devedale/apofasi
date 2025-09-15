@@ -1,0 +1,64 @@
+### File: examples/ai_ml_cybersecurity_dataset.csv ###
+
+  [L:1] Original: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+    Parser: multi_strategy_parser
+    Parsed Data:
+      - detected_headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+      - template: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+      - cluster_id: 1
+      - cluster_size: 1
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T17:55:57.033422', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T17:55:57.033422'}
+--------------------
+  [L:2] Original: 2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) Version/4.1 Safari/531.26.1",Ransomware,Critical,False,Crime low this behind option tax product.,Eradicated
+    Parser: multi_strategy_csv
+    Parsed Data:
+      - event_id: 2019969e-ecfa-41c4-b681-9b684bc3b3bf
+      - timestamp: 2020-02-07 23:46:57
+      - source_ip: 219.80.193.15
+      - destination_ip: 44.155.75.24
+      - user_agent: Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) Version/4.1 Safari/531.26.1
+      - attack_type: Ransomware
+      - attack_severity: Critical
+      - data_exfiltrated: False
+      - threat_intelligence: Crime low this behind option tax product.
+      - response_action: Eradicated
+      - csv_headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+      - template: 2019969e-ecfa-41c4-b681-9b684bc3b3bf,2020-02-07 23:46:57,219.80.193.15,44.155.75.24,"Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_8 rv:4.0; lg-UG) AppleWebKit/531.26.1 (KHTML, like Gecko) Version/4.1 Safari/531.26.1",Ransomware,Critical,False,Crime low this behind option tax product.,Eradicated
+      - cluster_id: 2
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['219.80.193.15', '44.155.75.24'], 'timestamp_log': ['2020-02-07 23:46:57'], 'uuid': ['2019969e-ecfa-41c4-b681-9b684bc3b3bf'], 'file_path': ['/5.0', '/531.26.1', '/4.1'], 'severity_level': ['Critical'], 'status_code': ['219', '193', '155', '531']}
+      - regex_ip_address: ['219.80.193.15', '44.155.75.24']
+      - regex_timestamp_log: 2020-02-07 23:46:57
+      - regex_uuid: 2019969e-ecfa-41c4-b681-9b684bc3b3bf
+      - regex_file_path: ['/5.0', '/531.26.1', '/4.1']
+      - regex_severity_level: Critical
+      - regex_status_code: ['219', '193', '155', '531']
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T17:55:57.034923', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T17:55:57.034923'}
+--------------------
+  [L:3] Original: 1668e954-781f-4731-94dc-24218b983ba1,2021-05-25 19:03:44,110.155.68.245,178.123.150.38,"Mozilla/5.0 (Windows 95) AppleWebKit/534.2 (KHTML, like Gecko) Chrome/40.0.877.0 Safari/534.2",Malware,Critical,True,Responsibility work way effect.,Eradicated
+    Parser: multi_strategy_csv
+    Parsed Data:
+      - event_id: 1668e954-781f-4731-94dc-24218b983ba1
+      - timestamp: 2021-05-25 19:03:44
+      - source_ip: 110.155.68.245
+      - destination_ip: 178.123.150.38
+      - user_agent: Mozilla/5.0 (Windows 95) AppleWebKit/534.2 (KHTML, like Gecko) Chrome/40.0.877.0 Safari/534.2
+      - attack_type: Malware
+      - attack_severity: Critical
+      - data_exfiltrated: True
+      - threat_intelligence: Responsibility work way effect.
+      - response_action: Eradicated
+      - csv_headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+      - template: 1668e954-781f-4731-94dc-24218b983ba1,2021-05-25 19:03:44,110.155.68.245,178.123.150.38,"Mozilla/5.0 (Windows 95) AppleWebKit/534.2 (KHTML, like Gecko) Chrome/40.0.877.0 Safari/534.2",Malware,Critical,True,Responsibility work way effect.,Eradicated
+      - cluster_id: 3
+      - cluster_size: 1
+      - detected_patterns: {'ip_address': ['110.155.68.245', '178.123.150.38'], 'timestamp_log': ['2021-05-25 19:03:44'], 'uuid': ['1668e954-781f-4731-94dc-24218b983ba1'], 'file_path': ['/5.0', '/534.2', '/40.0.877.0'], 'severity_level': ['Critical'], 'status_code': ['110', '155', '245', '178', '123', '150', '534']}
+      - regex_ip_address: ['110.155.68.245', '178.123.150.38']
+      - regex_timestamp_log: 2021-05-25 19:03:44
+      - regex_uuid: 1668e954-781f-4731-94dc-24218b983ba1
+      - regex_file_path: ['/5.0', '/534.2', '/40.0.877.0']
+      - regex_severity_level: Critical
+      - regex_status_code: ['110', '155', '245', '178', '123', '150', '534']
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T17:55:57.035495', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T17:55:57.035495'}
+--------------------
+

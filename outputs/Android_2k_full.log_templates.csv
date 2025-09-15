@@ -1,0 +1,3 @@
+EventID,EventTemplate,Occurrence
+E1,,3
+E2,MM-DD HH:MM:SS.SSS PID1 PID2 LEVEL TAG: <*>,2

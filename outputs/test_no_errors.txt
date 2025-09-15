@@ -1,0 +1,12 @@
+### File: examples/ai_ml_cybersecurity_dataset.csv ###
+
+  [L:1] Original: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+    Parser: multi_strategy_parser
+    Parsed Data:
+      - detected_headers: ['event_id', 'timestamp', 'source_ip', 'destination_ip', 'user_agent', 'attack_type', 'attack_severity', 'data_exfiltrated', 'threat_intelligence', 'response_action']
+      - template: Event ID,Timestamp,Source IP,Destination IP,User Agent,Attack Type,Attack Severity,Data Exfiltrated,Threat Intelligence,Response Action
+      - cluster_id: 1
+      - cluster_size: 1
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T18:03:43.325870', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T18:03:43.325870'}
+--------------------
+

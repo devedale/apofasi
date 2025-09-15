@@ -1,0 +1,67 @@
+### File: examples/cybersecurity_intrusion_data.csv ###
+
+  [L:1] Original: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_reputation_score,failed_logins,browser_type,unusual_time_access,attack_detected
+    Parser: multi_strategy_csv
+    Parsed Data:
+      - detected_headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+      - template: session_id,network_packet_size,protocol_type,login_attempts,session_duration,encryption_used,ip_reputation_score,failed_logins,browser_type,unusual_time_access,attack_detected
+      - cluster_id: 1
+      - cluster_size: 1
+      - session_id: 93ebce33ced70b9b
+      - network_packet_size: network_packet_size
+      - protocol_type: protocol_type
+      - login_attempts: login_attempts
+      - session_duration: session_duration
+      - encryption_used: encryption_used
+      - ip_reputation_score: ip_reputation_score
+      - failed_logins: failed_logins
+      - browser_type: browser_type
+      - unusual_time_access: unusual_time_access
+      - attack_detected: attack_detected
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T19:21:01.619759', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T19:21:01.619759'}
+--------------------
+  [L:2] Original: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+    Parser: multi_strategy_csv
+    Parsed Data:
+      - detected_headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+      - template: SID_00001,599,TCP,4,492.9832634426563,DES,0.606818080396889,1,Edge,0,1
+      - cluster_id: 2
+      - cluster_size: 1
+      - session_id: ceda68dab4393273
+      - network_packet_size: 599
+      - protocol_type: TCP
+      - login_attempts: 4
+      - session_duration: 492.9832634426563
+      - encryption_used: DES
+      - ip_reputation_score: 0.606818080396889
+      - failed_logins: 1
+      - browser_type: Edge
+      - unusual_time_access: 0
+      - attack_detected: 1
+      - detected_patterns: {'status_code': ['599', '492']}
+      - regex_status_code: ['599', '492']
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T19:21:01.620430', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T19:21:01.620430'}
+--------------------
+  [L:3] Original: SID_00002,472,TCP,3,1557.9964611204384,DES,0.30156896759608937,0,Firefox,0,0
+    Parser: multi_strategy_csv
+    Parsed Data:
+      - detected_headers: ['session_id', 'network_packet_size', 'protocol_type', 'login_attempts', 'session_duration', 'encryption_used', 'ip_reputation_score', 'failed_logins', 'browser_type', 'unusual_time_access', 'attack_detected']
+      - template: SID_00002,472,TCP,3,1557.9964611204384,DES,0.30156896759608937,0,Firefox,0,0
+      - cluster_id: 3
+      - cluster_size: 1
+      - session_id: 990e573fb78fdcf2
+      - network_packet_size: 472
+      - protocol_type: TCP
+      - login_attempts: 3
+      - session_duration: 1557.9964611204384
+      - encryption_used: DES
+      - ip_reputation_score: 0.30156896759608937
+      - failed_logins: 0
+      - browser_type: Firefox
+      - unusual_time_access: 0
+      - attack_detected: 0
+      - detected_patterns: {'status_code': ['472']}
+      - regex_status_code: 472
+      - timestamp_info: {'normalized_timestamp': '2025-08-08T19:21:01.620915', 'confidence': 0.9, 'source': 'explicit', 'timezone': 'UTC', 'original_value': '2025-08-08T19:21:01.620915'}
+--------------------
+

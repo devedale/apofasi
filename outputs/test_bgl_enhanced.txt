@@ -1,0 +1,31 @@
+### File: examples/loghub/BGL/BGL_2k.log ###
+
+  [L:1] Original: - 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - 1117838570 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.50.675872 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected
+      - cluster_id: 1
+      - cluster_size: 1
+      - detected_patterns: {'timestamp_dotted': ['2005.06.03'], 'timestamp_detailed': ['2005-06-03-15.42.50.675872'], 'unix_timestamp': ['1117838570'], 'severity_level': ['INFO', 'error'], 'hostname': ['R02-M1-N0-C:J12-U11']}
+      - regex_timestamp_dotted: 2005.06.03
+      - regex_timestamp_detailed: 2005-06-03-15.42.50.675872
+      - regex_unix_timestamp: 1117838570
+      - regex_severity_level: ['INFO', 'error']
+      - regex_hostname: R02-M1-N0-C:J12-U11
+      - timestamp_info: {'normalized_timestamp': '2005-06-03T00:00:00+00:00', 'confidence': 0.6, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2005-06-03'}
+--------------------
+  [L:2] Original: - 1117838573 2005.06.03 R02-M1-N0-C:J12-U11 2005-06-03-15.42.53.276129 R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected
+    Parser: adaptive_drain
+    Parsed Data:
+      - template: - <*> 2005.06.03 R02-M1-N0-C:J12-U11 <*> R02-M1-N0-C:J12-U11 RAS KERNEL INFO instruction cache parity error corrected
+      - cluster_id: 1
+      - cluster_size: 2
+      - detected_patterns: {'timestamp_dotted': ['2005.06.03'], 'timestamp_detailed': ['2005-06-03-15.42.53.276129'], 'unix_timestamp': ['1117838573'], 'severity_level': ['INFO', 'error'], 'hostname': ['R02-M1-N0-C:J12-U11']}
+      - regex_timestamp_dotted: 2005.06.03
+      - regex_timestamp_detailed: 2005-06-03-15.42.53.276129
+      - regex_unix_timestamp: 1117838573
+      - regex_severity_level: ['INFO', 'error']
+      - regex_hostname: R02-M1-N0-C:J12-U11
+      - timestamp_info: {'normalized_timestamp': '2005-06-03T00:00:00+00:00', 'confidence': 0.6, 'source': 'pattern_inference', 'timezone': 'UTC', 'original_value': '2005-06-03'}
+--------------------
+

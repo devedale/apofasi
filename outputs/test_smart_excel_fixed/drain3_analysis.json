@@ -1,0 +1,44 @@
+{
+  "analysis_timestamp": "2025-08-07T02:52:31.309667",
+  "total_records_analyzed": 20000,
+  "files_analyzed": 1,
+  "global_analysis": {
+    "identifier": "GLOBAL",
+    "total_logs": 20000,
+    "templates": [],
+    "statistics": {
+      "error": "'TemplateMinerConfig' object has no attribute 'load_state'"
+    },
+    "dynamic_variables": {},
+    "template_distribution": {}
+  },
+  "file_analyses": {
+    "examples/ai_ml_cybersecurity_dataset.xlsx": {
+      "identifier": "examples/ai_ml_cybersecurity_dataset.xlsx",
+      "total_logs": 20000,
+      "templates": [],
+      "statistics": {
+        "error": "'TemplateMinerConfig' object has no attribute 'load_state'"
+      },
+      "dynamic_variables": {},
+      "template_distribution": {}
+    }
+  },
+  "summary": {
+    "global_templates": 0,
+    "total_files": 1,
+    "file_templates": {
+      "examples/ai_ml_cybersecurity_dataset.xlsx": {
+        "templates": 0,
+        "logs": 0,
+        "avg_logs_per_template": 0
+      }
+    },
+    "coverage_summary": {
+      "high_coverage": 0,
+      "medium_coverage": 0,
+      "low_coverage": 0,
+      "avg_coverage": 0
+    }
+  }
+}
