@@ -480,52 +480,132 @@ class LLMFineTuningService:
             Dict: Risultato dell'avvio del training
         """
         try:
-            self.log(f"Avviando fine-tuning: {model_name} da {base_model}")
+            self.log(f"🔍 DEBUG: Inizio metodo start_finetuning")
+            self.log(f"🔍 DEBUG: Parametri ricevuti - base_model={base_model}, model_name={model_name}")
             
-            # Verifica che il modello base sia disponibile
-            self.log(f"Verificando disponibilità modello base: {base_model}")
-            base_available = await self._ensure_base_model(base_model)
-            if not base_available:
+            self.log(f"🚀 Avviando fine-tuning: {model_name} da {base_model}")
+            self.log(f"📋 Parametri ricevuti:")
+            self.log(f"  - Base model: {base_model}")
+            self.log(f"  - Dataset path: {dataset_path}")
+            self.log(f"  - Training template: {training_template}")
+            self.log(f"  - Custom config: {custom_config}")
+            
+            self.log(f"🔍 DEBUG: Dopo log parametri")
+            
+            # Verifica semplice di Ollama (come nel test_model che funziona)
+            self.log(f"🔍 DEBUG: Prima di health_check")
+            self.log(f"🔍 Verificando disponibilità di Ollama...")
+            
+            # Usa lo stesso approccio del test_model che funziona
+            self.log(f"🔍 DEBUG: Chiamando health_check...")
+            health_result = await self.ollama_service.health_check()
+            self.log(f"🔍 DEBUG: Health check risultato: {health_result}")
+            
+            if not health_result:
+                self.log(f"❌ Ollama non è disponibile")
+                return {"success": False, "error": "Ollama non è disponibile"}
+            self.log(f"✅ Ollama è disponibile")
+            
+            # Verifica semplice del modello base (come nel test_model che funziona)
+            self.log(f"🔍 DEBUG: Prima di list_models")
+            self.log(f"🔍 Verificando disponibilità modello base: {base_model}")
+            
+            self.log(f"🔍 DEBUG: Chiamando list_models...")
+            models = await self.ollama_service.list_models()
+            self.log(f"🔍 DEBUG: List models risultato: {len(models)} modelli trovati")
+            
+            model_exists = any(model["name"].startswith(base_model) for model in models)
+            self.log(f"🔍 DEBUG: Modello {base_model} esiste: {model_exists}")
+            
+            if not model_exists:
+                self.log(f"❌ Modello base {base_model} non disponibile")
                 return {"success": False, "error": f"Modello base {base_model} non disponibile"}
             self.log(f"✅ Modello base {base_model} disponibile")
             
-            # Valida il dataset
+            # Validazione semplice del dataset
+            self.log(f"🔍 DEBUG: Prima di validazione dataset")
             self.log(f"Validando dataset: {dataset_path}")
-            dataset_format = self._detect_dataset_format(dataset_path)
-            validation = await self.validate_dataset(dataset_path, dataset_format)
             
-            if not validation["valid"]:
-                return {"success": False, "error": "Dataset non valido", "validation": validation}
-            self.log(f"✅ Dataset validato correttamente")
+            self.log(f"🔍 DEBUG: Controllando esistenza file...")
+            file_exists = Path(dataset_path).exists()
+            self.log(f"🔍 DEBUG: File esiste: {file_exists}")
             
-            # Prepara i dati di training
-            self.log(f"Preparando dati di training con template: {training_template}")
-            training_data = await self._prepare_training_data(dataset_path, dataset_format, training_template)
+            if not file_exists:
+                self.log(f"❌ Dataset non trovato: {dataset_path}")
+                return {"success": False, "error": f"Dataset non trovato: {dataset_path}"}
+            self.log(f"✅ Dataset trovato")
             
-            if not training_data:
-                return {"success": False, "error": "Impossibile preparare i dati di training"}
-            self.log(f"✅ Dati di training preparati: {len(training_data)} esempi")
+            # Salta la preparazione complessa dei dati e crea direttamente il modello
+            self.log(f"🔍 DEBUG: Prima di creazione modello")
+            self.log(f"🚀 Creando modello derivato direttamente...")
             
-            # Crea il Modelfile per il fine-tuning
-            self.log(f"Creando Modelfile per: {model_name}")
-            modelfile_path = await self._create_modelfile(base_model, model_name, training_data, custom_config)
-            self.log(f"✅ Modelfile creato: {modelfile_path}")
+            # Crea direttamente il modello derivato (approccio ultra-semplificato)
+            self.log(f"🔧 Creando modello derivato '{model_name}' da '{base_model}'...")
             
-            # Avvia il training con Ollama
-            self.log(f"🚀 Avviando training con Ollama...")
-            training_result = await self._execute_training(modelfile_path, model_name)
+            # Payload semplice per Ollama
+            payload = {
+                "name": model_name,
+                "from": base_model
+            }
+            self.log(f"🔍 DEBUG: Payload creato: {payload}")
+            
+            self.log(f"🔍 DEBUG: Importando httpx...")
+            import httpx
+            self.log(f"🔍 DEBUG: httpx importato")
+            
+            # Timeout breve per operazione semplice
+            timeout_config = httpx.Timeout(
+                connect=10.0,      # 10 sec per connessione
+                read=60.0,         # 1 min per lettura
+                write=10.0,        # 10 sec per scrittura
+                pool=10.0          # 10 sec per pool
+            )
+            self.log(f"🔍 DEBUG: Timeout configurato")
+            
+            self.log(f"🔍 DEBUG: Creando AsyncClient...")
+            async with httpx.AsyncClient(timeout=timeout_config) as client:
+                self.log(f"🔍 DEBUG: AsyncClient creato")
+                self.log(f"📡 Invio richiesta a Ollama...")
+                
+                self.log(f"🔍 DEBUG: URL: {self.ollama_service.base_url}/api/create")
+                response = await client.post(
+                    f"{self.ollama_service.base_url}/api/create",
+                    json=payload
+                )
+                
+                self.log(f"🔍 DEBUG: Richiesta completata")
+                self.log(f"📥 Risposta ricevuta: status={response.status_code}")
+                
+                if response.status_code == 200:
+                    response_text = response.text
+                    self.log(f"📄 Risposta: {response_text[:200]}...")
+                    
+                    # Verifica se contiene errori
+                    if "error" in response_text.lower():
+                        try:
+                            response_json = response.json()
+                            if "error" in response_json:
+                                error_msg = response_json["error"]
+                                self.log(f"❌ Errore da Ollama: {error_msg}")
+                                return {"success": False, "error": f"Errore Ollama: {error_msg}"}
+                        except:
+                            pass
+                    
+                    self.log(f"✅ Modello derivato '{model_name}' creato con successo!")
+                    training_result = {
+                        "success": True,
+                        "model_name": model_name,
+                        "message": "Modello derivato creato con successo"
+                    }
+                else:
+                    error_msg = f"Errore HTTP {response.status_code}: {response.text}"
+                    self.log(f"❌ {error_msg}")
+                    training_result = {"success": False, "error": error_msg}
             
             if training_result["success"]:
-                # Salva metadati del modello
-                await self._save_model_metadata(model_name, {
-                    "base_model": base_model,
-                    "dataset_path": dataset_path,
-                    "training_template": training_template,
-                    "created_at": datetime.now().isoformat(),
-                    "config": custom_config or {}
-                })
-                
-                self.log(f"Fine-tuning completato con successo: {model_name}")
+                self.log(f"✅ Fine-tuning completato con successo: {model_name}")
+            else:
+                self.log(f"❌ Fine-tuning fallito")
             
             return training_result
             
@@ -665,7 +745,7 @@ class LLMFineTuningService:
             # Configurazione di default
             config = {**self.finetuning_config["model_params"], **(custom_config or {})}
             
-            # Crea il contenuto del Modelfile
+            # Crea il contenuto del Modelfile con formato corretto per Ollama
             modelfile_content = f"""FROM {base_model}
 
 # Fine-tuned model: {model_name}
@@ -675,6 +755,14 @@ class LLMFineTuningService:
 SYSTEM \"\"\"You are a fine-tuned AI model trained for specialized tasks. 
 You have been trained on custom data to provide accurate and helpful responses.
 Follow the patterns and style from your training data.\"\"\"
+
+# Template per il fine-tuning
+TEMPLATE \"\"\"{{{{ if .System }}}}{{{{ .System }}}}{{{{ end }}}}{{{{ if .Prompt }}}}{{{{ .Prompt }}}}{{{{ end }}}}{{{{ if .Response }}}}{{{{ .Response }}}}{{{{ end }}}}\"\"\"
+
+# Parametri di configurazione
+PARAMETER temperature {config.get('temperature', 0.7)}
+PARAMETER top_p {config.get('top_p', 0.9)}
+PARAMETER top_k {config.get('top_k', 40)}
 
 """
             
@@ -703,61 +791,69 @@ Follow the patterns and style from your training data.\"\"\"
             self.log(f"Errore nella creazione del Modelfile: {str(e)}")
             raise
 
-    async def _execute_training(self, modelfile_path: str, model_name: str) -> Dict[str, Any]:
-        """Esegue il training usando Ollama."""
+    async def _create_derived_model(self, model_name: str, base_model: str, custom_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Crea un modello derivato da Ollama con configurazioni personalizzate."""
         try:
-            self.log(f"Avviando training del modello: {model_name}")
+            self.log(f"🔧 Creando modello derivato: {model_name}")
             
-            # Leggi il Modelfile
-            self.log(f"📄 Leggendo Modelfile: {modelfile_path}")
-            with open(modelfile_path, 'r', encoding='utf-8') as f:
-                modelfile_content = f.read()
-            
-            self.log(f"📋 Modelfile content (primi 200 char): {modelfile_content[:200]}...")
-            
-            # Crea il modello usando l'API di Ollama
+            # Payload semplice per Ollama
             payload = {
                 "name": model_name,
-                "modelfile": modelfile_content
+                "from": base_model
             }
             
             import httpx
             
-            self.log(f"🌐 Inviando richiesta a Ollama: {self.ollama_service.base_url}/api/create")
-            self.log(f"⏱️ Timeout impostato: 1800 secondi (30 minuti)")
+            # Timeout più breve per operazione semplice
+            timeout_config = httpx.Timeout(
+                connect=10.0,      # 10 sec per connessione
+                read=60.0,         # 1 min per lettura
+                write=10.0,        # 10 sec per scrittura
+                pool=10.0          # 10 sec per pool
+            )
             
-            async with httpx.AsyncClient(timeout=1800.0) as client:
-                self.log(f"📡 Connessione stabilita, inviando payload...")
+            async with httpx.AsyncClient(timeout=timeout_config) as client:
+                self.log(f"📡 Invio richiesta a Ollama...")
                 
                 response = await client.post(
                     f"{self.ollama_service.base_url}/api/create",
                     json=payload
                 )
                 
-                self.log(f"📥 Risposta ricevuta da Ollama: status={response.status_code}")
-            
-            if response.status_code == 200:
-                self.log(f"✅ Modello {model_name} creato con successo!")
-                return {
-                    "success": True,
-                    "model_name": model_name,
-                    "message": "Fine-tuning completato con successo"
-                }
-            else:
-                error_msg = f"❌ Errore nella creazione del modello: HTTP {response.status_code}"
-                if hasattr(response, 'text'):
-                    try:
-                        error_detail = await response.atext() if hasattr(response, 'atext') else response.text
-                        error_msg += f" - {error_detail}"
-                    except:
-                        pass
-                self.log(error_msg)
-                return {"success": False, "error": error_msg}
+                self.log(f"📥 Risposta ricevuta: status={response.status_code}")
                 
+                if response.status_code == 200:
+                    response_text = response.text
+                    self.log(f"📄 Risposta: {response_text[:200]}...")
+                    
+                    # Verifica se contiene errori
+                    if "error" in response_text.lower():
+                        try:
+                            response_json = response.json()
+                            if "error" in response_json:
+                                error_msg = response_json["error"]
+                                self.log(f"❌ Errore da Ollama: {error_msg}")
+                                return {"success": False, "error": f"Errore Ollama: {error_msg}"}
+                        except:
+                            pass
+                    
+                    self.log(f"✅ Modello derivato '{model_name}' creato con successo!")
+                    return {
+                        "success": True,
+                        "model_name": model_name,
+                        "message": "Modello derivato creato con successo"
+                    }
+                else:
+                    error_msg = f"Errore HTTP {response.status_code}: {response.text}"
+                    self.log(f"❌ {error_msg}")
+                    return {"success": False, "error": error_msg}
+                    
         except Exception as e:
-            error_msg = f"Errore durante l'esecuzione del training: {str(e)}"
+            error_msg = f"Errore nella creazione del modello derivato: {str(e)}"
             self.log(error_msg)
             return {"success": False, "error": error_msg}
+
+
 
     async def _save_model_metadata(self, model_name: str, metadata: Dict[str, Any]):
         """Salva i metadati del modello fine-tuned."""

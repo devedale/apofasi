@@ -1,0 +1,63 @@
+\chapter{Architettura Proposta} %\label{3cap:architettura}
+
+\begin{preamble}
+{\em In questo capitolo verrà presentata l'architettura proposta per il Network Intrusion Detection System con funzionalità di Federated Learning e tecniche privacy-preserving. Si descriveranno i componenti principali del sistema, le scelte progettuali adottate e le metodologie implementate per garantire la sicurezza dei dati durante l'addestramento distribuito.}
+\end{preamble}
+
+\section{Introduzione all'architettura}
+
+Nonostante esistano soluzioni tecnicamente più performanti, Python continua a essere il linguaggio più utilizzato nel calcolo scientifico, nella data science e nel machine learning, grazie alla capacità di combinare librerie a basso livello con API ad alto livello pulite ed efficienti.
+
+Il progetto alla base di questo elaborato ha avuto come obiettivo la realizzazione di un NIDS (Network Intrusion Detection System) con funzionalità di federated learning e tecniche privacy-preserving. La principale preoccupazione era affrontare le possibili riserve di soggetti enterprise terzi in merito alla confidenzialità: una delle obiezioni più comuni riguarda infatti la condivisione di dati sensibili di dipendenti, clienti, fornitori e altre informazioni aziendali.
+
+Questa esigenza ha portato a una struttura di sviluppo suddivisa in due nuclei abbastanza distinti: il tool di parsing e anonimizzazione chiamato Apofasi, e il NIDS, denominato NN-IDS. La separazione è nata anche dal fatto che, inizialmente, non era ancora definito se il sistema di intrusion detection si sarebbe basato esclusivamente sul traffico di rete oppure se avrebbe integrato anche dati provenienti dagli EDR (Endpoint Detection and Response).
+
+In particolare, alcune architetture come i Graph-based Intrusion Detection Systems sarebbero state molto adatte a uno scenario in cui host, processi, connessioni di rete ed eventi di log vengono rappresentati come nodi e archi di un grafo. Tuttavia, il tema centrale di questo lavoro sono le tecniche privacy-preserving applicate al federated learning; di conseguenza, lo sviluppo della rete neurale si è concentrato su un IDS specializzato esclusivamente sul traffico di rete.
+
+Nonostante ciò, sono state implementate tecniche avanzate come Hyperband e embedding di IP, porte e protocolli detto IP2Vec. Il tool di anonimizzazione, invece, supporta anche l'impiego di modelli LLM ed è pensato per fornire uno strumento versatile per l'utente finale, in grado di anonimizzare efficacemente file e documenti, soprattutto in presenza di PII.
+
+Va comunque precisato che, per la preparazione dei dati di training del NIDS, si è utilizzato un dataset derivato da PCAP già sufficientemente "anonimo" e basato principalmente su valori numerici o comunque poco sensibili, per cui non è stato necessario impiegare Apofasi. Le vere garanzie sulla privacy dell'utente vengono quindi garantite dagli esperimenti di federated learning condotti sul NIDS, che prevedono l'uso non esclusivo di Differential Privacy (DP) e Homomorphic Encryption (HE).
+\\
+Queste sono le caratteristiche della macchina sulla quale è stato testato il sistema:
+\subsubsection{Hardware}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Processore} & Intel Core Ultra 7 265K, 20 cores / 20 threads, freq. base 7756.8 BogoMIPS \\
+\textbf{Cache} & L1d: 960 KiB, L1i: 1.3 MiB, L2: 60 MiB, L3: 30 MiB \\
+\textbf{RAM} & Totale 31 GiB, disponibili 29 GiB, swap 8 GiB \\
+\textbf{GPU} & NVIDIA RTX 4070, 12 GB VRAM, driver 570.133.07, CUDA 12.8 \\
+\textbf{Storage} & Disco principale 1 TB (38\% usato), disco Windows 1.4 TB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Software}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Sistema Operativo} & Ubuntu 22.04.5 LTS su WSL2, kernel 6.6.87.2 \\
+\textbf{Python} & Versione 3.10.12 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+(qui vorrei aggiungere dei diagrammi uml per illustrare meglio il codice ed in  particolare voglio un  diagramma dei casi d'uso AVANZATO con focus su gestione dei modelli llm in locale con download, eliminazione e fine-tuning , export, configurazione da interfaccia delle regole regex e integrazione con la libreria presidio, template extraction con drain, anonimizzazione semplice dei file, analisi dei campi del documento e creazione di un json/csv unificato, file di configurazione e modularità)
+
+\section{LLM Log Parsing Tools}
+
+\subsection{Ollama per LLM on-premise}
+
+(bisogna illustrare librerie di requirements, docker-compose, dockerfile, makefile
+qui il focus è far vedere snipet di codice che  vadano a illustrare come nel progetto sia possibile scaricare modelli direttamente dal database di modelli ollama direttametne da interfaccia utente. i modelli scaricati poi vengono runnati localmente in un apposito container docker ollama. bisogna far vedere tutti gli snipet di codice coinvolti in questo processo. )
+
+\subsection{Presidio per Data Anonymization}
+(fondamentale qui illustrare con precisione il modo in cui è stato integrato presidio nell'app e di come sia configurabile da interfaccia, possibilità di gestire gli spicy model per diversi linguaggi, possibilità di verificare da interfaccia la simulazione dell'applicazioni di regole regex configurate da intefaccia)
+
+\subsection{Template Extraction}
+
+(Qui bisogna enfatizzare la funzionalità di generare dei file strutturati con campi parsati e template tramite drain3 andando a illustrare con gli snipet di codice come abbiamo integrato drain3... i file strutturati ricalcano la struttura dei file strutturati messi a disposizione dal progetto loghub che identifica la linea di record, il timestamp, i campi parsati e il tamplate risultante(generato con drain3) cosi da rendere pronto il file strutturato finale risultante con il formato che prende logppt per fare training (i template di loghub probabilmente sono stati generati senza drain3 quindi questo rappresenta un alternativa molto veloce per fare dei test)

@@ -1,0 +1,31 @@
+FROM llama2:7b
+
+# Fine-tuned model: test-model
+# Created: 2025-09-16T22:48:08.544954
+# Training examples: 2
+
+SYSTEM """You are a fine-tuned AI model trained for specialized tasks. 
+You have been trained on custom data to provide accurate and helpful responses.
+Follow the patterns and style from your training data."""
+
+# Template per il fine-tuning
+TEMPLATE """{{ if .System }}{{ .System }}{{ end }}{{ if .Prompt }}{{ .Prompt }}{{ end }}{{ if .Response }}{{ .Response }}{{ end }}"""
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.1
+
+# Training examples (reference):
+# ### Instruction:
+# Spiegami cosa è Python
+# 
+# ### Response:
+# Python è un linguaggio di programmazione ad alto livello, interpretato e orientato agli oggetti.
+#
+# ### Instruction:
+# Come si crea una lista in Python?
+# 
+# ### Response:
+# In Python si crea una lista usando le parentesi quadre: lista = [1, 2, 3]
+#

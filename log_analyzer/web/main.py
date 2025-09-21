@@ -381,48 +381,54 @@ async def validate_dataset(request: DatasetValidationRequest):
 @app.post("/api/finetuning/start", response_class=JSONResponse)
 async def start_finetuning(request: FineTuningRequest):
     """
-    Avvia il processo di fine-tuning.
+    Avvia il processo di fine-tuning direttamente (senza thread).
     """
     try:
         task_id = task_log_manager.start_task()
+        task_log_manager.log(task_id, f"🔧 Avvio fine-tuning diretto per task: {task_id}")
         
-        def do_finetuning(task_id):
-            try:
-                config_service = ConfigService()
-                config = config_service.load_config()
-                
-                finetuning_service = LLMFineTuningService(config, task_id, task_log_manager)
-                
-                import asyncio
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                
-                result = loop.run_until_complete(finetuning_service.start_finetuning(
-                    base_model=request.base_model,
-                    dataset_path=request.dataset_path,
-                    model_name=request.model_name,
-                    training_template=request.training_template,
-                    custom_config=request.custom_config
-                ))
-                
-                if result["success"]:
-                    task_log_manager.log(task_id, f"Fine-tuning completato: {request.model_name}")
-                else:
-                    task_log_manager.log(task_id, f"Fine-tuning fallito: {result.get('error', 'Errore sconosciuto')}")
-                
-                loop.close()
-                
-            except Exception as e:
-                task_log_manager.log(task_id, f"Errore durante il fine-tuning: {str(e)}")
-            finally:
-                task_log_manager.finish_task(task_id)
+        task_log_manager.log(task_id, f"📋 Caricamento configurazione...")
+        config_service = ConfigService()
+        config = config_service.load_config()
+        task_log_manager.log(task_id, f"✅ Configurazione caricata")
         
-        thread = Thread(target=do_finetuning, args=(task_id,))
-        thread.start()
+        task_log_manager.log(task_id, f"🚀 Inizializzazione servizio fine-tuning...")
+        finetuning_service = LLMFineTuningService(config, task_id, task_log_manager)
+        task_log_manager.log(task_id, f"✅ Servizio inizializzato")
         
-        return {"task_id": task_id, "message": "Fine-tuning avviato"}
+        task_log_manager.log(task_id, f"🚀 Avvio fine-tuning asincrono...")
+        task_log_manager.log(task_id, f"🔍 DEBUG: Prima di chiamare start_finetuning")
+        task_log_manager.log(task_id, f"🔍 DEBUG: Parametri: base_model={request.base_model}, model_name={request.model_name}")
+        
+        # Esegui il fine-tuning direttamente (senza thread)
+        task_log_manager.log(task_id, f"🔍 DEBUG: Chiamando finetuning_service.start_finetuning...")
+        result = await finetuning_service.start_finetuning(
+            base_model=request.base_model,
+            dataset_path=request.dataset_path,
+            model_name=request.model_name,
+            training_template=request.training_template,
+            custom_config=request.custom_config
+        )
+        task_log_manager.log(task_id, f"🔍 DEBUG: start_finetuning completato, result={result}")
+        task_log_manager.log(task_id, f"✅ Fine-tuning asincrono completato")
+        
+        if result["success"]:
+            task_log_manager.log(task_id, f"✅ Fine-tuning completato: {request.model_name}")
+        else:
+            error_msg = result.get('error', 'Errore sconosciuto')
+            task_log_manager.log(task_id, f"❌ Fine-tuning fallito: {error_msg}")
+        
+        task_log_manager.log(task_id, f"🏁 Completamento task: {task_id}")
+        task_log_manager.finish_task(task_id)
+        task_log_manager.log(task_id, f"✅ Task completato")
+        
+        return {"task_id": task_id, "message": "Fine-tuning completato", "result": result}
         
     except Exception as e:
+        task_log_manager.log(task_id, f"❌ Errore critico nel fine-tuning: {str(e)}")
+        import traceback
+        task_log_manager.log(task_id, f"🔍 Traceback critico: {traceback.format_exc()}")
+        task_log_manager.finish_task(task_id)
         return JSONResponse(status_code=500, content={"error": f"Errore nell'avvio del fine-tuning: {str(e)}"})
 
 @app.get("/api/finetuning/models", response_class=JSONResponse)

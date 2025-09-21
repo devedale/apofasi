@@ -78,8 +78,18 @@ class OllamaService:
 
     def _get_ollama_config(self) -> Dict[str, Any]:
         """Ottiene la configurazione di Ollama dal config principale."""
+        # Prova prima con localhost, poi con il nome del container
+        default_urls = [
+            os.environ.get("OLLAMA_BASE_URL"),
+            "http://localhost:11434",  # Per esecuzione dall'host
+            "http://ollama:11434"       # Per esecuzione dentro Docker
+        ]
+        
+        # Usa il primo URL disponibile
+        default_url = next((url for url in default_urls if url), "http://ollama:11434")
+        
         default_config = {
-            "url": os.environ.get("OLLAMA_BASE_URL", "http://ollama:11434"),
+            "url": default_url,
             "timeout": 30,
             "max_retries": 3
         }
@@ -95,11 +105,76 @@ class OllamaService:
             bool: True se Ollama è disponibile, False altrimenti
         """
         try:
-            response = requests.get(f"{self.base_url}/api/tags", timeout=self.timeout)
-            return response.status_code == 200
+            # Prova prima con httpx se disponibile
+            try:
+                import httpx
+                
+                # Configurazione timeout per health check
+                timeout_config = httpx.Timeout(
+                    connect=5.0,       # 5 sec per connessione
+                    read=10.0,         # 10 sec per lettura
+                    write=5.0,         # 5 sec per scrittura
+                    pool=5.0           # 5 sec per pool
+                )
+                
+                async with httpx.AsyncClient(timeout=timeout_config) as client:
+                    response = await client.get(f"{self.base_url}/api/tags")
+                    return response.status_code == 200
+                    
+            except ImportError:
+                # Fallback a requests se httpx non è disponibile
+                response = requests.get(f"{self.base_url}/api/tags", timeout=self.timeout)
+                return response.status_code == 200
+                
         except Exception as e:
             self.log(f"Health check fallito: {str(e)}")
             return False
+    
+    async def find_working_url(self) -> Optional[str]:
+        """
+        Trova automaticamente l'URL di Ollama che funziona.
+        
+        Returns:
+            str: URL funzionante di Ollama, None se nessuno funziona
+        """
+        urls_to_try = [
+            "http://localhost:11434",  # Per esecuzione dall'host
+            "http://ollama:11434",     # Per esecuzione dentro Docker
+            "http://127.0.0.1:11434"   # Alternativa localhost
+        ]
+        
+        for url in urls_to_try:
+            try:
+                # Prova prima con httpx se disponibile
+                try:
+                    import httpx
+                    
+                    timeout_config = httpx.Timeout(
+                        connect=3.0,       # 3 sec per connessione
+                        read=5.0,           # 5 sec per lettura
+                        write=3.0,          # 3 sec per scrittura
+                        pool=3.0            # 3 sec per pool
+                    )
+                    
+                    async with httpx.AsyncClient(timeout=timeout_config) as client:
+                        response = await client.get(f"{url}/api/tags")
+                        if response.status_code == 200:
+                            self.log(f"✅ URL funzionante trovato: {url}")
+                            return url
+                            
+                except ImportError:
+                    # Fallback a requests se httpx non è disponibile
+                    response = requests.get(f"{url}/api/tags", timeout=5)
+                    if response.status_code == 200:
+                        self.log(f"✅ URL funzionante trovato: {url}")
+                        return url
+                        
+            except Exception as e:
+                self.log(f"⚠️ URL {url} non funziona: {str(e)}")
+                continue
+        
+        self.log("❌ Nessun URL di Ollama funziona")
+        return None
 
     async def list_models(self) -> List[Dict[str, Any]]:
         """
@@ -203,12 +278,22 @@ class OllamaService:
                 "modelfile": modelfile_content
             }
             
-            response = requests.post(
-                f"{self.base_url}/api/create",
-                json=payload,
-                timeout=300  # Timeout esteso per la creazione
+            import httpx
+            
+            # Configurazione timeout robusta per la creazione del modello
+            timeout_config = httpx.Timeout(
+                connect=30.0,      # 30 sec per connessione
+                read=300.0,        # 5 min per lettura (creazione può essere lunga)
+                write=30.0,        # 30 sec per scrittura
+                pool=30.0          # 30 sec per pool
             )
-            response.raise_for_status()
+            
+            async with httpx.AsyncClient(timeout=timeout_config) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/create",
+                    json=payload
+                )
+                response.raise_for_status()
             
             self.log(f"Modello {model_name} creato con successo")
             return {
@@ -237,12 +322,22 @@ class OllamaService:
             
             payload = {"name": model_name}
             
-            response = requests.post(
-                f"{self.base_url}/api/pull",
-                json=payload,
-                timeout=600  # Timeout esteso per il download
+            import httpx
+            
+            # Configurazione timeout robusta per il download del modello
+            timeout_config = httpx.Timeout(
+                connect=30.0,      # 30 sec per connessione
+                read=600.0,        # 10 min per lettura (download può essere lungo)
+                write=30.0,        # 30 sec per scrittura
+                pool=30.0          # 30 sec per pool
             )
-            response.raise_for_status()
+            
+            async with httpx.AsyncClient(timeout=timeout_config) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/pull",
+                    json=payload
+                )
+                response.raise_for_status()
             
             self.log(f"Modello base {model_name} scaricato con successo")
             return {
